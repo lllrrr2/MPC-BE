@@ -1,6 +1,6 @@
 /*
  * (C) 2003-2006 Gabest
- * (C) 2006-2023 see Authors.txt
+ * (C) 2006-2024 see Authors.txt
  *
  * This file is part of MPC-BE.
  *
@@ -37,19 +37,21 @@ public:
 	int  m_iCurSetsLocation = 0;
 	int  m_iSetsLocation = 0;
 
-	int  m_iMultipleInst;
-	BOOL m_bKeepHistory;
-	BOOL m_bRememberDVDPos;
-	BOOL m_bRememberFilePos;
-	BOOL m_bSavePnSZoom;
-	BOOL m_bRememberPlaylistItems;
-	BOOL m_bRecentFilesShowUrlTitle;
-	BOOL m_bTrayIcon;
-	BOOL m_bShowOSD;
-	BOOL m_bOSDFileName;
-	BOOL m_bOSDSeekTime;
-	BOOL m_bHideCDROMsSubMenu;
-	BOOL m_bPriority;
+	int  m_iMultipleInst = 1;
+
+	BOOL m_bKeepHistory     = FALSE;
+	BOOL m_bRememberDVDPos  = FALSE;
+	BOOL m_bRememberFilePos = FALSE;
+	BOOL m_bSavePnSZoom     = FALSE;
+	BOOL m_bRememberPlaylistItems = FALSE;
+	BOOL m_bRecentFilesShowUrlTitle = FALSE;
+
+	BOOL m_bTrayIcon    = FALSE;
+	BOOL m_bShowOSD     = FALSE;
+	BOOL m_bOSDFileName = FALSE;
+	BOOL m_bOSDSeekTime = FALSE;
+	BOOL m_bHideCDROMsSubMenu = FALSE;
+	BOOL m_bPriority = FALSE;
 
 	CComboBox m_cbTitleBarPrefix;
 	CComboBox m_cbSeekBarText;
@@ -61,6 +63,8 @@ public:
 
 	CIntEdit m_edtNetworkTimeout;
 	CSpinButtonCtrl m_spnNetworkTimeout;
+	CIntEdit m_edtNetworkReceiveTimeout;
+	CSpinButtonCtrl m_spnNetworkReceiveTimeout;
 
 	enum { IDD = IDD_PPAGEPLAYER };
 

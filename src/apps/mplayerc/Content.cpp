@@ -1,5 +1,5 @@
 /*
- * (C) 2016-2023 see Authors.txt
+ * (C) 2016-2025 see Authors.txt
  *
  * This file is part of MPC-BE.
  *
@@ -41,7 +41,7 @@ static const CString ConvertToUTF16(const BYTE* pData, size_t size)
 
 	if (bUTF16BE || bUTF16LE) {
 		size /= 2;
-		CString str((LPCTSTR)pData, size);
+		CStringW str((LPCWSTR)pData, size);
 		if (bUTF16BE) {
 			for (int i = 0, j = str.GetLength(); i < j; i++) {
 				str.SetAt(i, (str[i] << 8) | (str[i] >> 8));
@@ -99,6 +99,7 @@ namespace Content {
 		CString ct;
 		CString body;
 		CString hdr;
+		CString realPath;
 	};
 	static std::map<CString, Content> Contents;
 
@@ -125,7 +126,7 @@ namespace Content {
 
 					content.raw.resize(nMinSize);
 					DWORD dwSizeRead = 0;
-					if (content.HTTPAsync->Read(content.raw.data(), nMinSize, dwSizeRead) == S_OK) {
+					if (content.HTTPAsync->Read(content.raw.data(), nMinSize, dwSizeRead, http::readTimeout) == S_OK) {
 						content.raw.resize(dwSizeRead);
 						if (dwSizeRead) {
 							Encoding(content);
@@ -146,8 +147,9 @@ namespace Content {
 
 			CString realPath(fn);
 			CorrectAceStream(realPath);
+			content.realPath = realPath;
 
-			content.bHTTPConnected = (content.HTTPAsync->Connect(realPath, AfxGetAppSettings().iNetworkTimeout * 1000, L"Icy-MetaData: 1\r\n") == S_OK);
+			content.bHTTPConnected = (content.HTTPAsync->Connect(realPath, http::connectTimeout, L"Icy-MetaData: 1\r\n") == S_OK);
 			content.hdr = content.HTTPAsync->GetHeader();
 
 			GetData(content);
@@ -174,7 +176,7 @@ namespace Content {
 						nMaxSize -= old_size;
 						content.raw.resize(old_size + nMaxSize);
 						DWORD dwSizeRead = 0;
-						if (content.HTTPAsync->Read(content.raw.data() + old_size, nMaxSize, dwSizeRead) == S_OK) {
+						if (content.HTTPAsync->Read(content.raw.data() + old_size, nMaxSize, dwSizeRead, http::readTimeout) == S_OK) {
 							content.raw.resize(old_size + dwSizeRead);
 							if (dwSizeRead) {
 								Encoding(content);
@@ -203,10 +205,10 @@ namespace Content {
 							|| (content.body.GetLength() >= 4 && wcsncmp(content.body, L".RMF", 4) == 0)) {
 						content.ct = L"audio/x-pn-realaudio";
 					}
-					if (content.body.GetLength() >= 4 && GETU32((LPCTSTR)content.body) == 0x75b22630) {
+					if (content.body.GetLength() >= 4 && GETU32((LPCWSTR)content.body) == 0x75b22630) {
 						content.ct = L"video/x-ms-wmv";
 					}
-					if (content.body.GetLength() >= 8 && wcsncmp((LPCTSTR)content.body + 4, L"moov", 4) == 0) {
+					if (content.body.GetLength() >= 8 && wcsncmp((LPCWSTR)content.body + 4, L"moov", 4) == 0) {
 						content.ct = L"video/quicktime";
 					}
 					if (StartsWith(content.body, L"#EXTM3U") && content.body.Find(L"#EXT-X-MEDIA-SEQUENCE") > 7) {
@@ -271,9 +273,8 @@ namespace Content {
 			CString url = CString(match[k].first, match[k].length());
 			url.Trim();
 
-			if (playlist_type == PLAYLIST_RAM && StartsWith(url, L"file://")) {
-				url.Delete(0, 7);
-				url.Replace('/', '\\');
+			if (playlist_type == PLAYLIST_RAM) {
+				ConvertFileUriToPath(url);
 			}
 
 			CUrlParser dst;
@@ -343,15 +344,12 @@ namespace Content {
 			CString fn2 = CString(match[k].first, match[k].length());
 			fn2.Trim();
 
-			if (playlist_type == PLAYLIST_RAM && StartsWith(fn2, L"file://")) {
-				fn2.Delete(0, 7);
-				fn2.Replace('/', '\\');
+			if (playlist_type == PLAYLIST_RAM) {
+				ConvertFileUriToPath(fn2);
 			}
 
 			if (fn2.Find(':') < 0 && fn2.Find(L"\\\\") != 0 && fn2.Find(L"//") != 0) {
-				CPath p;
-				p.Combine(dir, fn2);
-				fn2 = (LPCTSTR)p;
+				fn2 = GetCombineFilePath(dir, fn2);
 			}
 
 			if (!fn2.CompareNoCase(fn)) {
@@ -471,7 +469,10 @@ namespace Content {
 
 		void GetRaw(const CString& fn, std::vector<BYTE>& raw)
 		{
-			auto it = Contents.find(fn);
+			auto it = std::find_if(Contents.begin(), Contents.end(), [&fn](const auto& pair) {
+				return pair.first == fn || pair.second.realPath == fn;
+			});
+
 			if (it != Contents.end()) {
 				auto& content = it->second;
 				raw = content.raw;

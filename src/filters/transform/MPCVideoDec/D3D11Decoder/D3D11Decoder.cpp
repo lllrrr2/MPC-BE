@@ -316,7 +316,17 @@ HRESULT CD3D11Decoder::AllocateFramesContext(AVCodecContext* c, int width, int h
 
 	AVHWFramesContext* pFrames = (AVHWFramesContext*)(*ppFramesCtx)->data;
 	pFrames->format = AV_PIX_FMT_D3D11;
-	pFrames->sw_format = (format == AV_PIX_FMT_YUV420P10) ? AV_PIX_FMT_P010 : (format == AV_PIX_FMT_YUV420P ? AV_PIX_FMT_NV12 : format);
+	switch (format) {
+	case AV_PIX_FMT_YUV420P10:
+		pFrames->sw_format = AV_PIX_FMT_P010;
+		break;
+	case AV_PIX_FMT_YUV420P:
+	case AV_PIX_FMT_YUVJ420P:
+		pFrames->sw_format = AV_PIX_FMT_NV12;
+		break;
+	default:
+		pFrames->sw_format = format;
+	}
 	pFrames->width = width;
 	pFrames->height = height;
 	pFrames->initial_pool_size = nSurfaces;
@@ -347,7 +357,10 @@ HRESULT CD3D11Decoder::FindVideoServiceConversion(AVCodecContext* c, enum AVCode
 	UINT nProfiles = pDeviceContext->video_device->GetVideoDecoderProfileCount();
 	std::vector<GUID> supportedDecoderGuids;
 
-	DLog(L"CD3D11Decoder::FindVideoServiceConversion() : Enumerating supported D3D11 modes (count: %d)", nProfiles);
+#ifdef DEBUG_OR_LOG
+	CString dbgstr;
+	dbgstr.Format(L"CD3D11Decoder::FindVideoServiceConversion() : Enumerating supported D3D11 modes[%u]:\n", nProfiles);
+#endif
 	for (UINT i = 0; i < nProfiles; i++) {
 		GUID guidProfile;
 		hr = pDeviceContext->video_device->GetVideoDecoderProfile(i, &guidProfile);
@@ -356,28 +369,26 @@ HRESULT CD3D11Decoder::FindVideoServiceConversion(AVCodecContext* c, enum AVCode
 			return hr;
 		}
 
+		bool supported = m_pFilter->IsSupportedDecoderMode(guidProfile);
 #ifdef DEBUG_OR_LOG
-		CString msg;
-		msg.Format(L"        %s", GetGUIDString2(guidProfile));
+		dbgstr.AppendFormat(L"        %s", GetDXVAModeStringAndName(guidProfile));
+		supported ? dbgstr.Append(L" - supported\n") : dbgstr.Append(L"\n");
 #endif
-		if (m_pFilter->IsSupportedDecoderMode(guidProfile)) {
-#ifdef DEBUG_OR_LOG
-			msg.Append(L" - supported");
-#endif
+		if (supported) {
 			if (guidProfile == DXVA2_ModeH264_E || guidProfile == DXVA2_ModeH264_F) {
 				supportedDecoderGuids.insert(supportedDecoderGuids.cbegin(), guidProfile);
 			} else {
 				supportedDecoderGuids.emplace_back(guidProfile);
 			}
 		}
-#ifdef DEBUG_OR_LOG
-		DLog(msg);
-#endif
 	}
+#ifdef DEBUG_OR_LOG
+	DLog(dbgstr);
+#endif
 
 	if (!supportedDecoderGuids.empty()) {
 		for (const auto& guid : supportedDecoderGuids) {
-			DLog(L"    => Attempt : %s", GetGUIDString2(guid));
+			DLog(L"    => Attempt : %s", GetDXVAModeString(guid));
 
 			if (DXVA2_H264_VLD_Intel == guid) {
 				const int width_mbs = m_dwSurfaceWidth / 16;
@@ -392,7 +403,7 @@ HRESULT CD3D11Decoder::FindVideoServiceConversion(AVCodecContext* c, enum AVCode
 			BOOL bSupported = FALSE;
 			hr = pDeviceContext->video_device->CheckVideoDecoderFormat(&guid, surface_format, &bSupported);
 			if (SUCCEEDED(hr) && bSupported) {
-				DLog(L"    => Use : %s", GetGUIDString2(guid));
+				DLog(L"    => Use : %s", GetDXVAModeString(guid));
 				*input = guid;
 				return S_OK;
 			}

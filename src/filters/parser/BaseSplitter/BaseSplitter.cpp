@@ -1,6 +1,6 @@
 /*
  * (C) 2003-2006 Gabest
- * (C) 2006-2023 see Authors.txt
+ * (C) 2006-2024 see Authors.txt
  *
  * This file is part of MPC-BE.
  *
@@ -31,16 +31,6 @@
 
 CBaseSplitterFilter::CBaseSplitterFilter(LPCWSTR pName, LPUNKNOWN pUnk, HRESULT* phr, const CLSID& clsid)
 	: CBaseFilter(pName, pUnk, this, clsid)
-	, m_rtDuration(0), m_rtStart(0), m_rtStop(0), m_rtCurrent(0)
-	, m_dRate(1.0)
-	, m_nOpenProgress(100)
-	, m_fAbort(false)
-	, m_rtLastStart(INVALID_TIME)
-	, m_rtLastStop(INVALID_TIME)
-	, m_priority(THREAD_PRIORITY_NORMAL)
-	, m_nFlag(0)
-	, m_iQueueDuration(QUEUE_DURATION_DEF)
-	//, m_iNetworkTimeout(NETWORK_TIMEOUT_DEF)
 {
 	if (phr) {
 		*phr = S_OK;
@@ -202,7 +192,7 @@ HRESULT CBaseSplitterFilter::DeleteOutputs()
 	CAutoLock cAutoLockMT(&m_csmtnew);
 	m_mtnew.clear();
 
-	RemoveAll();
+	DelAllProperties();
 	ResRemoveAll();
 	ChapRemoveAll();
 
@@ -877,7 +867,7 @@ STDMETHODIMP_(DWORD) CBaseSplitterFilter::GetPriority()
 
 // CExFilterConfig
 
-STDMETHODIMP CBaseSplitterFilter::GetInt(LPCSTR field, int *value)
+STDMETHODIMP CBaseSplitterFilter::Flt_GetInt(LPCSTR field, int *value)
 {
 	CheckPointer(value, E_POINTER);
 
@@ -894,7 +884,7 @@ STDMETHODIMP CBaseSplitterFilter::GetInt(LPCSTR field, int *value)
 	return E_INVALIDARG;
 }
 
-STDMETHODIMP CBaseSplitterFilter::GetInt64(LPCSTR field, __int64 *value)
+STDMETHODIMP CBaseSplitterFilter::Flt_GetInt64(LPCSTR field, __int64 *value)
 {
 	CheckPointer(value, E_POINTER);
 
@@ -909,7 +899,7 @@ STDMETHODIMP CBaseSplitterFilter::GetInt64(LPCSTR field, __int64 *value)
 	return E_INVALIDARG;
 }
 
-STDMETHODIMP CBaseSplitterFilter::SetInt(LPCSTR field, int value)
+STDMETHODIMP CBaseSplitterFilter::Flt_SetInt(LPCSTR field, int value)
 {
 	if (strcmp(field, "queueDuration") == 0) {
 		if (value < QUEUE_DURATION_MIN || value > QUEUE_DURATION_MAX) {

@@ -33,6 +33,7 @@
 #include "DSUtil/SysVersion.h"
 #include "DSUtil/FileHandle.h"
 #include "DSUtil/FileVersion.h"
+#include "DSUtil/GUIDString.h"
 #include <winddk/ntddcdvd.h>
 #include <ExtLib/Detours/src/detours.h>
 #include <afxsock.h>
@@ -72,6 +73,7 @@ const LanguageResource CMPlayerCApp::languageResources[] = {
 	{ID_LANGUAGE_ROMANIAN,				1048,	L"Romanian",				L"ro",	L"ron"},
 	{ID_LANGUAGE_RUSSIAN,				1049,	L"Russian",					L"ru",	L"rus"},
 	{ID_LANGUAGE_SLOVAK,				1053,	L"Slovak",					L"sk",	L"slo"},
+	{ID_LANGUAGE_SLOVENIAN,				1060,	L"Slovenian",				L"sl",	L"slv"},
 	{ID_LANGUAGE_SWEDISH,				1051,	L"Swedish",					L"sv",	L"swe"},
 	{ID_LANGUAGE_SPANISH,				1034,	L"Spanish",					L"es",	L"spa"},
 	{ID_LANGUAGE_TURKISH,				1055,	L"Turkish",					L"tr",	L"tur"},
@@ -750,6 +752,7 @@ BOOL CMPlayerCApp::InitInstance()
 	DbgSetModuleLevel(LOG_TRACE, DWORD_MAX);
 	DbgSetModuleLevel(LOG_ERROR, DWORD_MAX);
 #endif
+	SetExtraGuidStrings();
 
 	// Remove the working directory from the search path to work around the DLL preloading vulnerability
 	SetDllDirectory(L"");
@@ -1234,7 +1237,10 @@ void CMPlayerCApp::RegisterHotkeys()
 	if (m_s.bGlobalMedia) {
 		for (const auto& wc : m_s.wmcmds) {
 			if (wc.appcmd != 0) {
-				RegisterHotKey(m_pMainWnd->m_hWnd, wc.appcmd, 0, GetVKFromAppCommand (wc.appcmd));
+				UINT vkappcmd = GetVKFromAppCommand(wc.appcmd);
+				if (vkappcmd > 0) {
+					RegisterHotKey(m_pMainWnd->m_hWnd, wc.appcmd, 0, vkappcmd);
+				}
 			}
 		}
 	}

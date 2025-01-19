@@ -168,8 +168,13 @@ extern const char* Mpegv_matrix_coefficients(int8u matrix_coefficients);
 const char* Mpegv_matrix_coefficients_ColorSpace(int8u matrix_coefficients);
 
 //---------------------------------------------------------------------------
-extern const int8u Avc_PixelAspectRatio_Size;
-extern const float32 Avc_PixelAspectRatio[];
+struct par
+{
+    int8u w;
+    int8u h;
+};
+extern const par Avc_PixelAspectRatio[];
+extern const size_t Avc_PixelAspectRatio_Size;
 extern const char* Avc_video_format[];
 extern const char* Avc_video_full_range[];
 
@@ -189,7 +194,6 @@ File_Hevc::File_Hevc()
         Trace_Layers_Update(8); //Stream
     #endif //MEDIAINFO_TRACE
     MustSynchronize=true;
-    Buffer_TotalBytes_FirstSynched_Max=64*1024;
     PTS_DTS_Needed=true;
     StreamSource=IsStream;
     Frame_Count_NotParsedIncluded=0;
@@ -436,71 +440,64 @@ void File_Hevc::Streams_Fill(std::vector<video_parameter_set_struct*>::iterator 
 }
 
 //---------------------------------------------------------------------------
-void File_Hevc::Streams_Fill(std::vector<seq_parameter_set_struct*>::iterator seq_parameter_set_Item)
+void File_Hevc::Streams_Fill(std::vector<seq_parameter_set_struct*>::iterator seq_parameter_set_Item_)
 {
-    if ((*seq_parameter_set_Item)->nuh_layer_id)
+    auto seq_parameter_set_Item = *seq_parameter_set_Item_;
+    if (seq_parameter_set_Item->nuh_layer_id)
         return;
 
-    int32u Width = (*seq_parameter_set_Item)->pic_width_in_luma_samples;
-    int32u Height= (*seq_parameter_set_Item)->pic_height_in_luma_samples;
-    int8u chromaArrayType = (*seq_parameter_set_Item)->ChromaArrayType();
+    int32u Width = seq_parameter_set_Item->pic_width_in_luma_samples;
+    int32u Height= seq_parameter_set_Item->pic_height_in_luma_samples;
+    int8u chromaArrayType = seq_parameter_set_Item->ChromaArrayType();
     if (chromaArrayType >= 4)
         chromaArrayType = 0;
     int32u CropUnitX=Hevc_SubWidthC [chromaArrayType];
     int32u CropUnitY=Hevc_SubHeightC[chromaArrayType];
-    Width -=((*seq_parameter_set_Item)->conf_win_left_offset+(*seq_parameter_set_Item)->conf_win_right_offset)*CropUnitX;
-    Height-=((*seq_parameter_set_Item)->conf_win_top_offset +(*seq_parameter_set_Item)->conf_win_bottom_offset)*CropUnitY;
+    Width -=(seq_parameter_set_Item->conf_win_left_offset+seq_parameter_set_Item->conf_win_right_offset)*CropUnitX;
+    Height-=(seq_parameter_set_Item->conf_win_top_offset +seq_parameter_set_Item->conf_win_bottom_offset)*CropUnitY;
 
-    const auto& p=(*seq_parameter_set_Item)->profile_tier_level_info;
+    const auto& p=seq_parameter_set_Item->profile_tier_level_info;
     Streams_Fill_Profile(p);
     Fill(Stream_Video, StreamPos_Last, Video_Width, Width);
     Fill(Stream_Video, StreamPos_Last, Video_Height, Height);
-    if ((*seq_parameter_set_Item)->conf_win_left_offset || (*seq_parameter_set_Item)->conf_win_right_offset)
-        Fill(Stream_Video, StreamPos_Last, Video_Stored_Width, (*seq_parameter_set_Item)->pic_width_in_luma_samples);
-    if ((*seq_parameter_set_Item)->conf_win_top_offset || (*seq_parameter_set_Item)->conf_win_bottom_offset)
-        Fill(Stream_Video, StreamPos_Last, Video_Stored_Height, (*seq_parameter_set_Item)->pic_height_in_luma_samples);
+    if (seq_parameter_set_Item->conf_win_left_offset || seq_parameter_set_Item->conf_win_right_offset)
+        Fill(Stream_Video, StreamPos_Last, Video_Stored_Width, seq_parameter_set_Item->pic_width_in_luma_samples);
+    if (seq_parameter_set_Item->conf_win_top_offset || seq_parameter_set_Item->conf_win_bottom_offset)
+        Fill(Stream_Video, StreamPos_Last, Video_Stored_Height, seq_parameter_set_Item->pic_height_in_luma_samples);
 
-    Fill(Stream_Video, 0, Video_ColorSpace, Hevc_chroma_format_idc_ColorSpace((*seq_parameter_set_Item)->chroma_format_idc));
-    Fill(Stream_Video, 0, Video_ChromaSubsampling, Hevc_chroma_format_idc((*seq_parameter_set_Item)->chroma_format_idc));
-    if ((*seq_parameter_set_Item)->bit_depth_luma_minus8==(*seq_parameter_set_Item)->bit_depth_chroma_minus8)
-        Fill(Stream_Video, 0, Video_BitDepth, (*seq_parameter_set_Item)->bit_depth_luma_minus8+8);
+    Fill(Stream_Video, 0, Video_ColorSpace, Hevc_chroma_format_idc_ColorSpace(seq_parameter_set_Item->chroma_format_idc));
+    Fill(Stream_Video, 0, Video_ChromaSubsampling, Hevc_chroma_format_idc(seq_parameter_set_Item->chroma_format_idc));
+    if (seq_parameter_set_Item->bit_depth_luma_minus8==seq_parameter_set_Item->bit_depth_chroma_minus8)
+        Fill(Stream_Video, 0, Video_BitDepth, seq_parameter_set_Item->bit_depth_luma_minus8+8);
 
     if (preferred_transfer_characteristics!=2)
         Fill(Stream_Video, 0, Video_transfer_characteristics, Mpegv_transfer_characteristics(preferred_transfer_characteristics));
-    if ((*seq_parameter_set_Item)->vui_parameters)
+    const auto vui_parameters = seq_parameter_set_Item->vui_parameters;
+    if (vui_parameters)
     {
-        if ((*seq_parameter_set_Item)->vui_parameters->timing_info_present_flag)
+        if (vui_parameters->time_scale && vui_parameters->num_units_in_tick)
+            Fill(Stream_Video, StreamPos_Last, Video_FrameRate, (float32)vui_parameters->time_scale / vui_parameters->num_units_in_tick);
+
+        if (vui_parameters->sar_width && vui_parameters->sar_height)
         {
-                if ((*seq_parameter_set_Item)->vui_parameters->time_scale && (*seq_parameter_set_Item)->vui_parameters->num_units_in_tick)
-                        Fill(Stream_Video, StreamPos_Last, Video_FrameRate, (float64)(*seq_parameter_set_Item)->vui_parameters->time_scale / (*seq_parameter_set_Item)->vui_parameters->num_units_in_tick);
+            auto PixelAspectRatio = ((float32)vui_parameters->sar_width) / vui_parameters->sar_height;
+            Fill(Stream_Video, 0, Video_PixelAspectRatio, PixelAspectRatio, 3, true);
+            if (Width && Height)
+                Fill(Stream_Video, 0, Video_DisplayAspectRatio, Width*PixelAspectRatio/Height, 3, true); //More precise
         }
 
-        if ((*seq_parameter_set_Item)->vui_parameters->aspect_ratio_info_present_flag)
+        if (vui_parameters->flags[video_signal_type_present_flag])
         {
-                float64 PixelAspectRatio = 1;
-                if ((*seq_parameter_set_Item)->vui_parameters->aspect_ratio_idc<Avc_PixelAspectRatio_Size)
-                        PixelAspectRatio = Avc_PixelAspectRatio[(*seq_parameter_set_Item)->vui_parameters->aspect_ratio_idc];
-                else if ((*seq_parameter_set_Item)->vui_parameters->aspect_ratio_idc == 0xFF && (*seq_parameter_set_Item)->vui_parameters->sar_height)
-                        PixelAspectRatio = ((float64) (*seq_parameter_set_Item)->vui_parameters->sar_width) / (*seq_parameter_set_Item)->vui_parameters->sar_height;
-
-                Fill(Stream_Video, 0, Video_PixelAspectRatio, PixelAspectRatio, 3, true);
-                if(Height)
-                   Fill(Stream_Video, 0, Video_DisplayAspectRatio, Width*PixelAspectRatio/Height, 3, true); //More precise
-        }
-
-        //Colour description
-        if ((*seq_parameter_set_Item)->vui_parameters->video_signal_type_present_flag)
-        {
-            Fill(Stream_Video, 0, Video_Standard, Avc_video_format[(*seq_parameter_set_Item)->vui_parameters->video_format]);
-            Fill(Stream_Video, 0, Video_colour_range, Avc_video_full_range[(*seq_parameter_set_Item)->vui_parameters->video_full_range_flag]);
-            if ((*seq_parameter_set_Item)->vui_parameters->colour_description_present_flag)
+            Fill(Stream_Video, 0, Video_Standard, Avc_video_format[vui_parameters->video_format]);
+            Fill(Stream_Video, 0, Video_colour_range, Avc_video_full_range[vui_parameters->flags[video_full_range_flag]]);
+            if (vui_parameters->flags[colour_description_present_flag])
             {
                 Fill(Stream_Video, 0, Video_colour_description_present, "Yes");
-                Fill(Stream_Video, 0, Video_colour_primaries, Mpegv_colour_primaries((*seq_parameter_set_Item)->vui_parameters->colour_primaries));
-                Fill(Stream_Video, 0, Video_transfer_characteristics, Mpegv_transfer_characteristics((*seq_parameter_set_Item)->vui_parameters->transfer_characteristics));
-                Fill(Stream_Video, 0, Video_matrix_coefficients, Mpegv_matrix_coefficients((*seq_parameter_set_Item)->vui_parameters->matrix_coefficients));
-                if ((*seq_parameter_set_Item)->vui_parameters->matrix_coefficients!=2)
-                    Fill(Stream_Video, 0, Video_ColorSpace, Mpegv_matrix_coefficients_ColorSpace((*seq_parameter_set_Item)->vui_parameters->matrix_coefficients), Unlimited, true, true);
+                Fill(Stream_Video, 0, Video_colour_primaries, Mpegv_colour_primaries(vui_parameters->colour_primaries));
+                Fill(Stream_Video, 0, Video_transfer_characteristics, Mpegv_transfer_characteristics(vui_parameters->transfer_characteristics));
+                Fill(Stream_Video, 0, Video_matrix_coefficients, Mpegv_matrix_coefficients(vui_parameters->matrix_coefficients));
+                if (vui_parameters->matrix_coefficients!=2)
+                    Fill(Stream_Video, 0, Video_ColorSpace, Mpegv_matrix_coefficients_ColorSpace(vui_parameters->matrix_coefficients), Unlimited, true, true);
             }
         }
     }
@@ -1124,13 +1121,11 @@ void File_Hevc::Header_Parse()
             case 3:     Get_B4 (Size,                           "size");
                     break;
             default:    Trusted_IsNot("No size of NALU defined");
-                        Size=(int32u)(Buffer_Size-Buffer_Offset);
+                        Header_Fill_Size(Buffer_Size-Buffer_Offset);
+                        return;
         }
-        Size+=lengthSizeMinusOne+1;
-
-        //Coherency checking
-        if (Size<lengthSizeMinusOne+1+2 || Buffer_Offset+Size>Buffer_Size || (Buffer_Offset+Size!=Buffer_Size && Buffer_Offset+Size+lengthSizeMinusOne+1>Buffer_Size))
-            Size=Buffer_Size-Buffer_Offset;
+        if (Element_Size<(int64u)lengthSizeMinusOne+1+2 || Size>Element_Size-Element_Offset)
+            return RanOutOfData("HEVC");
 
         //In case there are more than 1 NAL in the block (in Stream format), trying to find the first NAL being a slice
         size_t Buffer_Offset_Temp=Buffer_Offset+lengthSizeMinusOne+1;
@@ -1150,8 +1145,10 @@ void File_Hevc::Header_Parse()
         if (Buffer_Offset_Temp+3<=Buffer_Offset+Size)
         {
             SizedBlocks_FileThenStream=File_Offset+Buffer_Offset+Size;
-            Size=Buffer_Offset_Temp-Buffer_Offset;
+            Size=Buffer_Offset_Temp-(Buffer_Offset+Element_Offset);
         }
+
+        Header_Fill_Size(Element_Offset+Size);
 
         BS_Begin();
         Mark_0 ();
@@ -1162,10 +1159,6 @@ void File_Hevc::Header_Parse()
 
         //if (nuh_temporal_id_plus1==0) // Found 1 stream with nuh_temporal_id_plus1==0, lets disable this coherency test for the moment
         //    Trusted_IsNot("nuh_temporal_id_plus1");
-
-        FILLING_BEGIN();
-            Header_Fill_Size(Size);
-        FILLING_END();
     }
 
     //Filling
@@ -1711,6 +1704,8 @@ void File_Hevc::video_parameter_set()
         int8u ViewOrderIdx[64];
         //int8u DependencyId[64];
         //int8u AuxId[64];
+        memset(ScalabilityId, -1, 64 * 16 * sizeof(int8u));
+        memset(ViewOrderIdx, -1, 64 * sizeof(int8u));
         for (int i = 0; i <= MaxLayersMinus1; i++)
         {
             auto lId = layer_id_in_nuh[i];
@@ -1738,7 +1733,10 @@ void File_Hevc::video_parameter_set()
         {
             view_id_val.resize(64, -1);
             for (int i=0; i<NumViews; i++)
-                Get_S2 (view_id_len, view_id_val[ViewOrderIdx[i]], "view_id_val");
+                if (ViewOrderIdx[i]!=(int8u)-1)
+                    Get_S2 (view_id_len, view_id_val[ViewOrderIdx[i]], "view_id_val");
+                else
+                    Trusted_IsNot("ViewOrderIdx");
         }
         bool direct_dependency_flag[64][64];
         memset(direct_dependency_flag, 0, sizeof(direct_dependency_flag));
@@ -1914,8 +1912,9 @@ void File_Hevc::seq_parameter_set()
     }
     if (nuh_layer_id)
     {
-        max_sub_layers_minus1=0;
+        const auto vps_max_sub_layers_minus1 = (*video_parameter_set_Item)->vps_max_sub_layers_minus1;
         Get_S1 (3, sps_ext_or_max_sub_layers_minus1,            "sps_ext_or_max_sub_layers_minus1");
+        max_sub_layers_minus1=sps_ext_or_max_sub_layers_minus1 == 7 ? vps_max_sub_layers_minus1 : sps_ext_or_max_sub_layers_minus1;
     }
     else
     {
@@ -2046,9 +2045,16 @@ void File_Hevc::seq_parameter_set()
     Skip_UE(                                                    "max_transform_hierarchy_depth_inter");
     Skip_UE(                                                    "max_transform_hierarchy_depth_intra");
     TEST_SB_SKIP(                                               "scaling_list_enabled_flag");
-        TEST_SB_SKIP(                                           "sps_scaling_list_data_present_flag");
-            scaling_list_data();
-        TEST_SB_END();
+        bool sps_infer_scaling_list_flag = false;
+        if (MultiLayerExtSpsFlag)
+           Get_SB (sps_infer_scaling_list_flag,                 "sps_infer_scaling_list_flag");
+        if (sps_infer_scaling_list_flag)
+           Skip_S1 (6,                                          "sps_scaling_list_ref_layer_id");
+        else {
+            TEST_SB_SKIP(                                       "sps_scaling_list_data_present_flag");
+                scaling_list_data();
+            TEST_SB_END();
+        }
     TEST_SB_END();
     Skip_SB(                                                    "amp_enabled_flag");
     Skip_SB(                                                    "sample_adaptive_offset_enabled_flag");
@@ -2085,7 +2091,7 @@ void File_Hevc::seq_parameter_set()
     Skip_SB(                                                    "sps_temporal_mvp_enabled_flag");
     Skip_SB(                                                    "strong_intra_smoothing_enabled_flag");
     TEST_SB_SKIP(                                               "vui_parameters_present_flag");
-        vui_parameters(video_parameter_set_Item, vui_parameters_Item);
+        vui_parameters(vui_parameters_Item, max_sub_layers_minus1);
     TEST_SB_END();
     TESTELSE_SB_SKIP(                                           "sps_extension_flag");
         int8u sps_extension_4bits;
@@ -2657,7 +2663,7 @@ void File_Hevc::sei_message_pic_timing(int32u &seq_parameter_set_id, int32u payl
 
     //Parsing
     BS_Begin();
-    if ((*seq_parameter_set_Item)->vui_parameters?(*seq_parameter_set_Item)->vui_parameters->frame_field_info_present_flag:((*seq_parameter_set_Item)->profile_tier_level_info.general_progressive_source_flag && (*seq_parameter_set_Item)->profile_tier_level_info.general_interlaced_source_flag))
+    if ((*seq_parameter_set_Item)->vui_parameters?(*seq_parameter_set_Item)->vui_parameters->flags[frame_field_info_present_flag]:((*seq_parameter_set_Item)->profile_tier_level_info.general_progressive_source_flag && (*seq_parameter_set_Item)->profile_tier_level_info.general_interlaced_source_flag))
     {
         Skip_S1(4,                                              "pic_struct");
         Skip_S1(2,                                              "source_scan_type");
@@ -2738,7 +2744,7 @@ void File_Hevc::sei_message_user_data_registered_itu_t_t35_B5_0031_DTG1()
         File_AfdBarData DTG1_Parser;
         for (auto seq_parameter_set_Item : seq_parameter_sets)
         {
-            if (seq_parameter_set_Item && seq_parameter_set_Item->vui_parameters && seq_parameter_set_Item->vui_parameters->aspect_ratio_info_present_flag)
+            if (seq_parameter_set_Item && seq_parameter_set_Item->vui_parameters && seq_parameter_set_Item->vui_parameters->sar_width && seq_parameter_set_Item->vui_parameters->sar_height)
             {
                 //TODO: avoid duplicated code
                 int32u Width = seq_parameter_set_Item->pic_width_in_luma_samples;
@@ -2752,11 +2758,7 @@ void File_Hevc::sei_message_user_data_registered_itu_t_t35_B5_0031_DTG1()
                 Height-=(seq_parameter_set_Item->conf_win_top_offset +seq_parameter_set_Item->conf_win_bottom_offset)*CropUnitY;
                 if (Height)
                 {
-                    float64 PixelAspectRatio = 1;
-                    if (seq_parameter_set_Item->vui_parameters->aspect_ratio_idc<Avc_PixelAspectRatio_Size)
-                            PixelAspectRatio = Avc_PixelAspectRatio[seq_parameter_set_Item->vui_parameters->aspect_ratio_idc];
-                    else if (seq_parameter_set_Item->vui_parameters->aspect_ratio_idc == 0xFF && seq_parameter_set_Item->vui_parameters->sar_height)
-                            PixelAspectRatio = ((float64) seq_parameter_set_Item->vui_parameters->sar_width) / seq_parameter_set_Item->vui_parameters->sar_height;
+                    float32 PixelAspectRatio=((float32)seq_parameter_set_Item->vui_parameters->sar_width) / seq_parameter_set_Item->vui_parameters->sar_height;
                     auto DAR=Width*PixelAspectRatio/Height;
                     if (DAR>=4.0/3.0*0.95 && DAR<4.0/3.0*1.05) DTG1_Parser.aspect_ratio_FromContainer=0; //4/3
                     if (DAR>=16.0/9.0*0.95 && DAR<16.0/9.0*1.05) DTG1_Parser.aspect_ratio_FromContainer=1; //16/9
@@ -2847,24 +2849,24 @@ void File_Hevc::sei_message_user_data_registered_itu_t_t35_B5_0031_GA94_03_Delay
             }
             if (((File_DtvccTransport*)GA94_03_Parser)->AspectRatio==0)
             {
-                float64 PixelAspectRatio=1;
-                std::vector<seq_parameter_set_struct*>::iterator seq_parameter_set_Item=seq_parameter_sets.begin();
-                for (; seq_parameter_set_Item!=seq_parameter_sets.end(); ++seq_parameter_set_Item)
-                    if ((*seq_parameter_set_Item))
+                std::vector<seq_parameter_set_struct*>::iterator seq_parameter_set_Item_=seq_parameter_sets.begin();
+                for (; seq_parameter_set_Item_!=seq_parameter_sets.end(); ++seq_parameter_set_Item_)
+                    if ((*seq_parameter_set_Item_))
                         break;
-                if (seq_parameter_set_Item!=seq_parameter_sets.end())
+                if (seq_parameter_set_Item_!=seq_parameter_sets.end())
                 {
-                    if (((*seq_parameter_set_Item)->vui_parameters) && ((*seq_parameter_set_Item)->vui_parameters->aspect_ratio_info_present_flag))
+                    const auto seq_parameter_set_Item=*seq_parameter_set_Item_;
+                    const auto vui_parameters=seq_parameter_set_Item->vui_parameters;
+                    if (vui_parameters && vui_parameters->sar_width && vui_parameters->sar_height)
                     {
-                        if ((*seq_parameter_set_Item)->vui_parameters->aspect_ratio_idc<Avc_PixelAspectRatio_Size)
-                            PixelAspectRatio=Avc_PixelAspectRatio[(*seq_parameter_set_Item)->vui_parameters->aspect_ratio_idc];
-                        else if ((*seq_parameter_set_Item)->vui_parameters->aspect_ratio_idc==0xFF && (*seq_parameter_set_Item)->vui_parameters->sar_height)
-                            PixelAspectRatio=((float64)(*seq_parameter_set_Item)->vui_parameters->sar_width)/(*seq_parameter_set_Item)->vui_parameters->sar_height;
+                        const int32u Width =seq_parameter_set_Item->pic_width_in_luma_samples;
+                        const int32u Height=seq_parameter_set_Item->pic_height_in_luma_samples;
+                        if (Height)
+                        {
+                            auto PixelAspectRatio=((float32)seq_parameter_set_Item->vui_parameters->sar_width)/seq_parameter_set_Item->vui_parameters->sar_height;
+                            ((File_DtvccTransport*)GA94_03_Parser)->AspectRatio=Width*PixelAspectRatio/Height;
+                        }
                     }
-                    const int32u Width =(*seq_parameter_set_Item)->pic_width_in_luma_samples;
-                    const int32u Height=(*seq_parameter_set_Item)->pic_height_in_luma_samples;
-                    if(Height)
-                        ((File_DtvccTransport*)GA94_03_Parser)->AspectRatio=Width*PixelAspectRatio/Height;
                 }
             }
             if (GA94_03_Parser->PTS_DTS_Needed)
@@ -4197,30 +4199,45 @@ void File_Hevc::short_term_ref_pic_sets(int8u num_short_term_ref_pic_sets)
 }
 
 //---------------------------------------------------------------------------
-void File_Hevc::vui_parameters(std::vector<video_parameter_set_struct*>::iterator video_parameter_set_Item, seq_parameter_set_struct::vui_parameters_struct* &vui_parameters_Item_)
+void File_Hevc::vui_parameters(seq_parameter_set_struct::vui_parameters_struct* &vui_parameters_Item_, int8u maxNumSubLayersMinus1)
 {
     //Parsing
     seq_parameter_set_struct::vui_parameters_struct::xxl_common *xxL_Common=NULL;
     seq_parameter_set_struct::vui_parameters_struct::xxl *NAL = NULL, *VCL = NULL;
-    int32u  num_units_in_tick = (int32u)-1, time_scale = (int32u)-1;
-    int16u  sar_width=(int16u)-1, sar_height=(int16u)-1;
-    int8u   aspect_ratio_idc=0, video_format=5, video_full_range_flag=0, colour_primaries=2, transfer_characteristics=2, matrix_coefficients=2;
-    bool    aspect_ratio_info_present_flag, video_signal_type_present_flag, frame_field_info_present_flag, colour_description_present_flag=false, timing_info_present_flag;
-    TEST_SB_GET (aspect_ratio_info_present_flag,                "aspect_ratio_info_present_flag");
-        Get_S1 (8, aspect_ratio_idc,                            "aspect_ratio_idc"); Param_Info1C((aspect_ratio_idc<Avc_PixelAspectRatio_Size), Avc_PixelAspectRatio[aspect_ratio_idc]);
+    vui_flags flags;
+    int32u  num_units_in_tick=0, time_scale=0;
+    int16u  sar_width=0, sar_height=0;
+    int8u   video_format=5, colour_primaries=2, transfer_characteristics=2, matrix_coefficients=2;
+    bool flag;
+    TEST_SB_SKIP(                                               "aspect_ratio_info_present_flag");
+        int8u aspect_ratio_idc=0;
+        Get_S1 (8, aspect_ratio_idc,                            "aspect_ratio_idc");
         if (aspect_ratio_idc==0xFF)
         {
             Get_S2 (16, sar_width,                              "sar_width");
             Get_S2 (16, sar_height,                             "sar_height");
         }
+        else if (aspect_ratio_idc && aspect_ratio_idc <= Avc_PixelAspectRatio_Size)
+        {
+            aspect_ratio_idc--;
+            const auto& aspect_ratio = Avc_PixelAspectRatio[aspect_ratio_idc];
+            Param_Info1(aspect_ratio.w);
+            Param_Info1(aspect_ratio.h);
+            sar_width = aspect_ratio.w;
+            sar_height = aspect_ratio.h;
+        }
     TEST_SB_END();
     TEST_SB_SKIP(                                               "overscan_info_present_flag");
         Skip_SB(                                                "overscan_appropriate_flag");
     TEST_SB_END();
-    TEST_SB_GET (video_signal_type_present_flag,                "video_signal_type_present_flag");
+    TEST_SB_SKIP(                                               "video_signal_type_present_flag");
+        flags[video_signal_type_present_flag]=true;
+        bool video_full_range_flag_;
         Get_S1 (3, video_format,                                "video_format"); Param_Info1(Avc_video_format[video_format]);
-        Get_S1 (1, video_full_range_flag,                       "video_full_range_flag"); Param_Info1(Avc_video_full_range[video_full_range_flag]);
-        TEST_SB_GET (colour_description_present_flag,           "colour_description_present_flag");
+        Get_SB (   video_full_range_flag_,                      "video_full_range_flag"); Param_Info1(Avc_video_full_range[video_full_range_flag_]);
+        flags[video_full_range_flag]=video_full_range_flag_;
+        TEST_SB_SKIP(                                           "colour_description_present_flag");
+            flags[colour_description_present_flag]=true;
             Get_S1 (8, colour_primaries,                        "colour_primaries"); Param_Info1(Mpegv_colour_primaries(colour_primaries));
             Get_S1 (8, transfer_characteristics,                "transfer_characteristics"); Param_Info1(Mpegv_transfer_characteristics(transfer_characteristics));
             Get_S1 (8, matrix_coefficients,                     "matrix_coefficients"); Param_Info1(Mpegv_matrix_coefficients(matrix_coefficients));
@@ -4232,21 +4249,22 @@ void File_Hevc::vui_parameters(std::vector<video_parameter_set_struct*>::iterato
     TEST_SB_END();
     Skip_SB(                                                    "neutral_chroma_indication_flag");
     Skip_SB(                                                    "field_seq_flag");
-    Get_SB (   frame_field_info_present_flag,                   "frame_field_info_present_flag");
+    Get_SB (   flag,                                            "frame_field_info_present_flag");
+    flags[frame_field_info_present_flag]=flag;
     TEST_SB_SKIP(                                               "default_display_window_flag ");
         Skip_UE(                                                "def_disp_win_left_offset");
         Skip_UE(                                                "def_disp_win_right_offset");
         Skip_UE(                                                "def_disp_win_top_offset");
         Skip_UE(                                                "def_disp_win_bottom_offset");
     TEST_SB_END();
-    TEST_SB_GET (timing_info_present_flag,                      "timing_info_present_flag");
+    TEST_SB_SKIP(                                               "timing_info_present_flag");
         Get_S4 (32, num_units_in_tick,                          "num_units_in_tick");
         Get_S4 (32, time_scale,                                 "time_scale");
         TEST_SB_SKIP(                                           "vui_poc_proportional_to_timing_flag");
             Skip_UE(                                            "vui_num_ticks_poc_diff_one_minus1");
         TEST_SB_END();
         TEST_SB_SKIP(                                           "hrd_parameters_present_flag");
-            hrd_parameters(true, (*video_parameter_set_Item)->vps_max_sub_layers_minus1, xxL_Common, NAL, VCL);
+            hrd_parameters(true, maxNumSubLayersMinus1, xxL_Common, NAL, VCL);
         TEST_SB_END();
     TEST_SB_END();
     TEST_SB_SKIP(                                               "bitstream_restriction_flag");
@@ -4269,17 +4287,11 @@ void File_Hevc::vui_parameters(std::vector<video_parameter_set_struct*>::iterato
                                                                                     time_scale,
                                                                                     sar_width,
                                                                                     sar_height,
-                                                                                    aspect_ratio_idc,
                                                                                     video_format,
-                                                                                    video_full_range_flag,
                                                                                     colour_primaries,
                                                                                     transfer_characteristics,
                                                                                     matrix_coefficients,
-                                                                                    aspect_ratio_info_present_flag,
-                                                                                    video_signal_type_present_flag,
-                                                                                    frame_field_info_present_flag,
-                                                                                    colour_description_present_flag,
-                                                                                    timing_info_present_flag
+                                                                                    flags
                                                                                   );
     FILLING_ELSE();
     delete xxL_Common; xxL_Common=NULL;
@@ -4573,6 +4585,10 @@ void File_Hevc::VPS_SPS_PPS()
     MustParse_VPS_SPS_PPS=false;
     FILLING_BEGIN_PRECISE();
         Accept("HEVC");
+    FILLING_ELSE();
+        Frame_Count_NotParsedIncluded--;
+        RanOutOfData("HEVC");
+        Frame_Count_NotParsedIncluded++;
     FILLING_END();
 }
 

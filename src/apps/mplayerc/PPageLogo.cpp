@@ -1,6 +1,6 @@
 /*
  * (C) 2003-2006 Gabest
- * (C) 2006-2023 see Authors.txt
+ * (C) 2006-2024 see Authors.txt
  *
  * This file is part of MPC-BE.
  *
@@ -29,8 +29,6 @@
 IMPLEMENT_DYNAMIC(CPPageLogo, CPPageBase)
 CPPageLogo::CPPageLogo()
 	: CPPageBase(CPPageLogo::IDD, CPPageLogo::IDD)
-	, m_intext(0)
-	, m_logoidpos(0)
 {
 	m_logoids.emplace_back(IDF_LOGO0);
 	m_logoids.emplace_back(IDF_LOGO1);
@@ -214,12 +212,14 @@ void CPPageLogo::OnDeltaposSpin1(NMHDR *pNMHDR, LRESULT *pResult)
 void CPPageLogo::OnBnClickedButton2()
 {
 	CString formats(L"*.bmp;*.jpg;*.jpeg;*.png;*.gif");
-
-	if (S_OK == WicCheckComponent(CLSID_WICHeifDecoder)) {
-		formats.Append(L";*.heif;*.heic");
-	}
-	if (S_OK == WicCheckComponent(CLSID_WICWebpDecoder)) {
+	if (WicMatchDecoderFileExtension(L".webp")) {
 		formats.Append(L";*.webp");
+	}
+	if (WicMatchDecoderFileExtension(L".jxl")) {
+		formats.Append(L";*.jxl");
+	}
+	if (WicMatchDecoderFileExtension(L".heic")) {
+		formats.Append(L";*.heic");
 	}
 
 	CFileDialog dlg(TRUE, nullptr, m_logofn,

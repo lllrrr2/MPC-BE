@@ -26,6 +26,7 @@
 #include "libavutil/avassert.h"
 #include "libavutil/common.h"
 #include "libavutil/log.h"
+#include "libavutil/mem.h"
 #include "libavutil/time.h"
 
 #include "avcodec.h"
@@ -58,6 +59,15 @@ DEFINE_GUID(ff_DXVA2_NoEncrypt,          0x1b81beD0, 0xa0c7,0x11d3,0xb9,0x84,0x0
 DEFINE_GUID(ff_GUID_NULL,                0x00000000, 0x0000,0x0000,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00);
 DEFINE_GUID(ff_IID_IDirectXVideoDecoderService, 0xfc51a551,0xd5e7,0x11d9,0xaf,0x55,0x00,0x05,0x4e,0x43,0xff,0x02);
 
+// ==> Start patch MPC
+DEFINE_GUID(ff_DXVA2_HEVC_VLD_Main12_Intel,     0x8FF8A3AA, 0xC456, 0x4132, 0xB6, 0xEF, 0x69, 0xD9, 0xDD, 0x72, 0x57, 0x1D);
+DEFINE_GUID(ff_DXVA2_HEVC_VLD_Main422_10_Intel, 0xE484DCB8, 0xCAC9, 0x4859, 0x99, 0xF5, 0x5C, 0x0D, 0x45, 0x06, 0x90, 0x89);
+DEFINE_GUID(ff_DXVA2_HEVC_VLD_Main422_12_Intel, 0xC23DD857, 0x874B, 0x423C, 0xB6, 0xE0, 0x82, 0xCE, 0xAA, 0x9B, 0x11, 0x8A);
+DEFINE_GUID(ff_DXVA2_HEVC_VLD_Main444_Intel,    0x41A5AF96, 0xE415, 0x4B0C, 0x9D, 0x03, 0x90, 0x78, 0x58, 0xE2, 0x3E, 0x78);
+DEFINE_GUID(ff_DXVA2_HEVC_VLD_Main444_10_Intel, 0x6A6A81BA, 0x912A, 0x485D, 0xB5, 0x7F, 0xCC, 0xD2, 0xD3, 0x7B, 0x8D, 0x94);
+DEFINE_GUID(ff_DXVA2_HEVC_VLD_Main444_12_Intel, 0x5B08E35D, 0x0C66, 0x4C51, 0xA6, 0xF1, 0x89, 0xD0, 0x0C, 0xB2, 0xC1, 0x97);
+// ==> End patch MPC
+
 typedef struct dxva_mode {
     const GUID     *guid;
     enum AVCodecID codec;
@@ -72,6 +82,9 @@ static const int prof_mpeg2_main[]   = {AV_PROFILE_MPEG2_SIMPLE,
 static const int prof_h264_high[]    = {AV_PROFILE_H264_CONSTRAINED_BASELINE,
                                         AV_PROFILE_H264_MAIN,
                                         AV_PROFILE_H264_HIGH,
+                                        // ==> Start patch MPC
+                                        AV_PROFILE_H264_BASELINE,
+                                        // ==> End patch MPC
                                         AV_PROFILE_UNKNOWN};
 static const int prof_hevc_main[]    = {AV_PROFILE_HEVC_MAIN,
                                         AV_PROFILE_UNKNOWN};
@@ -83,6 +96,11 @@ static const int prof_vp9_profile2[] = {AV_PROFILE_VP9_2,
                                         AV_PROFILE_UNKNOWN};
 static const int prof_av1_profile0[] = {AV_PROFILE_AV1_MAIN,
                                         AV_PROFILE_UNKNOWN};
+
+// ==> Start patch MPC
+static const int prof_hevc_rext[]    = {AV_PROFILE_HEVC_REXT,
+                                        AV_PROFILE_UNKNOWN};
+// ==> End patch MPC
 
 static const dxva_mode dxva_modes[] = {
     /* MPEG-2 */
@@ -112,6 +130,16 @@ static const dxva_mode dxva_modes[] = {
     /* AV1 */
     { &ff_DXVA2_ModeAV1_VLD_Profile0,       AV_CODEC_ID_AV1, prof_av1_profile0 },
 
+    // ==> Start patch MPC
+    /* HEVC/H.265 Rext */
+    { &ff_DXVA2_HEVC_VLD_Main12_Intel,     AV_CODEC_ID_HEVC, prof_hevc_rext },
+    { &ff_DXVA2_HEVC_VLD_Main422_10_Intel, AV_CODEC_ID_HEVC, prof_hevc_rext },
+    { &ff_DXVA2_HEVC_VLD_Main422_12_Intel, AV_CODEC_ID_HEVC, prof_hevc_rext },
+    { &ff_DXVA2_HEVC_VLD_Main444_Intel,    AV_CODEC_ID_HEVC, prof_hevc_rext },
+    { &ff_DXVA2_HEVC_VLD_Main444_10_Intel, AV_CODEC_ID_HEVC, prof_hevc_rext },
+    { &ff_DXVA2_HEVC_VLD_Main444_12_Intel, AV_CODEC_ID_HEVC, prof_hevc_rext },
+    // ==> End patch MPC
+
     { NULL,                          0 },
 };
 
@@ -125,7 +153,7 @@ static int dxva_get_decoder_configuration(AVCodecContext *avctx,
 
     for (i = 0; i < cfg_count; i++) {
         unsigned score;
-        UINT ConfigBitstreamRaw;
+        UINT ConfigBitstreamRaw = 0;
         GUID guidConfigBitstreamEncryption;
 
 #if CONFIG_D3D11VA
@@ -276,7 +304,7 @@ static int dxva_get_decoder_guid(AVCodecContext *avctx, void *service, void *sur
     *decoder_guid = ff_GUID_NULL;
     for (i = 0; dxva_modes[i].guid; i++) {
         const dxva_mode *mode = &dxva_modes[i];
-        int validate;
+        int validate = 0;
         if (!dxva_check_codec_compatibility(avctx, mode))
             continue;
 
@@ -308,6 +336,16 @@ static int dxva_get_decoder_guid(AVCodecContext *avctx, void *service, void *sur
 
     if (IsEqualGUID(decoder_guid, &ff_DXVADDI_Intel_ModeH264_E))
         sctx->workaround |= FF_DXVA2_WORKAROUND_INTEL_CLEARVIDEO;
+
+    // ==> Start patch MPC
+    av_log(avctx, AV_LOG_VERBOSE,
+           "Used guid : {%8.8x-%4.4x-%4.4x-%2.2x%2.2x-%2.2x%2.2x%2.2x%2.2x%2.2x%2.2x}",
+           (unsigned)decoder_guid->Data1, decoder_guid->Data2, decoder_guid->Data3,
+           decoder_guid->Data4[0], decoder_guid->Data4[1],
+           decoder_guid->Data4[2], decoder_guid->Data4[3],
+           decoder_guid->Data4[4], decoder_guid->Data4[5],
+           decoder_guid->Data4[6], decoder_guid->Data4[7]);
+    // ==> End patch MPC
 
     return 0;
 }
@@ -466,6 +504,15 @@ static DXGI_FORMAT d3d11va_map_sw_to_hw_format(enum AVPixelFormat pix_fmt)
     case AV_PIX_FMT_NV12:       return DXGI_FORMAT_NV12;
     case AV_PIX_FMT_P010:       return DXGI_FORMAT_P010;
     case AV_PIX_FMT_YUV420P:    return DXGI_FORMAT_420_OPAQUE;
+    // ==> Start patch MPC
+    case AV_PIX_FMT_P016:       return DXGI_FORMAT_P016;
+    case AV_PIX_FMT_YUYV422:    return DXGI_FORMAT_YUY2;
+    case AV_PIX_FMT_Y210:       return DXGI_FORMAT_Y210;
+    case AV_PIX_FMT_Y212:       return DXGI_FORMAT_Y216;
+    case AV_PIX_FMT_VUYX:       return DXGI_FORMAT_AYUV;
+    case AV_PIX_FMT_XV30:       return DXGI_FORMAT_Y410;
+    case AV_PIX_FMT_XV36:       return DXGI_FORMAT_Y416;
+    // ==> End patch MPC
     default:                    return DXGI_FORMAT_UNKNOWN;
     }
 }
@@ -597,6 +644,41 @@ static void ff_dxva2_unlock(AVCodecContext *avctx)
 #endif
 }
 
+// ==> Start patch MPC
+static enum AVPixelFormat map_sw_pix_format(enum AVPixelFormat pix_fmt, enum AVPixelFormat hw_pix_fmt)
+{
+#if CONFIG_D3D11VA
+    if (hw_pix_fmt == AV_PIX_FMT_D3D11) {
+        switch (pix_fmt)
+        {
+        case AV_PIX_FMT_YUV420P10:
+        case AV_PIX_FMT_P010:
+            return AV_PIX_FMT_P010;
+        case AV_PIX_FMT_YUV420P12:
+            return AV_PIX_FMT_P016;
+        case AV_PIX_FMT_YUV422P:
+            return AV_PIX_FMT_YUYV422;
+        case AV_PIX_FMT_YUV422P10:
+            return AV_PIX_FMT_Y210;
+        case AV_PIX_FMT_YUV444P:
+            return AV_PIX_FMT_VUYX;
+        case AV_PIX_FMT_YUV444P10:
+            return AV_PIX_FMT_XV30;
+        case AV_PIX_FMT_YUV422P12:
+            return AV_PIX_FMT_Y212;
+        case AV_PIX_FMT_YUV444P12:
+            return AV_PIX_FMT_XV36;
+        case AV_PIX_FMT_NV12:
+        default:
+            return AV_PIX_FMT_NV12;
+        }
+    }
+#endif
+    return pix_fmt == AV_PIX_FMT_YUV420P10 ?
+        AV_PIX_FMT_P010 : AV_PIX_FMT_NV12;
+}
+// ==> End patch MPC
+
 int ff_dxva2_common_frame_params(AVCodecContext *avctx,
                                  AVBufferRef *hw_frames_ctx)
 {
@@ -634,8 +716,14 @@ int ff_dxva2_common_frame_params(AVCodecContext *avctx,
     else
         num_surfaces += 2;
 
+    // ==> Start patch MPC
+    /*
     frames_ctx->sw_format = avctx->sw_pix_fmt == AV_PIX_FMT_YUV420P10 ?
                             AV_PIX_FMT_P010 : AV_PIX_FMT_NV12;
+    */
+    frames_ctx->sw_format = map_sw_pix_format(avctx->sw_pix_fmt, frames_ctx->format);
+    // ==> End patch MPC
+
     frames_ctx->width = FFALIGN(avctx->coded_width, surface_alignment);
     frames_ctx->height = FFALIGN(avctx->coded_height, surface_alignment);
     frames_ctx->initial_pool_size = num_surfaces;
@@ -825,7 +913,7 @@ int ff_dxva2_commit_buffer(AVCodecContext *avctx,
                            unsigned type, const void *data, unsigned size,
                            unsigned mb_count)
 {
-    void     *dxva_data;
+    void     *dxva_data = NULL;
     unsigned dxva_size;
     int      result;
     HRESULT hr = 0;
@@ -847,7 +935,7 @@ int ff_dxva2_commit_buffer(AVCodecContext *avctx,
                type, (unsigned)hr);
         return -1;
     }
-    if (size <= dxva_size) {
+    if (dxva_data && size <= dxva_size) {
         memcpy(dxva_data, data, size);
 
 #if CONFIG_D3D11VA
@@ -925,7 +1013,7 @@ int ff_dxva2_common_end_frame(AVCodecContext *avctx, AVFrame *frame,
 #endif
     DECODER_BUFFER_DESC             *buffer = NULL, *buffer_slice = NULL;
     int result, runs = 0;
-    HRESULT hr;
+    HRESULT hr = -1;
     unsigned type;
     FFDXVASharedContext *sctx = DXVA_SHARED_CONTEXT(avctx);
 

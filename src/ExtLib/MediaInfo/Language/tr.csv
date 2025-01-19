@@ -127,6 +127,9 @@
  second1; saniye
  second2; saniye
  second3; saniye
+ slice per frame1;
+ slice per frame2;
+ slice per frame3;
  text stream1; yazı akışı
  text stream2; yazı akışı
  text stream3; yazı akışı
@@ -176,6 +179,7 @@ ADM: Show TrackUIDs;
 AdmProfile;
 Advanced;Gelişmiş
 Advanced mode;Gelişmiş kip
+Advanced mode -->;
 Album;Albüm
 Album_ReplayGain_Gain;Albüm tekrar çalma kazancı
 Album_ReplayGain_Peak;Albüm tekrar çalma kazanç ucu
@@ -192,12 +196,17 @@ AssistantDirector;Yardımcı Yönetmen
 AssociatedVideo_FrameRate;
 at;de
 At least one file;(En az bir dosya açmak zorundasınız)
+Attachments;
 Audio;Ses
 Audio stream(s);Seslendirme akışı
 Audio_Codec_List;Ses kodekleri
+Audio_Format_List;
+Audio_Format_WithHint_List;
+Audio_Language_List;
 Audio_No;Ses yok
 Audio1;Birinci seslendirme
 Audio2;İkinci seslendirme
+Audio3;
 AudioComments;Ses Açıklamaları
 AudioCount;Ses sayısı
 AudioDescription;
@@ -234,17 +243,22 @@ Cancel;İptal
 CaptionServiceName;
 CatalogNumber;
 Channel(s);Kanal
+Channel(s)_Original;
 ChannelCoded;
 ChannelConfiguration;
 ChannelFormat;
 ChannelLayout;Kanal düzeni
+ChannelLayout_Original;
 ChannelMode;
 ChannelPositions;Kanal konumları
+ChannelPositions_Original;
 Chapter(s);Bölüm
 Chapters;Bölüm
 Chapters stream(s);Bölüm akışı
 Chapters_Codec_List;Bölüm Kodekleri
 Chapters_No;Bölüm yok
+Chapters_Pos_Begin;
+Chapters_Pos_End;
 ChaptersCount;Bölüm sayısı
 CharacterSet;
 CheckNewVersion;Yeni sürümü denetle
@@ -290,6 +304,10 @@ CoDirector;Yardımcı Yönetmen
 Collection;Koleksiyon
 Colorimetry;Renkölçüm
 ColorSpace;Renk alanı
+ColorTheme;
+ColorTheme_Dark;
+ColorTheme_Light;
+ColorTheme_System;
 colour_primaries;Renk öncelikleri
 colour_range;Renk aralığı
 Comment;Yorum
@@ -334,6 +352,7 @@ Date;Tarih
 Debug;Hata Ayıklama
 Decimal point;Ondalık ayırıcı
 Default;
+Default translation;
 Default_Setting;
 DefaultTargetDeviceConfig;
 Delay;Gecikme
@@ -355,6 +374,10 @@ Disabled;Etkisizleştirildi
 DisplayAspectRatio;Görüntü en-boy oranı
 DisplayAspectRatio_CleanAperture;Temiz diyafram görüntüsü en-boy oranı
 DisplayAspectRatio_Original;Orijinal görüntü en-boy oranı
+DisplayCaptions;
+DisplayCaptions_Command;
+DisplayCaptions_Content;
+DisplayCaptions_Stream;
 DistributedBy;Dağıtan
 Distributor;Dağıtıcı
 Dolby_Atmos_Metadata;
@@ -364,12 +387,12 @@ DotsPerInch;İnç başına nokta
 Downmix;
 Downmix_5.1.x;
 Downmix_5to2;
-Downmix_5to2_90deg;
 DrcSets_Count;
 DrcSets_Effects;
 Duration;Süre
 Duration_End;Bitiş zamanı
 Duration_End_Command;
+Duration_Source;
 Duration_Start;Başlangıç zamanı
 Duration_Start_Command;
 Duration_Start2End;
@@ -382,10 +405,13 @@ EditorialClassification;
 ElementaryStream;
 ElementCount;Öğe sayısı
 EMail;E-Posta
+Enable FFmpeg plugin;
 Encoded_Application;Yazma uygulaması
 Encoded_Date;Kodlanma tarihi
 Encoded_Library;Yazma kütüphanesi
+Encoded_Library_Name;
 Encoded_Library_Settings;Kodlama ayarları
+Encoded_Library_Version;
 Encoded_Original;Orijinal destek
 EncodedBy;Kodlayan
 EPG_Positions;EPG konumları (dahili)
@@ -418,6 +444,8 @@ FileExtension;Dosya uzantısı
 FileName;Dosya adı
 FileNameExtension;Dosya adı uzantısı
 FileSize;Dosya boyutu
+Fill with a Dummy movie;
+Fill with a realistic movie;
 FirstDisplay_Delay_Frames;
 FirstDisplay_Type;
 FirstFrameOfAction;
@@ -431,6 +459,7 @@ Folder_Hint;Çalışmak için klasör seç
 FolderName;Klasör adı
 Forced;
 Format;Biçim
+Format_AdditionalFeatures;
 Format_Commercial;Ticari adı
 Format_Commercial_IfAny;Ticari adı
 Format_Compression;
@@ -463,6 +492,7 @@ Format_Settings_QPel;Biçim ayarları, QPel
 Format_Settings_RefFrames;Biçim ayarları, RefFrames
 Format_Settings_SBR;Biçim ayarları, SBR
 Format_Settings_Sign;Biçim ayarları, Sign
+Format_Settings_SliceCount;
 Format_Settings_Wrapping;Biçim ayarları, kaydırma kipi
 Format_Tier;Biçim katmanı
 Format_Url;Biçim için web bağlantısı
@@ -472,14 +502,16 @@ FpaManufacturer;FPA Üreticisi
 FpaPass;FPA Pass
 FpaVersion;FPA Sürümü
 FrameCount;Kare sayısı
+FrameCount_Source;
 FrameRate;Kare hızı
-FrameRate_MaxFrameNumber;
+FrameRate_Den;
 FrameRate_Maximum;En fazla kare hızı
 FrameRate_Minimum;En az kare hızı
 FrameRate_Mode;Kare hızı kipi
 FrameRate_Mode_CFR;Sabit
 FrameRate_Mode_VFR;Değişken
 FrameRate_Nominal;Düşük kare hızı
+FrameRate_Num;
 FrameRate_Original;Orijinal kare hızı
 FrameRate_Real;
 FullParsing;
@@ -729,21 +761,7 @@ InternetMediaType;Internet medya türü
 IRCA;IRCA
 ISBN;ISBN
 ISRC;ISRC
-JocBalance_FrontBackListener;
-JocBalance_FrontBackOverheadFloor;
-JocTrim_Center;
-JocTrim_Height;
-JocTrim_Surround;
-JocTrimMode;
-JocTrimMode0i;
-JocTrimMode1i;
-JocTrimMode2i;
-JocTrimMode3i;
-JocTrimMode4i;
-JocTrimMode5i;
-JocTrimMode6i;
-JocTrimMode7i;
-JocTrimMode8i;
+IsStreamable;
 Keywords;Anahtar kelime
 Known codecs;Bilinen kodekler
 Known formats;Bilinen biçimler
@@ -958,6 +976,7 @@ Language_zh-tw;Çince (Tayvan)
 Language_zh-TW;
 Language_zh-yue;
 Language_zu;Zulu
+Languages;
 LawRating;Kanun oranı
 LCCN;LCCN
 LfeAttenuationKnown;
@@ -1041,6 +1060,7 @@ Movie;Film adı
 ms; ms
 MSDI;MSDI
 MultipleStream;
+MultiView_Count;
 MusicBy;Müziği yapan
 MuxingMode;Çoklama kipi
 MuxingMode_MoreInfo;Çoklama kipi, daha fazla bilgi
@@ -1138,6 +1158,7 @@ ProductionDesigner;Üretim tasarımcısı
 ProductionNumber;Üretim Numarası
 ProductionStudio;Üretim sütüdyosu
 ProductPlacement;Ürün Yerleştirme
+Program name;
 Programme;
 ProgrammeHasText;Programda Metin Var
 ProgrammeTextLanguage;Program Metin Dili
@@ -1161,10 +1182,13 @@ Report;
 Resolution;Çözünürlük
 RestoreLifetimeSubscription;
 s; s
+Sampled_Height;
+Sampled_Width;
 SamplePeakLevel;
 SamplePeakLevel_Album;
 SamplesPerFrame;Kare başına örnek
 SamplingCount;Örnek sayısı
+SamplingCount_Source;
 SamplingRate;Örnekleme hızı
 Save;Kaydet
 ScanOrder;Tarama sırası
@@ -1181,6 +1205,7 @@ ScreenToFront;
 Season;Sezon
 SecondaryAudioLanguage;İkincil Ses Dili
 see below;aşağı bakın
+Select your directory;
 Send HeaderFile;Lütfen Header dosyasını buraya gönderin : http://sourceforge.net/projects/mediainfo/ (Bug bölümü)
 Separator_Columns;sütun ayırıcı
 Separator_Lines;satır ayırıcı
@@ -1230,6 +1255,7 @@ streamIdentifier;
 StreamKind;Akış çeşidi
 StreamKindID;Akış tanımlayıcısı
 StreamKindPos;Akış tanımlayıcısı
+StreamOrder;
 StreamSize;Akış boyutu
 StreamSize_Demuxed;Çoklama ayrıldığındaki akış boyutu
 StreamSize_Encoded;Kodlanmış akış boyutu
@@ -1272,6 +1298,9 @@ Text (HTML);Metin (HTML)
 Text stream(s);Yazı akışı
 Text streams;Yazı akışı
 Text_Codec_List;Yazı kodekleri
+Text_Format_List;
+Text_Format_WithHint_List;
+Text_Language_List;
 Text_No;Yazı yok
 Text1;Birinci altyazı
 Text2;İkinci altyazı
@@ -1339,9 +1368,14 @@ Video;Görüntü
 Video stream(s);Görüntü akış(lar)ı
 Video_Codec_List;Görüntü kodekleri
 Video_Delay;Görüntü gecikmesi
+Video_Format_List;
+Video_Format_WithHint_List;
+Video_Language_List;
 Video_No;Görüntü yok
 Video0_Delay;Görüntü0 gecikmesi
 Video1;Birinci hareketli görüntü
+Video2;
+Video3;
 VideoComments;Görüntü Açıklamaları
 VideoCount;Hareketli görüntü sayısı
 View;Görünüm
@@ -1369,5 +1403,6 @@ Written_Location;Yazıldığı yer
 WrittenBy;Yazan
 Yes;Evet
 Your system;Sisteminiz
-ZZ_Automatic_Percent;80
-ZZ_AutomaticLanguage_Percent;81
+Your translation;
+ZZ_Automatic_Percent;78
+ZZ_AutomaticLanguage_Percent;79

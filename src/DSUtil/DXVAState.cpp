@@ -1,5 +1,5 @@
 /*
- * (C) 2017-2022 see Authors.txt
+ * (C) 2017-2024 see Authors.txt
  *
  * This file is part of MPC-BE.
  *
@@ -17,8 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-#pragma once
 
 #include "stdafx.h"
 #include "DXVAState.h"
@@ -65,13 +63,13 @@ namespace DXVAState {
 				m_guidDXVADecoder = guidDXVADecoder;
 			}
 			if (m_guidDXVADecoder != GUID_NULL) {
-				m_sDXVADecoderDescription.AppendFormat(L", %s", GetDXVAMode(m_guidDXVADecoder));
+				m_sDXVADecoderDescription.AppendFormat(L", %s", GetDXVAModeString(m_guidDXVADecoder));
 			}
 			m_sDXVADecoderShortDescription = L"H/W";
 		} else if (guidDXVADecoder != GUID_NULL) {
 			m_guidDXVADecoder = guidDXVADecoder;
 			m_sDXVADecoderShortDescription = L"DXVA2";
-			m_sDXVADecoderDescription.Format(L"DXVA2 Native, %s", GetDXVAMode(m_guidDXVADecoder));
+			m_sDXVADecoderDescription.Format(L"DXVA2 Native, %s", GetDXVAModeString(m_guidDXVADecoder));
 		}
 
 		if (bChangeState) {

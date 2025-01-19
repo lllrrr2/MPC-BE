@@ -74,7 +74,6 @@
 #include "IDirectVobSub.h"
 #include <ExtLib/ui/sizecbar/scbarg.h>
 #include <afxinet.h>
-#include <afxmt.h>
 #include "ColorControl.h"
 #include "RateControl.h"
 #include "DiskImage.h"
@@ -85,6 +84,8 @@
 #define USE_MEDIAINFO_STATIC
 #include <MediaInfo/MediaInfo.h>
 using namespace MediaInfoLib;
+
+#include <filesystem>
 
 class CFullscreenWnd;
 struct ID3DFullscreenControl;
@@ -251,8 +252,7 @@ class CMainFrame : public CFrameWnd, public CDropTarget, public CDPI
 	HBRUSH m_hPopupMenuBrush = nullptr;
 
 	COLORREF m_colTitleBk = {};
-	COLORREF m_colTitleBkSystem = 0x00FFFFFF;
-	void GetSystemTitleColor();
+	const COLORREF m_colTitleBkSystem = 0xFFFFFFFF;
 
 	CMenu m_popupMainMenu;
 	CMenu m_popupMenu;
@@ -488,7 +488,9 @@ private:
 
 	SessionInfo m_SessionInfo;
 	DVD_DOMAIN m_iDVDDomain;
-	DWORD m_iDVDTitle;
+	DWORD m_iDVDTitle = 0;
+	DWORD m_iDVDTitleForHistory = 0;
+	bool m_bDVDStillOn    = false;
 	bool m_bDVDRestorePos = false;
 	std::vector<CStringW> m_RecentPaths; // used in SetupRecentFilesSubMenu and OnRecentFile
 	std::list<SessionInfo> m_FavFiles;   // used in SetupFavoritesSubMenu and OnFavoritesFile
@@ -711,7 +713,7 @@ public:
 	void ApplyExraRendererSettings();
 
 	// subtitle streams order function
-	bool LoadSubtitle(const CExtraFileItem& subItem, ISubStream **actualStream = nullptr);
+	bool LoadSubtitle(const CExtraFileItem& subItem, ISubStream **actualStream = nullptr, bool bAutoLoad = true);
 
 	void UpdateSubtitle(bool fDisplayMessage = false, bool fApplyDefStyle = false);
 	void SetSubtitle(ISubStream* pSubStream, int iSubtitleSel = -1, bool fApplyDefStyle = false);
@@ -1272,7 +1274,14 @@ private:
 
 	HMODULE m_hWtsLib;
 
-	struct filepathtime_t { CStringW path; CTime time; };
+	struct filepathtime_t {
+		CStringW path;
+		std::filesystem::file_time_type time;
+		filepathtime_t(const CStringW& _path, std::filesystem::file_time_type _time)
+			: path(_path)
+			, time(_time)
+		{}
+	};
 	std::vector<filepathtime_t> m_ExtSubFiles;
 	std::vector<CStringW> m_ExtSubPaths;
 

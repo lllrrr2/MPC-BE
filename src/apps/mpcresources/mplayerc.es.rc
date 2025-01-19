@@ -82,7 +82,7 @@ BEGIN
     CONTROL         "",IDC_SPIN1,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | WS_DISABLED,32,45,12,13
     EDITTEXT        IDC_EDIT2,46,45,34,13,ES_RIGHT | ES_AUTOHSCROLL
     CONTROL         "",IDC_SPIN2,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | WS_DISABLED,68,45,12,13
-    PUSHBUTTON      "Fijar",IDC_BUTTON1,82,45,35,13
+    PUSHBUTTON      "Establecer",IDC_BUTTON1,82,45,35,13
     GROUPBOX        "Audio",IDC_STATIC,6,64,116,42
     COMBOBOX        IDC_COMBO3,10,74,65,116,CBS_DROPDOWNLIST | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
     COMBOBOX        IDC_COMBO2,77,74,40,89,CBS_DROPDOWNLIST | CBS_SORT | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
@@ -120,12 +120,21 @@ BEGIN
     PUSHBUTTON      "Propiedades",IDC_BUTTON1,226,14,60,14
     COMBOBOX        IDC_COMBO1,10,33,212,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     CONTROL         "Salida doble",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,226,35,60,10
-    GROUPBOX        "Configuración abierta de audio",IDC_STATIC,5,54,285,51
-    CONTROL         "Auto-carga de audio",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,65,276,9
-    EDITTEXT        IDC_EDIT4,10,76,222,13,ES_AUTOHSCROLL
-    PUSHBUTTON      "Reiniciar",IDC_BUTTON2,235,76,50,13
-    CONTROL         "Preferir archivos de audio externos a pistas de audio incrustadas",IDC_CHECK3,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,92,273,9
+    GROUPBOX        "Audio",IDC_STATIC,5,53,285,46
+    CTEXT           "Volumen",IDC_STATIC,42,60,55,8
+    RTEXT           "Mín",IDC_STATIC,7,80,20,8
+    CONTROL         "",IDC_SLIDER1,"msctls_trackbar32",TBS_AUTOTICKS | TBS_BOTH | TBS_TOOLTIPS | WS_TABSTOP | 0x400,28,72,85,19
+    LTEXT           "Máx",IDC_STATIC,116,80,27,8
+    CTEXT           "Balance",IDC_STATIC_BALANCE,191,60,55,8,SS_NOTIFY
+    RTEXT           "I",IDC_STATIC,144,80,30,8
+    CONTROL         "",IDC_SLIDER2,"msctls_trackbar32",TBS_AUTOTICKS | TBS_TOOLTIPS | WS_TABSTOP | 0x400,176,79,85,19
+    LTEXT           "D",IDC_STATIC,262,80,27,8
+    GROUPBOX        "Configuración abierta de audio",IDC_STATIC,5,102,285,51
+    CONTROL         "Auto-carga de audio",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,113,276,9
+    EDITTEXT        IDC_EDIT4,10,124,222,13,ES_AUTOHSCROLL
+    PUSHBUTTON      "Reiniciar",IDC_BUTTON2,235,124,50,13
+    CONTROL         "Preferir archivos de audio externos a pistas de audio integradas",IDC_CHECK3,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,140,273,9
 END
 
 IDD_PPAGESOUNDPROCESSING DIALOGEX 0, 0, 296, 264
@@ -134,7 +143,7 @@ FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     GROUPBOX        "Mezclador de Canales",IDC_STATIC,5,3,286,72
     CONTROL         "Mezclar canales a:",IDC_CHECK7,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,15,106,9
-    COMBOBOX        IDC_COMBO2,129,12,62,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO2,129,14,62,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     CONTROL         "Solicitar estéreo desde el decodificador",IDC_CHECK8,"Button",BS_AUTOCHECKBOX | BS_TOP | BS_MULTILINE | WS_TABSTOP,197,15,89,16
     CONTROL         "Redirigir graves a LFE",IDC_BASSREDIRECT_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,30,143,9
     RTEXT           "Static",IDC_STATIC5,9,42,87,8
@@ -153,9 +162,11 @@ BEGIN
     GROUPBOX        "",IDC_STATIC,5,154,285,49
     CONTROL         "Filtros FFmpeg",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,153,61,10
     PUSHBUTTON      "Preajustes",IDC_BUTTON1,9,166,59,14
+    CONTROL         "No utilizar para fuentes estéreo y mono",IDC_CHECK2,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,76,166,180,10
     COMBOBOX        IDC_COMBO1,10,184,58,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     EDITTEXT        IDC_EDIT1,72,184,214,14,ES_AUTOHSCROLL
-    GROUPBOX        "Formato de Muestra de Salida:",IDC_STATIC,5,206,286,29
+    GROUPBOX        "Formato de Muestra de Salida:",IDC_STATIC,5,206,180,29
     CONTROL         "Int16",IDC_CHECK9,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,218,32,9
     CONTROL         "Int24",IDC_CHECK10,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,52,218,32,9
     CONTROL         "Int32",IDC_CHECK11,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,94,218,32,9
@@ -163,7 +174,8 @@ BEGIN
     CONTROL         "Desplazamiento de audio (ms):",IDC_CHECK4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,240,115,9
     EDITTEXT        IDC_EDIT2,129,238,46,13,ES_RIGHT | ES_AUTOHSCROLL
     CONTROL         "",IDC_SPIN2,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | UDS_HOTTRACK,174,238,12,13
-    PUSHBUTTON      "Predeterminado",IDC_BUTTON3,230,237,56,14
+    PUSHBUTTON      "Altavoces estéreo pequeños",IDC_BUTTON2,188,210,103,14
+    PUSHBUTTON      "Predeterminado",IDC_BUTTON3,235,228,56,14
 END
 
 IDD_GOTO_DLG DIALOGEX 0, 0, 186, 120
@@ -207,7 +219,7 @@ FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     ICON            IDR_MAINFRAME,IDC_MAINFRAME_ICON,5,5,21,20
     LTEXT           "MPC-BE",IDC_STATIC1,30,5,195,8,SS_NOPREFIX
-    CONTROL         "Derechos de Autor © 2002-2024 - Authors.txt",IDC_AUTHORS_LINK,
+    CONTROL         "Derechos de Autor © 2002-2025 - Authors.txt",IDC_AUTHORS_LINK,
                     "SysLink",WS_TABSTOP,30,17,195,8
     LTEXT           "Versión :",IDC_VERSION,30,34,90,8
     LTEXT           "Compilador MPC-BE :",IDC_STATIC,30,66,90,8
@@ -253,15 +265,15 @@ BEGIN
     CONTROL         "Forzar un solo proceso",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON | BS_TOP | BS_MULTILINE | WS_GROUP,10,53,105,18
     CONTROL         "Usar el mismo proceso para cada archivo",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON | BS_TOP | BS_MULTILINE,10,17,105,18
     CONTROL         "Nuevo proceso para cada archivo",IDC_RADIO3,"Button",BS_AUTORADIOBUTTON | BS_TOP | BS_MULTILINE,10,35,105,18
-    LTEXT           "Texto de la barra de título",IDC_STATIC,10,80,109,8
-    COMBOBOX        IDC_COMBO1,10,91,109,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Texto de la barra de búsqueda",IDC_STATIC,10,108,100,8
-    COMBOBOX        IDC_COMBO2,10,119,109,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    GROUPBOX        "Ubicación de ajustes",IDC_STATIC,5,140,115,55
-    CONTROL         "Registro de Windows",IDC_RADIO4,"Button",BS_AUTORADIOBUTTON | BS_TOP | WS_GROUP,10,153,106,10
-    CONTROL         "Perfil de usuario",IDC_RADIO5,"Button",BS_AUTORADIOBUTTON | BS_TOP,10,166,106,10
-    CONTROL         "Carpeta del reproductor",IDC_RADIO6,"Button",BS_AUTORADIOBUTTON | BS_TOP,10,180,106,10
-    GROUPBOX        "Historial",IDC_STATIC,124,5,167,133,WS_GROUP
+    LTEXT           "Texto de la barra de título",IDC_STATIC,10,79,109,8
+    COMBOBOX        IDC_COMBO1,10,90,109,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Texto de la barra de búsqueda",IDC_STATIC,10,107,100,8
+    COMBOBOX        IDC_COMBO2,10,118,109,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Ubicación de ajustes",IDC_STATIC,5,135,115,55
+    CONTROL         "Registro de Windows",IDC_RADIO4,"Button",BS_AUTORADIOBUTTON | BS_TOP | WS_GROUP,10,148,106,10
+    CONTROL         "Perfil de usuario",IDC_RADIO5,"Button",BS_AUTORADIOBUTTON | BS_TOP,10,161,106,10
+    CONTROL         "Carpeta del reproductor",IDC_RADIO6,"Button",BS_AUTORADIOBUTTON | BS_TOP,10,175,106,10
+    GROUPBOX        "Historial",IDC_STATIC,124,5,167,128,WS_GROUP
     CONTROL         "Mantener historial de archivos abiertos",IDC_CHECK1,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,129,17,156,9
     LTEXT           "Número máximo de entradas:",IDC_STATIC,129,31,110,8
@@ -277,17 +289,22 @@ BEGIN
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,129,108,158,1
     CONTROL         "Mostrar título para URL en archivos recientes",IDC_CHECK4,
                     "Button",BS_AUTOCHECKBOX | BS_TOP | BS_MULTILINE | WS_TABSTOP,129,112,156,17
-    GROUPBOX        "Otros",IDC_STATIC,124,140,167,101,WS_GROUP
-    CONTROL         "Icono de bandeja",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,129,152,156,9
-    CONTROL         "Mostrar OSD (requiere reinicio)",IDC_SHOW_OSD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,129,164,156,9
-    CONTROL         "Mostrar nombre de archivo multimedia",IDC_CHECK14,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,138,176,148,9
-    CONTROL         "Mostrar tiempo de búsqueda",IDC_CHECK15,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,138,188,148,9
-    CONTROL         "Deshabilitar menú 'Abrir Disco'",IDC_CHECK10,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,129,201,156,9
-    CONTROL         "Mayor prioridad para el proceso",IDC_CHECK9,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,129,213,156,9
-    LTEXT           "Tiempo de espera de red:",IDC_STATIC,129,227,96,8
-    EDITTEXT        IDC_EDIT2,230,225,29,13,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
-    CONTROL         "",IDC_SPIN2,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | UDS_HOTTRACK,248,225,11,13
-    LTEXT           "seg.",IDC_STATIC,263,227,26,8
+    GROUPBOX        "Otros",IDC_STATIC,124,135,167,84,WS_GROUP
+    CONTROL         "Icono de bandeja",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,129,147,156,9
+    CONTROL         "Mostrar OSD (requiere reinicio)",IDC_SHOW_OSD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,129,159,156,9
+    CONTROL         "Mostrar nombre de archivo multimedia",IDC_CHECK14,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,138,171,148,9
+    CONTROL         "Mostrar tiempo de búsqueda",IDC_CHECK15,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,138,183,148,9
+    CONTROL         "Deshabilitar menú 'Abrir Disco'",IDC_CHECK10,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,129,196,156,9
+    CONTROL         "Mayor prioridad para el proceso",IDC_CHECK9,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,129,208,156,9
+    GROUPBOX        "Tiempo de espera de red",IDC_STATIC,124,222,167,41,WS_GROUP
+    LTEXT           "Conexión:",IDC_STATIC,129,233,96,8
+    EDITTEXT        IDC_EDIT2,230,231,29,13,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "",IDC_SPIN2,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | UDS_HOTTRACK,248,231,11,13
+    LTEXT           "seg.",IDC_STATIC,263,233,26,8
+    LTEXT           "Recibiendo datos:",IDC_STATIC,129,249,96,8
+    EDITTEXT        IDC_EDIT4,230,247,29,13,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "",IDC_SPIN4,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | UDS_HOTTRACK,248,247,12,13
+    LTEXT           "seg.",IDC_STATIC,263,249,26,8
 END
 
 IDD_PPAGEDVD DIALOGEX 0, 0, 296, 264
@@ -314,43 +331,39 @@ IDD_PPAGEPLAYBACK DIALOGEX 0, 0, 296, 264
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    GROUPBOX        "Audio",IDC_STATIC,5,5,286,46
-    CTEXT           "Volumen",IDC_STATIC,42,12,55,8
-    RTEXT           "Mín",IDC_STATIC,7,32,20,8
-    CONTROL         "",IDC_SLIDER1,"msctls_trackbar32",TBS_AUTOTICKS | TBS_BOTH | TBS_TOOLTIPS | WS_TABSTOP | 0x400,28,24,85,19
-    LTEXT           "Máx",IDC_STATIC,116,32,27,8
-    CTEXT           "Balance",IDC_STATIC_BALANCE,191,12,55,8,SS_NOTIFY
-    RTEXT           "I",IDC_STATIC,144,32,30,8
-    CONTROL         "",IDC_SLIDER2,"msctls_trackbar32",TBS_AUTOTICKS | TBS_TOOLTIPS | WS_TABSTOP | 0x400,176,31,85,19
-    LTEXT           "D",IDC_STATIC,262,32,27,8
-    GROUPBOX        "Reproducción",IDC_STATIC,5,53,129,60
-    CONTROL         "Reproducir",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,10,65,55,10
-    CONTROL         "Repetir siempre",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,10,80,116,8
-    EDITTEXT        IDC_EDIT1,65,63,20,13,ES_AUTOHSCROLL | ES_NUMBER | WS_GROUP
-    LTEXT           "vez(veces)",IDC_STATIC1,90,65,40,8
-    CONTROL         "Volver al inicio al terminar",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | BS_TOP | BS_MULTILINE | WS_TABSTOP,10,93,116,18
-    GROUPBOX        "Control",IDC_STATIC,5,115,286,54
-    LTEXT           "Paso de volumen:",IDC_STATIC,10,127,108,8
-    COMBOBOX        IDC_COMBOVOLUME,120,124,60,47,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Paso de velocidad:",IDC_STATIC,10,143,108,8
-    COMBOBOX        IDC_COMBOSPEEDSTEP,120,140,60,47,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "No restablecer velocidad para la sesión",IDC_CHECK9,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,157,175,9
-    GROUPBOX        "",IDC_STATIC,137,57,154,56
-    CONTROL         "Preferencia de pista predeterminada",IDC_CHECK4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,142,56,100,9
-    LTEXT           "Subtítulos",IDC_STATIC,142,71,44,8
-    EDITTEXT        IDC_EDIT2,190,69,94,13,ES_AUTOHSCROLL
-    LTEXT           "Audio",IDC_STATIC,142,87,44,8
-    EDITTEXT        IDC_EDIT3,190,85,94,13,ES_AUTOHSCROLL
-    LTEXT           "(Ejemplo: eng jap swe)",IDC_STATIC,147,101,132,8
-    GROUPBOX        "Opciones de apertura",IDC_STATIC,5,172,286,79
-    LTEXT           "Al abrir un archivo de audio:",IDC_STATIC,10,185,99,8
-    COMBOBOX        IDC_COMBO4,113,182,172,47,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Agregar a la Lista de Reproducción:",IDC_STATIC,10,201,139,8
-    COMBOBOX        IDC_COMBO5,150,198,135,47,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Reproducción",IDC_STATIC,5,5,129,60
+    CONTROL         "Reproducir",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,10,17,55,10
+    CONTROL         "Repetir siempre",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,10,32,116,8
+    EDITTEXT        IDC_EDIT1,65,15,20,13,ES_AUTOHSCROLL | ES_NUMBER | WS_GROUP
+    LTEXT           "vez(veces)",IDC_STATIC1,90,17,40,8
+    CONTROL         "Volver al inicio al terminar",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | BS_TOP | BS_MULTILINE | WS_TABSTOP,10,45,116,18
+    GROUPBOX        "Control",IDC_STATIC,5,67,286,54
+    LTEXT           "Paso de volumen:",IDC_STATIC,10,79,108,8
+    COMBOBOX        IDC_COMBOVOLUME,120,76,60,47,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "%",IDC_STATIC2,183,79,8,8
+    LTEXT           "Paso de velocidad:",IDC_STATIC,10,95,108,8
+    COMBOBOX        IDC_COMBOSPEEDSTEP,120,92,60,47,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "%",IDC_STATIC3,183,95,8,8
+    CONTROL         "No restablecer velocidad para la sesión",IDC_CHECK9,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,109,175,9
+    GROUPBOX        "",IDC_STATIC,137,9,154,56
+    CONTROL         "Preferencia de pista predeterminada",IDC_CHECK4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,142,8,100,9
+    LTEXT           "Subtítulos",IDC_STATIC,142,23,44,8
+    EDITTEXT        IDC_EDIT2,190,21,94,13,ES_AUTOHSCROLL
+    LTEXT           "Audio",IDC_STATIC,142,39,44,8
+    EDITTEXT        IDC_EDIT3,190,37,94,13,ES_AUTOHSCROLL
+    LTEXT           "(Ejemplo: eng jap swe)",IDC_STATIC,147,53,132,8
+    GROUPBOX        "Opciones de apertura",IDC_STATIC,5,124,286,79
+    LTEXT           "Al abrir un archivo de audio:",IDC_STATIC,10,137,99,8
+    COMBOBOX        IDC_COMBO4,113,134,172,47,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Agregar a la Lista de Reproducción:",IDC_STATIC,10,153,139,8
+    COMBOBOX        IDC_COMBO5,150,150,135,47,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     CONTROL         "Usar proceso funcional para construir cadena de filtros",IDC_CHECK7,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,215,276,9
-    CONTROL         "Reportar conectores que no quieran funcionar",IDC_CHECK6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,227,276,9
-    CONTROL         "Recordar pistas seleccionadas en la Lista de Reproducción",IDC_CHECK8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,239,276,9
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,167,276,9
+    CONTROL         "Reportar conectores que no quieran funcionar",IDC_CHECK6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,179,276,9
+    CONTROL         "Recordar pistas seleccionadas en la Lista de Reproducción",IDC_CHECK8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,191,276,9
+    CONTROL         "Búsqueda rápida (en fotograma clave)",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,209,264,9
+    CONTROL         "Pausar la reproducción de video cuando se minimiza",IDC_CHECK5,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,221,280,9
 END
 
 IDD_PPAGESUBRENDERING DIALOGEX 0, 0, 296, 264
@@ -431,15 +444,17 @@ BEGIN
     CONTROL         "",IDC_SLIDER3,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | TBS_TOOLTIPS | WS_TABSTOP | 0x400,233,34,53,12
     CONTROL         "",IDC_SLIDER4,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | TBS_TOOLTIPS | WS_TABSTOP | 0x400,233,49,53,12
     CONTROL         "Habilitar Menú Oscuro",IDC_CHECK4,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,13,59,147,8,WS_EX_TRANSPARENT
-    CONTROL         "Habilitar Título Oscuro (Windows 11)",IDC_CHECK5,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,13,73,206,8,WS_EX_TRANSPARENT
+    CONTROL         "Habilitar Título Oscuro (Windows 10 y superior)",IDC_CHECK5,
+                    "Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,13,73,238,8,WS_EX_TRANSPARENT
     GROUPBOX        "",IDC_STATIC,7,90,282,91
     CONTROL         "Usar herramienta informativa de tiempo:",IDC_CHECK8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,99,152,9
     COMBOBOX        IDC_COMBO3,170,97,115,64,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "Usar vista previa en la búsqueda",IDC_CHECK_PRV,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,113,264,9
-    LTEXT           "Tamaño relativo al ancho de pantalla:",IDC_STATIC6,24,127,130,8
-    EDITTEXT        IDC_EDIT1,159,125,25,13,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
-    LTEXT           "%",IDC_STATIC7,186,127,10,8
-    COMBOBOX        IDC_COMBO4,209,125,76,64,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Usar vista previa en la búsqueda",IDC_CHECK_PRV,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,113,224,9
+    LTEXT           "Tamaño relativo al ancho de pantalla:",IDC_STATIC6,24,127,138,8
+    EDITTEXT        IDC_EDIT1,166,126,25,13,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "%",IDC_STATIC7,194,127,10,8
+    COMBOBOX        IDC_COMBO4,207,126,42,64,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "En línea",IDC_CHECK6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,241,113,47,9,WS_EX_TRANSPARENT
     CONTROL         "Usar marcador de capítulos",IDC_CHECK_CHM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,139,182,9
     CONTROL         "Usar barra flotante",IDC_CHECK_FLYBAR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,152,182,9
     LTEXT           "Tamaño de fuente de Lista de Reproducción:",IDC_STATIC,13,165,110,8
@@ -503,7 +518,7 @@ BEGIN
     PUSHBUTTON      "Eliminar",IDC_BUTTON2,221,21,70,14
     CONTROL         "Preferir",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,221,39,70,8
     CONTROL         "Bloquear",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,221,51,70,8
-    CONTROL         "Fijar Mérito:",IDC_RADIO3,"Button",BS_AUTORADIOBUTTON,221,63,70,8
+    CONTROL         "Establecer Mérito:",IDC_RADIO3,"Button",BS_AUTORADIOBUTTON,221,63,70,8
     EDITTEXT        IDC_EDIT1,221,75,70,13,ES_RIGHT | ES_AUTOHSCROLL | WS_GROUP
     PUSHBUTTON      "Subir",IDC_BUTTON3,221,92,33,14
     PUSHBUTTON      "Bajar",IDC_BUTTON4,258,92,33,14
@@ -611,7 +626,7 @@ BEGIN
     PUSHBUTTON      "Borrar",IDC_BUTTON3,47,76,35,12
     PUSHBUTTON      "Subir",IDC_BUTTON4,88,76,35,12
     PUSHBUTTON      "Bajar",IDC_BUTTON5,125,76,35,12
-    PUSHBUTTON      "&Fijar",IDC_BUTTON1,165,76,35,12
+    PUSHBUTTON      "&Establecer",IDC_BUTTON1,165,76,35,12
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,10,93,188,1
     PUSHBUTTON      "&Cancelar",IDCANCEL,49,100,50,14
     PUSHBUTTON      "&Guardar",IDOK,105,100,50,14
@@ -783,7 +798,7 @@ BEGIN
     LTEXT           "Clic",IDC_STATIC,10,18,60,8
     COMBOBOX        IDC_COMBO1,70,16,166,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     CONTROL         "Si nada es cargado, abrir archivo reciente",IDC_CHECK1,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,32,206,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,32,208,10
     LTEXT           "Doble clic",IDC_STATIC,10,49,60,8
     COMBOBOX        IDC_COMBO2,70,47,166,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     CONTROL         "Mover ventana por el área de video",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,65,133,10
@@ -889,7 +904,7 @@ BEGIN
     COMBOBOX        IDC_COMBO8,88,218,124,49,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     CONTROL         "No escalar al aumentar tamaño de fotograma pequeño",IDC_CHECK7,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,234,195,10
-    CONTROL         "No escalar al disminuir tamaño de fotograma pequeño",IDC_CHECK8,
+    CONTROL         "No escalar al reducir tamaño de fotograma pequeño",IDC_CHECK8,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,247,195,10
     PUSHBUTTON      "Predeterminado",IDC_BUTTON3,234,246,56,14
     LTEXT           "Modo de presentación:",IDC_STATIC6,115,107,72,8
@@ -900,30 +915,32 @@ IDD_PPAGEYOUTUBE DIALOGEX 0, 0, 296, 264
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    GROUPBOX        "YouTube",IDC_STATIC,6,5,285,96
+    GROUPBOX        "YouTube",IDC_STATIC,6,5,285,112
     CONTROL         "Usar el analizador de páginas web incorporado",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,16,120,10
-    LTEXT           "Formato preferido:",IDC_STATIC2,10,30,104,8
-    COMBOBOX        IDC_COMBO1,10,40,50,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    COMBOBOX        IDC_COMBO2,64,40,50,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "60 fps",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,118,42,48,10
-    CONTROL         "HDR",IDC_CHECK4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,170,42,30,10
-    LTEXT           "Idioma preferido de pista de audio:",IDC_STATIC4,10,59,140,8
-    COMBOBOX        IDC_COMBO5,10,70,130,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "Cargar Lista de Reproducción",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,87,100,10
-    GROUPBOX        "",IDC_STATIC,6,105,285,57
-    CONTROL         "youtube-dl, yt-dlp",IDC_CHECK6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,105,74,10
-    LTEXT           "Archivo ejecutable:",IDC_STATIC,10,118,104,8
-    COMBOBOX        IDC_COMBO4,116,116,170,30,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Altura máxima de video:",IDC_STATIC,10,134,104,8
-    COMBOBOX        IDC_COMBO3,116,132,43,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "Seleccionar fps o tasa de bits máxima",IDC_CHECK5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,148,196,10
-    LTEXT           "Dirección AceStream:",IDC_STATIC,10,169,77,8
-    EDITTEXT        IDC_EDIT1,91,167,195,13,ES_AUTOHSCROLL
-    LTEXT           "Dirección MatriX (TorrServer):",IDC_STATIC,10,186,103,8
-    EDITTEXT        IDC_EDIT2,10,198,276,13,ES_AUTOHSCROLL
-    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,5,225,283,1
-    LTEXT           "Agente de usuario:",IDC_STATIC,10,234,77,8
-    EDITTEXT        IDC_EDIT3,91,232,195,13,ES_AUTOHSCROLL
+    LTEXT           "Formato de video preferido:",IDC_STATIC2,10,29,120,8
+    COMBOBOX        IDC_COMBO1,10,39,52,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO2,66,39,50,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "60 fps",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,120,41,48,10
+    CONTROL         "HDR",IDC_CHECK4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,172,41,30,10
+    LTEXT           "Formato de audio preferido:",IDC_STATIC3,10,54,120,8
+    COMBOBOX        IDC_COMBO3,10,64,52,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Idioma preferido de pista de audio:",IDC_STATIC4,10,78,140,8
+    COMBOBOX        IDC_COMBO4,10,89,130,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Cargar Lista de Reproducción",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,104,100,10
+    GROUPBOX        "",IDC_STATIC,6,119,285,57
+    CONTROL         "youtube-dl, yt-dlp",IDC_CHECK6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,119,74,10
+    LTEXT           "Archivo ejecutable:",IDC_STATIC,10,132,104,8
+    COMBOBOX        IDC_COMBO5,116,130,170,30,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Altura máxima de video:",IDC_STATIC,10,148,104,8
+    COMBOBOX        IDC_COMBO6,116,146,43,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Seleccionar fps o tasa de bits máxima",IDC_CHECK5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,162,196,10
+    LTEXT           "Dirección AceStream:",IDC_STATIC,10,183,77,8
+    EDITTEXT        IDC_EDIT1,91,181,195,13,ES_AUTOHSCROLL
+    LTEXT           "Dirección MatriX (TorrServer):",IDC_STATIC,10,200,103,8
+    EDITTEXT        IDC_EDIT2,10,212,276,13,ES_AUTOHSCROLL
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,5,239,283,1
+    LTEXT           "Agente de usuario:",IDC_STATIC,10,248,77,8
+    EDITTEXT        IDC_EDIT3,91,246,195,13,ES_AUTOHSCROLL
 END
 
 IDD_AUTH_DLG DIALOGEX 0, 0, 213, 127
@@ -1048,14 +1065,15 @@ BEGIN
     CONTROL         "",IDC_SLI_HUE,"msctls_trackbar32",WS_TABSTOP | 0x400,99,49,187,14
     CONTROL         "",IDC_SLI_SATURATION,"msctls_trackbar32",WS_TABSTOP | 0x400,99,65,187,14
     PUSHBUTTON      "Reiniciar",IDC_RESET,241,88,50,14
-    GROUPBOX        "",IDC_STATIC6,5,88,177,63
+    GROUPBOX        "",IDC_STATIC5,5,88,177,74
     CONTROL         "Gestión del Color",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,88,100,10
-    LTEXT           "Tipo de entrada:",IDC_STATIC7,10,103,70,8
-    COMBOBOX        IDC_COMBO3,84,100,93,49,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Luz Ambiental:",IDC_STATIC8,10,120,70,8
-    COMBOBOX        IDC_COMBO4,84,117,93,49,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Intento de Renderizado:",IDC_STATIC9,10,137,70,8
-    COMBOBOX        IDC_COMBO5,84,134,93,49,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "(para EVR-CP, superficie de 10/16 bits)",IDC_STATIC6,10,101,167,8
+    LTEXT           "Tipo de entrada:",IDC_STATIC7,10,116,70,8
+    COMBOBOX        IDC_COMBO3,84,113,93,49,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Luz Ambiental:",IDC_STATIC8,10,133,70,8
+    COMBOBOX        IDC_COMBO4,84,130,93,49,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Intento de Renderizado:",IDC_STATIC9,10,150,70,8
+    COMBOBOX        IDC_COMBO5,84,147,93,49,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
 END
 
 IDD_PPAGEMISC DIALOGEX 0, 0, 296, 264
@@ -1067,33 +1085,32 @@ BEGIN
     EDITTEXT        IDC_EDIT2,64,17,40,14,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
     EDITTEXT        IDC_EDIT3,110,17,40,14,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
     PUSHBUTTON      "Predeterminado",IDC_BUTTON1,158,17,56,14
-    CONTROL         "Búsqueda rápida (en fotograma clave)",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,45,264,9
     CONTROL         "No usar 'buscar en carpeta' en comandos 'Saltar hacia atrás/adelante' cuando sólo hay un elemento en la lista de reproducción",IDC_CHECK7,
-                    "Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,7,55,280,18
+                    "Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,7,41,280,18
     CONTROL         "Evitar el MINIMIZADO en Pantalla Completa en un monitor no predeterminado",IDC_CHECK6,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,75,280,9
-    CONTROL         "Pausar la reproducción de video cuando se minimiza",IDC_CHECK4,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,87,280,9
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,61,282,9
     CONTROL         "Ocultar automáticamente el puntero durante la reproducción en modo ventana",IDC_CHECK5,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,99,280,9
-    LTEXT           "No mostrar 000xx.mpls de menos de",IDC_STATIC,7,112,150,8
-    EDITTEXT        IDC_EDIT5,161,110,30,13,ES_CENTER | ES_AUTOHSCROLL | ES_NUMBER
-    CONTROL         "",IDC_SPIN2,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | UDS_HOTTRACK,181,110,11,14
-    LTEXT           "min",IDC_STATIC,197,112,30,8
-    CONTROL         "Habilitar soporte de LCD Logitech",IDC_CHECK_LCD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,126,264,9
-    CONTROL         "Usar Controles de Windows Media",IDC_CHECK9,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,138,220,9
-    CONTROL         "Habilitar MiniDump",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,150,184,9
-    LTEXT           "Archivo ejecutable FFmpeg:",IDC_STATIC,7,165,104,8
-    COMBOBOX        IDC_COMBO1,113,163,170,30,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
-    GROUPBOX        "Comprobar Actualización",IDC_STATIC,5,180,286,40
-    CONTROL         "Habilitar Comprobación Automática de Actualizaciones",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,192,250,9
-    LTEXT           "Retraso entre cada comprobación:",IDC_STATIC5,10,205,110,8
-    EDITTEXT        IDC_EDIT4,120,203,30,13,ES_CENTER | ES_AUTOHSCROLL | ES_NUMBER
-    CONTROL         "",IDC_SPIN1,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | UDS_HOTTRACK,140,203,13,14
-    LTEXT           "día(s)",IDC_STATIC6,155,205,50,8
-    GROUPBOX        "Gestión de Ajustes",IDC_STATIC,5,222,286,28
-    PUSHBUTTON      "Reiniciar",IDC_RESET_SETTINGS,10,233,55,14
-    PUSHBUTTON      "Exportar",IDC_EXPORT_SETTINGS,73,233,55,14
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,73,280,9
+    CONTROL         "Mostrar cero horas en barra de estado y OSD",IDC_CHECK8,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,85,280,9
+    LTEXT           "No mostrar 000xx.mpls de menos de",IDC_STATIC,7,99,150,8
+    EDITTEXT        IDC_EDIT5,161,97,30,13,ES_CENTER | ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "",IDC_SPIN2,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | UDS_HOTTRACK,181,97,11,14
+    LTEXT           "min",IDC_STATIC,197,99,30,8
+    CONTROL         "Habilitar soporte de LCD Logitech",IDC_CHECK_LCD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,113,264,9
+    CONTROL         "Usar Controles de Windows Media",IDC_CHECK9,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,125,220,9
+    CONTROL         "Habilitar MiniDump",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,137,184,9
+    LTEXT           "Archivo ejecutable FFmpeg:",IDC_STATIC,7,152,104,8
+    COMBOBOX        IDC_COMBO1,113,150,170,30,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Comprobar Actualización",IDC_STATIC,5,167,286,40
+    CONTROL         "Habilitar Comprobación Automática de Actualizaciones",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,179,250,9
+    LTEXT           "Retraso entre cada comprobación:",IDC_STATIC5,10,192,110,8
+    EDITTEXT        IDC_EDIT4,120,190,30,13,ES_CENTER | ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "",IDC_SPIN1,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | UDS_HOTTRACK,140,190,13,14
+    LTEXT           "día(s)",IDC_STATIC6,155,192,50,8
+    GROUPBOX        "Gestión de Ajustes",IDC_STATIC,5,209,286,28
+    PUSHBUTTON      "Reiniciar",IDC_RESET_SETTINGS,10,220,55,14
+    PUSHBUTTON      "Exportar",IDC_EXPORT_SETTINGS,73,220,55,14
 END
 
 IDD_TUNER_SCAN DIALOGEX 0, 0, 407, 246
@@ -1126,7 +1143,7 @@ IDD_PPAGECAPTURE DIALOGEX 0, 0, 296, 264
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    GROUPBOX        "Dispositivo por defecto",IDC_STATIC,5,5,286,24
+    GROUPBOX        "Dispositivo predeterminado",IDC_STATIC,5,5,286,24
     CONTROL         "Analógico",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,91,17,55,8
     CONTROL         "Digital",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,150,17,55,8
     GROUPBOX        "Configuración analógica",IDC_STATIC,5,33,286,59,WS_GROUP
@@ -1154,10 +1171,10 @@ BEGIN
     CONTROL         "VSync interno",IDC_VSYNC_INTERNAL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,26,121,10
     CONTROL         "Habilita corrección de tiempo de fotograma",IDC_CHECK8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,51,170,10
     CONTROL         "Descargar GPU antes de VSync",IDC_CHECK5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,140,14,140,10
-    CONTROL         "Descargar GPU después del Presente",IDC_CHECK6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,140,26,140,10
+    CONTROL         "Descargar GPU después del Presente",IDC_CHECK6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,140,26,142,10
     CONTROL         "Esperar por descargas",IDC_CHECK7,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,140,38,100,10
     GROUPBOX        "Ajustes EVR Sync",IDC_STATIC2,5,67,286,117
-    CONTROL         "Sincronizar video a pantalla",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,10,79,140,8
+    CONTROL         "Sincronizar video a pantalla",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,10,79,142,8
     CONTROL         "Presentar al VSync más cercano",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,10,109,170,8
     LTEXT           "Ajuste de frecuencia:",IDC_STATIC5,20,93,85,8
     EDITTEXT        IDC_CYCLEDELTA,109,91,40,13,ES_RIGHT | ES_AUTOHSCROLL,WS_EX_RIGHT
@@ -1222,22 +1239,17 @@ IDD_PPAGESUBTITLES DIALOGEX 0, 0, 296, 264
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    LTEXT           "Renderizador de subtítulo:",IDC_STATIC,10,7,74,8
+    LTEXT           "Renderizador de subtítulos:",IDC_STATIC,10,7,74,8
     COMBOBOX        IDC_COMBO2,89,4,201,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     GROUPBOX        "Rutas de autocargado",IDC_STATIC,5,20,286,31
     EDITTEXT        IDC_EDIT1,10,33,224,13,ES_AUTOHSCROLL
     PUSHBUTTON      "Reiniciar",IDC_BUTTON1,237,33,50,13
     CONTROL         "Siempre predeterminar a subtítulos externos si están disponibles",IDC_CHECK1,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,55,285,9
-    CONTROL         "No cargar subtítulos incrustados",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,67,285,9
+    CONTROL         "No cargar subtítulos integrados",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,67,285,9
     CONTROL         "Recarga automática de archivos de subtítulos después de detectar la modificación",IDC_CHECK3,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,79,285,9
     CONTROL         "Usar Subresync",IDC_CHECK_SUBRESYNC,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,5,91,285,9
-    GROUPBOX        "Base de datos en línea",IDC_STATIC1,5,105,286,45
-    LTEXT           "URL de la base de datos de subtítulos:",IDC_STATIC2,10,116,222,8
-    LTEXT           "http://",IDC_STATIC3,10,130,22,8
-    COMBOBOX        IDC_COMBO1,35,128,199,30,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "Probar",IDC_BUTTON2,237,127,50,14
 END
 
 IDD_UPDATE_DIALOG DIALOGEX 0, 0, 238, 60
@@ -1334,7 +1346,9 @@ BEGIN
 
     IDD_PPAGEAUDIO, DIALOG
     BEGIN
-        VERTGUIDE, 124
+        VERTGUIDE, 5
+        VERTGUIDE, 10
+        VERTGUIDE, 290
     END
 
     IDD_PPAGESOUNDPROCESSING, DIALOG
@@ -1508,6 +1522,12 @@ BEGIN
     BEGIN
     END
 
+    IDD_PPAGECOLOR, DIALOG
+    BEGIN
+        VERTGUIDE, 10
+        VERTGUIDE, 177
+    END
+
     IDD_PPAGEMISC, DIALOG
     BEGIN
         VERTGUIDE, 10
@@ -1646,7 +1666,7 @@ BEGIN
             MENUITEM "Auto Ajustar",           ID_VIEW_ZOOM_AUTOFIT
         END
         MENUITEM SEPARATOR
-        MENUITEM "&Idioma",                   ID_SUBMENU_LANGUAGE
+        MENUITEM "&Idioma (Language)",                   ID_SUBMENU_LANGUAGE
         MENUITEM SEPARATOR
         POPUP "Ajustes de Renderizado"
         BEGIN
@@ -1821,7 +1841,7 @@ BEGIN
             MENUITEM "Captura",                     ID_VIEW_CAPTURE
             MENUITEM "Editor de Sombreador",            ID_VIEW_SHADEREDITOR
             MENUITEM "Navegación",                  ID_VIEW_NAVIGATION
-            MENUITEM "&Idioma",                   ID_SUBMENU_LANGUAGE
+            MENUITEM "&Idioma (Language)",                   ID_SUBMENU_LANGUAGE
             POPUP "Modos..."
             BEGIN
                 MENUITEM "Mínimo",                      ID_VIEW_PRESETS_MINIMAL
@@ -1900,7 +1920,7 @@ BEGIN
             MENUITEM "Captura",               ID_VIEW_CAPTURE
             MENUITEM "Editor de Sombreador",      ID_VIEW_SHADEREDITOR
             MENUITEM "Navegación",                  ID_VIEW_NAVIGATION
-            MENUITEM "&Idioma",                   ID_SUBMENU_LANGUAGE
+            MENUITEM "&Idioma (Language)",                   ID_SUBMENU_LANGUAGE
             POPUP "Modos..."
             BEGIN
                 MENUITEM "Mínimo",                      ID_VIEW_PRESETS_MINIMAL
@@ -2059,12 +2079,12 @@ IDR_POPUP_PANSCAN MENU
 BEGIN
     POPUP ""
     BEGIN
-        MENUITEM "Incrementar Tamaño",       ID_VIEW_INCSIZE
-        MENUITEM "Decrementar Tamaño",       ID_VIEW_DECSIZE
-        MENUITEM "Incrementar Ancho",      ID_VIEW_INCWIDTH
-        MENUITEM "Decrementar Ancho",      ID_VIEW_DECWIDTH
-        MENUITEM "Incrementar Altura",     ID_VIEW_INCHEIGHT
-        MENUITEM "Decrementar Altura",     ID_VIEW_DECHEIGHT
+        MENUITEM "Aumentar Tamaño",       ID_VIEW_INCSIZE
+        MENUITEM "Reducir Tamaño",       ID_VIEW_DECSIZE
+        MENUITEM "Aumentar Ancho",      ID_VIEW_INCWIDTH
+        MENUITEM "Reducir Ancho",      ID_VIEW_DECWIDTH
+        MENUITEM "Aumentar Altura",     ID_VIEW_INCHEIGHT
+        MENUITEM "Reducir Altura",     ID_VIEW_DECHEIGHT
         MENUITEM SEPARATOR
         MENUITEM "Mover a la Derecha",     ID_PANSCAN_MOVERIGHT
         MENUITEM "Mover a la Izquierda",      ID_PANSCAN_MOVELEFT
@@ -2246,6 +2266,11 @@ BEGIN
     0
 END
 
+IDD_PPAGECOLOR AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -2343,7 +2368,7 @@ BEGIN
     IDS_PLAYLIST_SHOWTOOLTIP "Mostrar información sobre herramientas"
     IDS_PLAYLIST_SHOWSEARCHBAR "Mostrar barra de búsqueda"
     IDS_PLAYLIST_HIDEFS     "Ocultar en Pantalla Completa"
-    IDS_PLAYLIST_NEXTONERROR "Ir al siguiente en error"
+    IDS_PLAYLIST_NEXTONERROR "Ir al siguiente en caso de error"
     IDS_PLAYLIST_DETERMINEDURATION "Determinar duración al agregar"
     IDS_PLAYLIST_SKIPINVALID "Omitir elementos no válidos"
     IDS_PLAYLIST_INVALID    "Inválido"
@@ -2367,7 +2392,7 @@ STRINGTABLE
 BEGIN
     IDS_RECORD_START        "Grabar"
     IDS_RECORD_STOP         "Detener"
-    IDS_FILTERS_COPY_TO_CLIPBOARD "&Copiar lista de filtros al portapapeles"
+    IDS_FILTERS_COPY_TO_CLIPBOARD "&Copiar Lista de Filtros al Portapapeles"
     IDS_AG_COPY_IMAGE       "Copiar Imagen al Portapapeles"
     IDS_PLAYLOOPMODE_AB     "Repetir A-B: Reiniciar Posiciones"
     IDS_PLAYLOOPMODE_AB_MARK_A "Repetir A-B: Marca Posición A"
@@ -2452,45 +2477,41 @@ END
 
 STRINGTABLE
 BEGIN
-    IDD_PPAGEPLAYBACK       "Reproducción"
     IDD_PPAGEPLAYER         "Reproductor"
-    IDD_PPAGEDVD            "Reproducción::DVD-Video"
-    IDD_PPAGESUBTITLES      "Subtítulos"
     IDD_PPAGEFORMATS        "Reproductor::Formatos"
-    IDD_PPAGECOLOR          "Video::Corrección de color"
-    IDD_PPAGEAUDIO          "Audio"
-    IDD_PPAGEEXTERNALFILTERS "Filtros Externos"
-    IDD_PPAGESOUNDPROCESSING "Audio::Procesamiento de Sonido"
+    IDD_PPAGEACCELTBL       "Reproductor::Teclas"
+    IDD_PPAGEMOUSE          "Reproductor::Mouse"
+    IDD_PPAGELOGO           "Reproductor::Logo"
+    IDD_PPAGEINTERFACE      "Reproductor::Interfaz"
+    IDD_PPAGEWINDOWSIZE     "Reproductor::Tamaño de ventana"
+    IDD_PPAGEWEBSERVER      "Reproductor::Interfaz Web"
+    IDD_PPAGEPLAYBACK       "Reproducción"
+    IDD_PPAGEDVD            "Reproducción::DVD-Video"
 END
 
 STRINGTABLE
 BEGIN
-    IDD_PPAGEACCELTBL       "Reproductor::Teclas"
-    IDD_PPAGESUBSTYLE       "Subtítulos::Estilo Predeterminado"
-    IDD_PPAGEMOUSE          "Reproductor::Mouse"
-    IDD_PPAGEINTERNALFILTERS "Filtros Internos"
-    IDD_PPAGELOGO           "Reproductor::Logo"
+    IDD_PPAGECAPTURE        "Reproducción::Captura"
+    IDD_PPAGEYOUTUBE        "Reproducción::Servicios de medios en línea"
     IDD_PPAGEVIDEO          "Video"
-    IDD_PPAGEWEBSERVER      "Reproductor::Interfaz Web"
+    IDD_PPAGECOLOR          "Video::Corrección de color"
+    IDD_PPAGESYNC           "Video::Sincronización de fotograma"
+    IDD_PPAGEFULLSCREEN     "Video::Pantalla completa"
+    IDD_PPAGEAUDIO          "Audio"
+    IDD_PPAGESOUNDPROCESSING "Audio::Procesamiento de Sonido"
+    IDD_PPAGESUBTITLES      "Subtítulos"
+    IDD_PPAGESUBRENDERING   "Subtítulos::Renderizado"
+    IDD_PPAGESUBSTYLE       "Subtítulos::Estilo Predeterminado"
+    IDD_PPAGEINTERNALFILTERS "Filtros Internos"
+    IDD_PPAGEEXTERNALFILTERS "Filtros Externos"
+    IDD_PPAGEFILTERSPRIORITY "Filtros Externos::Prioridad"
+    IDD_PPAGEMISC           "Misceláneos"
 END
 
 STRINGTABLE
 BEGIN
     IDD_FILEPROPRES         "Recursos"
-    IDD_PPAGEMISC           "Misceláneos"
     IDD_FILEMEDIAINFO       "MediaInfo"
-    IDD_PPAGECAPTURE        "Reproducción::Captura"
-    IDD_PPAGESYNC           "Video::Sincronización de fotograma"
-    IDD_PPAGEFULLSCREEN     "Video::Pantalla completa"
-    IDD_PPAGEINTERFACE      "Reproductor::Interfaz"
-    IDD_PPAGEYOUTUBE        "Reproducción::Servicios de medios en línea"
-    IDD_PPAGEWINDOWSIZE     "Reproductor::Tamaño de ventana"
-    IDD_PPAGEFILTERSPRIORITY "Filtros Externos::Prioridad"
-END
-
-STRINGTABLE
-BEGIN
-    IDD_PPAGESUBRENDERING   "Subtítulos::Renderizado"
 END
 
 STRINGTABLE
@@ -2555,7 +2576,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDC_EXCLUSIVE_FULLSCREEN_CHECK  "Reduce el Tearing pero impide que se muestre la barra de herramientas. Para salir de pantalla completa en este modo, presione Ctrl+C."
+    IDC_EXCLUSIVE_FULLSCREEN_CHECK  "Reduce el Parpadeo pero impide que se muestre la barra de herramientas. Para salir de pantalla completa en este modo, presione Ctrl+C."
 END
 
 STRINGTABLE
@@ -2699,15 +2720,21 @@ END
 
 STRINGTABLE
 BEGIN
+    IDS_AG_MEDIAFILES       "Archivos de Medios (Todos los tipos)"
+    IDS_AG_VIDEOFILES       "Archivos de video (todos los tipos)"
+    IDS_AG_AUDIOFILES       "Archivos de Audio (Todos los tipos)"
+    IDS_AG_ALLFILES         "Todos los Archivos"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_AG_SUBTITLEFILES    "Archivos de Subtítulos"
     IDS_AG_AUDIO_FILE       "Archivo de Audio"
     IDS_AG_PLAYLIST_FILE    "Archivo de Lista de Reproducción"
     IDS_AG_OTHER            "Otro"
-    IDS_AG_MEDIAFILES       "Archivos de Medios (Todos los tipos)|"
-    IDS_AG_ALLFILES         "Todos los Archivos (*.*)|*.*|"
-    IDS_AG_AUDIOFILES       "Archivos de Audio (Todos los tipos)|"
     IDS_PIXELSHADERCOMPILER_0  "Imposible cargar D3DX9_xx.DLL, los sombreadores de píxel no funcionarán."
     IDS_PIXELSHADERCOMPILER_1  "Imposible encontrar las entradas de funciones necesarias en D3DX9_xx.DLL, los sombreadores de píxel no funcionarán."
-    IDS_AG_NOT_KNOWN        "No conocido"
+    IDS_AG_NOT_KNOWN        "Desconocido"
     IDS_AG_OPEN_FILE        "Abrir Archivo Rápido"
     IDS_AG_OPEN_FILEURL     "Abrir Archivo"
     IDS_AG_OPEN_DVD         "Abrir DVD"
@@ -2723,7 +2750,6 @@ BEGIN
     IDS_CANCEL              "Cancelar"
     IDS_TEXTFILE_ENC        "Codificación:"
     IDS_SAVE_FILE           "Guardando archivo"
-    IDS_AG_VIDEOFILES       "Archivos de video (todos los tipos)|"
     IDS_VOLUME_OSD_MUTE     "Vol: %d%% [Silencio]"
     IDS_COPY_TO_CLIPBOARD   "Copiar al Portapapeles"
     IDS_AUDIO_LEVEL         "Nivel (%d):"
@@ -2784,7 +2810,7 @@ BEGIN
     IDS_EXPORT_SETTINGS     "Exportar configuración"
     IDS_EXPORT_SETTINGS_WARNING  "Algunos cambios aún no se han guardado.\nDesea guardarlos antes de exportarlos?"
     IDS_EXPORT_SETTINGS_SUCCESS  "La configuración se ha exportado correctamente."
-    IDS_EXPORT_SETTINGS_FAILED  "La exportación falló! Esto puede suceder cuando no se tiene los derechos adecuados."
+    IDS_EXPORT_SETTINGS_FAILED  "La exportación falló! Esto puede suceder cuando no se tienen suficientes derechos."
     IDS_BDA_ERROR           "Error BDA"
 END
 
@@ -2800,10 +2826,10 @@ BEGIN
     IDS_AG_MENU_SUBTITLELANG "Menú Idioma de Subtítulos"
     IDS_AG_MENU_JUMPTO      "Menú Saltar a..."
     IDS_AG_MENU_AFTERPLAYBACK "Menú después de Reproducir"
-    IDS_AG_RESET_STATS      "Reestablecer estado EVR Sync"
+    IDS_AG_RESET_STATS      "Restablecer estado EVR Sync"
     IDS_VIEW_BORDERLESS     "Ocultar Bordes\tCtrl+0"
     IDS_VIEW_FRAMEONLY      "Sólo Marco\tCtrl+0"
-    IDS_VIEW_CAPTIONMENU    "Mostrar Título&&Menú\tCtrl+0"
+    IDS_VIEW_CAPTIONMENU    "Mostrar Título y &Menú\tCtrl+0"
     IDS_VIEW_HIDEMENU       "Ocultar Menú\tCtrl+0"
 END
 
@@ -2815,7 +2841,7 @@ BEGIN
     IDS_AG_AUDIODELAY_MINUS "Ajuste de Audio de -10ms"
     IDS_AG_JUMP_FORWARD_1   "Salto Adelante (pequeño)"
     IDS_AG_JUMP_BACKWARD_1  "Salto Atrás (pequeño)"
-    IDS_AG_JUMP_FORWARD_2   "Salto Adelante (medio"
+    IDS_AG_JUMP_FORWARD_2   "Salto Adelante (medio)"
     IDS_AG_JUMP_BACKWARD_2  "Salto Atrás (medio)"
     IDS_AG_JUMP_FORWARD_3   "Salto Adelante (largo)"
     IDS_AG_JUMP_BACKWARD_3  "Salto Atrás (largo)"
@@ -2905,7 +2931,7 @@ BEGIN
     IDS_AG_DVD_MENU_DOWN    "DVD Menú Abajo"
     IDS_AG_DVD_MENU_ACTIVATE "DVD Menú Activar"
     IDS_AG_DVD_MENU_BACK    "DVD Menú Regresar"
-    IDS_AG_DVD_MENU_LEAVE   "DVD Menú Dejar"
+    IDS_AG_DVD_MENU_LEAVE   "DVD Menú Salir"
     IDS_AG_BOSS_KEY         "Llave Jefe"
     IDS_AG_MENU_PLAYER_S    "Menú del Reproductor (corto)"
     IDS_AG_MENU_PLAYER_L    "Menú del Reproductor (largo)"
@@ -2997,7 +3023,7 @@ BEGIN
     IDS_ZOOM_AUTOFITLARGE   "Ajuste automático (solo más grande)"
     IDS_ADD_TO_PLAYLIST     "Agregar a la Lista de Reproducción de MPC-BE"
     IDS_OPEN_WITH_MPC       "Reproducir con MPC-BE"
-    IDS_CANNOT_CHANGE_FORMAT  "MPC-BE no tiene suficientes privilegios para cambiar las asociaciones de tipos de archivo. Por favor haga clic en el botón de ""Modificar"" para obtener derechos de administración."
+    IDS_CANNOT_CHANGE_FORMAT  "MPC-BE no tiene suficientes privilegios para cambiar las asociaciones de tipos de archivo. Por favor haga clic en el botón de ""Modificar"" para obtener derechos de administrador."
     IDS_APP_DESCRIPTION     "Uno de los reproductores multimedia mas poderosos y configurables para el sistema operativo Windows. Originalmente programado por el desarrollador Hungaro conocido como Gabest, esta versión cuenta ademas con capacidades adicionales como el modo de Pantalla Completa usando Direct3D y un mejor soporte para Windows Vista/7."
     IDS_MAINFRM_12          "Canal"
     IDS_MAINFRM_13          "Canales"
@@ -3005,7 +3031,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_AG_TITLE            "Titulo %d"
+    IDS_AG_TITLE            "Título %d"
     IDS_MAINFRM_16          "DVD: Error inesperado"
     IDS_MAINFRM_17          "DVD: Fallo por Protección Anticopia"
     IDS_MAINFRM_18          "DVD: Disco DVD 1.x Inválido"
@@ -3027,9 +3053,9 @@ STRINGTABLE
 BEGIN
     IDS_ADDTOPLS_FROMDIR_SIMILAR "Archivos similares de la carpeta"
     IDS_ADDTOPLS_FROMDIR_ALL "Todos los archivos de la carpeta"
-    IDS_EXCLUSIVE_FS_WARNING  "Esta opción está diseñada para prevenir el tearing. Sin embargo, también evitará que MPC-BE muestre menús contextuales y cuadros de diálogo durante la reproducción.\n\nPara salir de la Pantalla Completa Exclusiva, use las teclas: Alt+Enter, Ctrl+Enter o Ctrl+C.\n\nRealmente deseas activar esta opción?"
+    IDS_EXCLUSIVE_FS_WARNING  "Esta opción está diseñada para prevenir el parpadeo. Sin embargo, también evitará que MPC-BE muestre menús contextuales y cuadros de diálogo durante la reproducción.\n\nPara salir de la Pantalla Completa Exclusiva, use las teclas: Alt+Enter, Ctrl+Enter o Ctrl+C.\n\nRealmente deseas activar esta opción?"
     IDS_MAINFRM_139         "Retraso de Subtítulos: %ld ms"
-    IDS_AG_TITLE2           "Titulo: %02d/%02d"
+    IDS_AG_TITLE2           "Título: %02d/%02d"
     IDS_THUMB_ROWNUMBER     "Filas:"
     IDS_THUMB_COLNUMBER     "Columnas:"
     IDS_THUMB_IMAGE_WIDTH   "Ancho de Imagen"
@@ -3060,7 +3086,6 @@ END
 STRINGTABLE
 BEGIN
     IDS_MAINFRM_47          "Cargado con éxito"
-    IDS_MAINFRM_48          "Todos los archivos (*.*)|*.*||"
     IDS_MAINFRM_49          "Fallo en GetDIB, hr = %08x"
     IDS_MAINFRM_51          "Fallo en GetCurrentImage, hr = %08x"
     IDS_MAINFRM_53          "Imposible crear archivo"
@@ -3140,41 +3165,41 @@ BEGIN
     IDS_MAINFRM_116         "&Propiedades..."
     IDS_MAINFRM_117         " Propiedades del Conector..."
     IDS_AG_UNKNOWN_STREAM   "Pista Desconocida"
-    IDS_AG_UNKNOWN          "%d Desconocida"
+    IDS_AG_UNKNOWN          "%d Desconocido"
     IDS_AG_VSYNC            "VSync (Sincronización Vertical)"
     IDS_MAINFRM_121         " (Comentario del Director N° 1)"
     IDS_MAINFRM_122         " (Comentario del Director N° 2)"
     IDS_AG_ENABLED          "Activado"
     IDS_AG_ANGLE            "Ángulo N° %d"
-    IDS_AG_VSYNCOFFSET_INCREASE "Incrementar Compensación de VSync"
+    IDS_AG_VSYNCOFFSET_INCREASE "Aumentar Compensación de VSync"
 END
 
 STRINGTABLE
 BEGIN
     IDS_AG_DISABLED         "Desactivado"
-    IDS_AG_VSYNCOFFSET_DECREASE "Decrementar Compensación de VSync"
+    IDS_AG_VSYNCOFFSET_DECREASE "Reducir Compensación de VSync"
     IDS_MAINFRM_132         "Advertencia (CMainFrame::SeekTo): Tratando de buscar en el modo de captura"
     IDS_AG_REMOVING         "Eliminando: "
     IDS_MAINFRM_134         "ADVERTENCIA: CMainFrame::CloseMedia() fue llamado dos veces o más\n"
-    IDS_MAINFRM_135         "ERROR CRITICO: ¡¡¡ Debo terminar el proceso !!!"
+    IDS_MAINFRM_135         "ERROR CRÍTICO: ¡¡¡ Debo terminar el proceso !!!"
     IDS_MAINFRM_136         "Pantalla Completa Exclusiva de MPC-BE"
     IDS_MAINFRM_137         "Formato desconocido"
     IDS_MAINFRM_138         "Compensación de Subtítulos: %ld"
     IDS_VOLUME_GAIN_INC     "Aumentar ganancia de volumen"
-    IDS_VOLUME_GAIN_DEC     "Disminuir ganancia de volumen"
+    IDS_VOLUME_GAIN_DEC     "Reducir ganancia de volumen"
     IDS_VOLUME_GAIN_OFF     "Ganancia de volumen desactivada"
     IDS_VOLUME_GAIN_MAX     "Ganancia de volumen máxima"
-    IDS_UNKNOWN_SWITCH      "Modificador(es) no conocido(s) encontrado(s) en la línea de comandos ejecutada: \n\n"
+    IDS_UNKNOWN_SWITCH      "Modificador(es) desconocido(s) encontrado(s) en la línea de comandos ejecutada: \n\n"
 END
 
 STRINGTABLE
 BEGIN
     IDS_BLOCK_EXTERNAL_VR   "No puedes agregar %s como filtro externo.\nDebes seleccionar tu renderizador de video preferido en la página de configuración de video."
+    IDS_DESC_HAALI_VR       "Se parece al VMR-9, pero usa un verdadero redimensionador bicúbico."
 END
 
 STRINGTABLE
 BEGIN
-    IDS_DESC_HAALI_VR       "Se parece al VMR-9, pero usa un verdadero redimensionador bicúbico."
     IDS_DESC_NULLVR_ANY     "Conecta a cualquier tipo de medio de video y manda las muestras a ningún lado. Utilízalo cuando no necesitas ver el video, y quieres evitar el uso de cpu innecesario."
     IDS_DESC_NULLVR_UNCOMP  "Igual que el renderizador Nulo normal, pero este solo conectará a tipos sin compresión."
     IDS_DESC_EVR            "Renderizador de video con soporte de decodificación por hardware."
@@ -3224,7 +3249,9 @@ BEGIN
     IDS_CMD_FIXEDSIZE       "/fixedsize l,a\tEstablece tamaño de ventana fijo"
     IDS_CMD_MONITOR         "/monitor N\tInicia en el monitor N, donde N empieza de 1"
     IDS_CMD_AUDIORENDERER   "/audiorenderer N\tInicia usando Renderizador de Audio N, donde N empieza de 1\n\t\t(consulte Configuración de Audio)"
+    IDS_CMD_VOLUME          "/volume N\tEstablece Volumen, donde N es un rango de 0 a 100"
     IDS_CMD_CLIPBOARD       "/clipboard\t\tAbre rutas/enlaces desde el portapapeles"
+    IDS_CMD_DEVICE          "/device\t\tAbre el dispositivo de video predeterminado"
     IDS_CMD_RESET           "/reset\t\tRestaura la configuración predeterminada"
 END
 
@@ -3311,10 +3338,10 @@ BEGIN
     IDS_VDF_SCANTYPE_TOP    "Primero el Campo Superior"
     IDS_VDF_SCANTYPE_BOTTOM "Primero el Campo Inferior"
     IDS_VDF_SCANTYPE_PROGRESSIVE "Progresivo"
-    IDS_VDF_COLOR_FMT_CONVERSION "Conversión de formato"
-    IDS_VDF_COLOR_OUTPUT_FORMATS "Formatos de salida:"
+    IDS_VDF_COLOR_OUTPUT_FORMATS "Formatos de salida"
     IDS_VDF_COLOR_PRESET    "Preestablecido:"
     IDS_VDF_COLOR_STANDARD  "Estándar:"
+    IDS_VDF_COLOR_CONVERT_TO_RGB "Convertir a RGB"
     IDS_VDF_COLOR_RGB_LEVELS "Niveles de salida RGB:"
 END
 
@@ -3333,7 +3360,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_MPEG2_INTERLACE_FLAG "Fijar banderín de entrelazado en el tipo de medio de salida"
+    IDS_MPEG2_INTERLACE_FLAG "Establecer indicador de entrelazado en el tipo de soporte de salida"
     IDS_MPEG2_FORCED_SUBS   "Siempre mostrar subtítulos forzados"
     IDS_MPEG2_DEINTERLACING "Desentrelazado"
 END
@@ -3403,7 +3430,7 @@ BEGIN
     IDS_AG_TOGGLE_SUBRESYNC "Alternar Barra de Subresync"
     IDS_AG_TOGGLE_PLAYLIST  "Alternar Barra de Lista de Reproducción"
     IDS_AG_TOGGLE_CAPTURE   "Alternar Barra de Captura"
-    IDS_AG_TOGGLE_SHADER    "Alternar Barra de Editor de Shader"
+    IDS_AG_TOGGLE_SHADER    "Alternar Barra de Editor de Sombreador"
     IDS_AG_ZOOM_50          "Zoom 50%"
     IDS_AG_ZOOM_100         "Zoom 100%"
     IDS_AG_ZOOM_200         "Zoom 200%"
@@ -3637,7 +3664,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_BRIGHTNESS_DEC      "Disminuir Brillo"
+    IDS_BRIGHTNESS_DEC      "Reducir Brillo"
     IDS_CONTRAST_INC        "Aumentar Contraste"
     IDS_CONTRAST_DEC        "Disminuir Contraste"
     IDS_HUE_INC             "Tinte +"
@@ -3807,7 +3834,7 @@ END
 STRINGTABLE
 BEGIN
     IDS_SUB_COPYTOCLIPBOARD "Copiar los subtítulos mostrados al Portapapeles"
-    IDS_SUB_SIZE_DEC        "Disminuir tamaño de texto de subtítulos"
+    IDS_SUB_SIZE_DEC        "Reducir tamaño de texto de subtítulos"
     IDS_SUB_SIZE_INC        "Aumentar tamaño de texto de subtítulos"
     IDS_SUB_SIZE            "Tamaño de texto de subtítulos: %d"
     IDS_SUB_NOT_USE         "No mostrar subtítulos"

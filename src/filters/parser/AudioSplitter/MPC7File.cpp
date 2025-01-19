@@ -1,5 +1,5 @@
 /*
- * (C) 2020-2023 see Authors.txt
+ * (C) 2020-2024 see Authors.txt
  *
  * This file is part of MPC-BE.
  *
@@ -60,7 +60,7 @@ HRESULT CMPC7File::Open(CBaseSplitterFile* pFile)
 	}
 
 	DWORD id = 0;
-	if (m_pFile->ByteRead((BYTE*)&id, 4) != S_OK || (id & 0x00ffffff) != FCC('MP+\0') || ((id >> 24) & 0x0f) != 0x7) {
+	if (m_pFile->ByteRead((BYTE*)&id, 4) != S_OK || (id & 0x0fffffff) != MAKEFOURCC('M','P','+',7)) {
 		return E_FAIL;
 	}
 
@@ -72,9 +72,8 @@ HRESULT CMPC7File::Open(CBaseSplitterFile* pFile)
 		return E_FAIL;
 	}
 
-	m_extrasize = 16;
-	m_extradata = (BYTE*)malloc(m_extrasize);
-	if (m_pFile->ByteRead(m_extradata, m_extrasize) != S_OK) {
+	m_extradata.SetSize(16);
+	if (m_pFile->ByteRead(m_extradata.Data(), m_extradata.Bytes()) != S_OK) {
 		return E_FAIL;
 	}
 

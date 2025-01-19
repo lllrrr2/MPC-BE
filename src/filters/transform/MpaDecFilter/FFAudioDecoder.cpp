@@ -1,5 +1,5 @@
 /*
- * (C) 2014-2023 see Authors.txt
+ * (C) 2014-2024 see Authors.txt
  *
  * This file is part of MPC-BE.
  *
@@ -21,12 +21,12 @@
 #include "stdafx.h"
 #include "FFAudioDecoder.h"
 #include "MpaDecFilter.h"
+#include "DSUtil/MP4AudioDecoderConfig.h"
 
 #pragma warning(push)
 #pragma warning(disable: 4005)
 extern "C" {
 	#include <ExtLib/ffmpeg/libavcodec/avcodec.h>
-	#include <ExtLib/ffmpeg/libavutil/channel_layout.h>
 	#include <ExtLib/ffmpeg/libavutil/intreadwrite.h>
 	#include <ExtLib/ffmpeg/libavutil/opt.h>
 }
@@ -159,6 +159,9 @@ static const struct {
 	{ &MEDIASUBTYPE_AES3,              AV_CODEC_ID_S302M },
 	// G.726 ADPCM
 	{ &MEDIASUBTYPE_G726_ADPCM,        AV_CODEC_ID_ADPCM_G726 },
+	// other
+	{ &MEDIASUBTYPE_ON2VP7_AUDIO,      AV_CODEC_ID_ON2AVC },
+	{ &MEDIASUBTYPE_ON2VP6_AUDIO,      AV_CODEC_ID_ON2AVC },
 
 	{ &MEDIASUBTYPE_None,              AV_CODEC_ID_NONE },
 };
@@ -255,6 +258,7 @@ static bool ParseVorbisTag(const CString& field_name, const CString& vorbisTag, 
 bool CFFAudioDecoder::Init(enum AVCodecID codecID, CMediaType* mediaType)
 {
 	AVCodecID codec_id = AV_CODEC_ID_NONE;
+	unsigned int codec_tag = 0;
 	int samplerate     = 0;
 	int channels       = 0;
 	int bitdeph        = 0;
@@ -291,11 +295,12 @@ bool CFFAudioDecoder::Init(enum AVCodecID codecID, CMediaType* mediaType)
 		codec_id = codecID;
 		if (mediaType->formattype == FORMAT_WaveFormatEx) {
 			WAVEFORMATEX *wfex = (WAVEFORMATEX *)mediaType->Format();
-			samplerate	= wfex->nSamplesPerSec;
-			channels	= wfex->nChannels;
-			bitdeph		= wfex->wBitsPerSample;
-			block_align	= wfex->nBlockAlign;
-			bitrate		= wfex->nAvgBytesPerSec * 8;
+			codec_tag   = wfex->wFormatTag;
+			samplerate  = wfex->nSamplesPerSec;
+			channels    = wfex->nChannels;
+			bitdeph     = wfex->wBitsPerSample;
+			block_align = wfex->nBlockAlign;
+			bitrate     = wfex->nAvgBytesPerSec * 8;
 		}
 		else if (mediaType->formattype == FORMAT_VorbisFormat2) {
 			VORBISFORMAT2 *vf2 = (VORBISFORMAT2 *)mediaType->Format();
@@ -328,7 +333,16 @@ bool CFFAudioDecoder::Init(enum AVCodecID codecID, CMediaType* mediaType)
 		StreamFinish();
 	}
 
-	m_pAVCodec = avcodec_find_decoder(codec_id);
+	if (codec_id == AV_CODEC_ID_AAC && extralen) {
+		CMP4AudioDecoderConfig MP4AudioDecoderConfig;
+		if (MP4AudioDecoderConfig.Parse(extradata, extralen) && MP4AudioDecoderConfig.m_ObjectType == AOT_USAC) {
+			m_pAVCodec = avcodec_find_decoder_by_name("libfdk_aac");
+		}
+	}
+
+	if (!m_pAVCodec) {
+		m_pAVCodec = avcodec_find_decoder(codec_id);
+	}
 	if (m_pAVCodec) {
 		m_pAVCtx = avcodec_alloc_context3(m_pAVCodec);
 		CheckPointer(m_pAVCtx, false);
@@ -337,15 +351,16 @@ bool CFFAudioDecoder::Init(enum AVCodecID codecID, CMediaType* mediaType)
 			av_channel_layout_from_mask(&ch_layout, GetDefChannelMask(channels));
 		}
 
-		m_pAVCtx->codec_id				= codec_id;
-		m_pAVCtx->sample_rate			= samplerate;
-		m_pAVCtx->ch_layout				= ch_layout;
-		m_pAVCtx->bits_per_coded_sample	= bitdeph;
-		m_pAVCtx->block_align			= block_align;
-		m_pAVCtx->bit_rate				= bitrate;
-		m_pAVCtx->err_recognition		= 0;
-		m_pAVCtx->thread_count			= 1;
-		m_pAVCtx->thread_type			= 0;
+		m_pAVCtx->codec_id              = codec_id;
+		m_pAVCtx->codec_tag             = codec_tag;
+		m_pAVCtx->sample_rate           = samplerate;
+		m_pAVCtx->ch_layout             = ch_layout;
+		m_pAVCtx->bits_per_coded_sample = bitdeph;
+		m_pAVCtx->block_align           = block_align;
+		m_pAVCtx->bit_rate              = bitrate;
+		m_pAVCtx->err_recognition       = 0;
+		m_pAVCtx->thread_count          = 1;
+		m_pAVCtx->thread_type           = 0;
 
 		AVDictionary* options = nullptr;
 		if (m_bStereoDownmix) { // works to AC3, TrueHD, DTS
@@ -377,11 +392,11 @@ bool CFFAudioDecoder::Init(enum AVCodecID codecID, CMediaType* mediaType)
 				} else {
 					// Try without any processing?
 					m_pAVCtx->extradata_size = extralen;
-					m_pAVCtx->extradata      = extradata;
+					m_pAVCtx->extradata = extradata;
 				}
 			} else {
 				m_pAVCtx->extradata_size = extralen;
-				m_pAVCtx->extradata      = extradata;
+				m_pAVCtx->extradata = extradata;
 			}
 		}
 
@@ -399,7 +414,6 @@ bool CFFAudioDecoder::Init(enum AVCodecID codecID, CMediaType* mediaType)
 
 	if (!m_pFrame || !m_pPacket) {
 		StreamFinish();
-
 		return false;
 	}
 

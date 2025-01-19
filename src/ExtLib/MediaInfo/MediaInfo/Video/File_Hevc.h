@@ -26,7 +26,6 @@ class File_Hevc : public File__Analyze
 public :
     //In
     int64u Frame_Count_Valid;
-    bool   FrameIsAlwaysComplete;
     bool   MustParse_VPS_SPS_PPS;
     bool   MustParse_VPS_SPS_PPS_FromMatroska;
     bool   MustParse_VPS_SPS_PPS_FromFlv;
@@ -111,6 +110,16 @@ private :
     typedef vector<video_parameter_set_struct*> video_parameter_set_structs;
 
     //Structures - seq_parameter_set
+    enum vui_flag
+    {
+        video_signal_type_present_flag,
+        video_full_range_flag,
+        colour_description_present_flag,
+        pic_struct_present_flag,
+        frame_field_info_present_flag,
+        vui_flags_Max
+    };
+    typedef std::bitset<vui_flags_Max> vui_flags;
     struct seq_parameter_set_struct
     {
         struct vui_parameters_struct
@@ -184,19 +193,13 @@ private :
             int32u  time_scale;
             int16u  sar_width;
             int16u  sar_height;
-            int8u   aspect_ratio_idc;
             int8u   video_format;
-            int8u   video_full_range_flag;
             int8u   colour_primaries;
             int8u   transfer_characteristics;
             int8u   matrix_coefficients;
-            bool    aspect_ratio_info_present_flag;
-            bool    video_signal_type_present_flag;
-            bool    frame_field_info_present_flag;
-            bool    colour_description_present_flag;
-            bool    timing_info_present_flag;
+            vui_flags flags;
 
-            vui_parameters_struct(xxl* NAL_, xxl* VCL_, xxl_common* xxL_Common_, int32u num_units_in_tick_, int32u time_scale_, int16u sar_width_, int16u sar_height_, int8u aspect_ratio_idc_, int8u video_format_, int8u video_full_range_flag_, int8u colour_primaries_, int8u transfer_characteristics_, int8u matrix_coefficients_, bool aspect_ratio_info_present_flag_, bool video_signal_type_present_flag_, bool frame_field_info_present_flag_, bool colour_description_present_flag_, bool timing_info_present_flag_)
+            vui_parameters_struct(xxl* NAL_, xxl* VCL_, xxl_common* xxL_Common_, int32u num_units_in_tick_, int32u time_scale_, int16u sar_width_, int16u sar_height_, int8u video_format_, int8u colour_primaries_, int8u transfer_characteristics_, int8u matrix_coefficients_, vui_flags flags_)
                 :
                 NAL(NAL_),
                 VCL(VCL_),
@@ -205,17 +208,11 @@ private :
                 time_scale(time_scale_),
                 sar_width(sar_width_),
                 sar_height(sar_height_),
-                aspect_ratio_idc(aspect_ratio_idc_),
                 video_format(video_format_),
-                video_full_range_flag(video_full_range_flag_),
                 colour_primaries(colour_primaries_),
                 transfer_characteristics(transfer_characteristics_),
                 matrix_coefficients(matrix_coefficients_),
-                aspect_ratio_info_present_flag(aspect_ratio_info_present_flag_),
-                video_signal_type_present_flag(video_signal_type_present_flag_),
-                frame_field_info_present_flag(frame_field_info_present_flag_),
-                colour_description_present_flag(colour_description_present_flag_),
-                timing_info_present_flag(timing_info_present_flag_)
+                flags(flags_)
             {
             }
 
@@ -419,7 +416,7 @@ private :
     void slice_segment_header();
     void profile_tier_level(profile_tier_level_struct& p, bool profilePresentFlag, int8u maxNumSubLayersMinus1);
     void short_term_ref_pic_sets(int8u num_short_term_ref_pic_sets);
-    void vui_parameters(std::vector<video_parameter_set_struct*>::iterator video_parameter_set_Item, seq_parameter_set_struct::vui_parameters_struct* &vui_parameters_Item);
+    void vui_parameters(seq_parameter_set_struct::vui_parameters_struct* &vui_parameters_Item, int8u maxNumSubLayersMinus1);
     void hrd_parameters(bool commonInfPresentFlag, int8u maxNumSubLayersMinus1, seq_parameter_set_struct::vui_parameters_struct::xxl_common* &xxL_Common, seq_parameter_set_struct::vui_parameters_struct::xxl* &NAL, seq_parameter_set_struct::vui_parameters_struct::xxl* &VCL);
     void sub_layer_hrd_parameters(seq_parameter_set_struct::vui_parameters_struct::xxl_common* xxL_Common, int8u bit_rate_scale, int8u cpb_size_scale, int32u cpb_cnt_minus1, seq_parameter_set_struct::vui_parameters_struct::xxl* &hrd_parameters_Item);
     void scaling_list_data();

@@ -240,6 +240,9 @@
 #if defined(MEDIAINFO_DTSUHD_YES)
     #include "MediaInfo/Audio/File_DtsUhd.h"
 #endif
+#if defined(MEDIAINFO_DAT_YES)
+    #include "MediaInfo/Audio/File_Dat.h"
+#endif
 #if defined(MEDIAINFO_DOLBYE_YES)
     #include "MediaInfo/Audio/File_DolbyE.h"
 #endif
@@ -305,6 +308,9 @@
 #endif
 #if defined(MEDIAINFO_N19_YES)
     #include "MediaInfo/Text/File_N19.h"
+#endif
+#if defined(MEDIAINFO_PAC_YES)
+    #include "MediaInfo/Text/File_Pac.h"
 #endif
 #if defined(MEDIAINFO_PDF_YES)
     #include "MediaInfo/Text/File_Pdf.h"
@@ -644,6 +650,9 @@ static File__Analyze* SelectFromExtension(const String& Parser)
     #if defined(MEDIAINFO_DTSUHD_YES)
         if (Parser==__T("DtsUhd"))      return new File_DtsUhd();
     #endif
+    #if defined(MEDIAINFO_DAT_YES)
+        if (Parser==__T("Dat"))        return new File_Dat();
+    #endif
     #if defined(MEDIAINFO_DOLBYE_YES)
         if (Parser==__T("DolbyE"))      return new File_DolbyE();
     #endif
@@ -706,6 +715,9 @@ static File__Analyze* SelectFromExtension(const String& Parser)
     #endif
     #if defined(MEDIAINFO_N19_YES)
         if (Parser==__T("N19"))         return new File_N19();
+    #endif
+    #if defined(MEDIAINFO_PAC_YES)
+        if (Parser==__T("PAC"))         return new File_Pac();
     #endif
     #if defined(MEDIAINFO_PDF_YES)
         if (Parser==__T("PDF"))         return new File_Pdf();
@@ -1052,6 +1064,9 @@ int MediaInfo_Internal::ListFormats(const String &File_Name)
     #if defined(MEDIAINFO_DTSUHD_YES)
         delete Info; Info=new File_DtsUhd();             if (((Reader_File*)Reader)->Format_Test_PerParser(this, File_Name)>0) return 1;
     #endif
+    #if defined(MEDIAINFO_DAT_YES)
+        delete Info; Info=new File_Dat();                if (((Reader_File*)Reader)->Format_Test_PerParser(this, File_Name)>0) return 1;
+    #endif
 //    Too many false-positives
 //    #if defined(MEDIAINFO_DOLBYE_YES)
 //        delete Info; Info=new File_DolbyE();             if (((Reader_File*)Reader)->Format_Test_PerParser(this, File_Name)>0) return 1;
@@ -1076,9 +1091,6 @@ int MediaInfo_Internal::ListFormats(const String &File_Name)
     #endif
     #if defined(MEDIAINFO_MPCSV8_YES)
         delete Info; Info=new File_MpcSv8();             if (((Reader_File*)Reader)->Format_Test_PerParser(this, File_Name)>0) return 1;
-    #endif
-    #if defined(MEDIAINFO_MPEGA_YES)
-        delete Info; Info=new File_Mpega();              if (((Reader_File*)Reader)->Format_Test_PerParser(this, File_Name)>0) return 1;
     #endif
     #if defined(MEDIAINFO_OPENMG_YES)
         delete Info; Info=new File_OpenMG();             if (((Reader_File*)Reader)->Format_Test_PerParser(this, File_Name)>0) return 1;
@@ -1108,6 +1120,9 @@ int MediaInfo_Internal::ListFormats(const String &File_Name)
     // Text
     #if defined(MEDIAINFO_N19_YES)
         delete Info; Info=new File_N19();                if (((Reader_File*)Reader)->Format_Test_PerParser(this, File_Name)>0) return 1;
+    #endif
+    #if defined(MEDIAINFO_PAC_YES)
+        delete Info; Info=new File_Pac();                if (((Reader_File*)Reader)->Format_Test_PerParser(this, File_Name)>0) return 1;
     #endif
     #if defined(MEDIAINFO_PDF_YES)
         delete Info; Info=new File_Pdf();                if (((Reader_File*)Reader)->Format_Test_PerParser(this, File_Name)>0) return 1;
@@ -1210,6 +1225,9 @@ int MediaInfo_Internal::ListFormats(const String &File_Name)
     #endif
 
     //At the end, too much sensible
+    #if defined(MEDIAINFO_MPEGA_YES)
+        delete Info; Info=new File_Mpega();              if (((Reader_File*)Reader)->Format_Test_PerParser(this, File_Name)>0) return 1;
+    #endif
     #if defined(MEDIAINFO_TGA_YES)
         delete Info; Info=new File_Tga();                if (((Reader_File*)Reader)->Format_Test_PerParser(this, File_Name)>0) return 1; //At the end, too much sensible
     #endif

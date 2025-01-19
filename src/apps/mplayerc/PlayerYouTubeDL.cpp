@@ -75,7 +75,13 @@ namespace YoutubeDL
 
 		PROCESS_INFORMATION proc_info = {};
 		CStringW args;
-		args.Format(LR"(%s -j --all-subs --sub-format vtt --no-check-certificates "%s")", ydl_path.GetString(), url.GetString());
+		if (ydl_path.Mid(ydl_path.GetLength() - 10).CompareNoCase(L"yt-dlp.exe") == 0) {
+			// yt-dlp.exe
+			args.Format(LR"(%s -j --all-subs --sub-format vtt --no-check-certificates "%s")", ydl_path.GetString(), url.GetString());
+		} else {
+			// youtube-dl.exe
+			args.Format(LR"(%s -j --all-subs --sub-format vtt --no-check-certificate "%s")", ydl_path.GetString(), url.GetString());
+		}
 
 		const BOOL bSuccess = CreateProcessW(
 			nullptr, args.GetBuffer(), nullptr, nullptr, TRUE, 0,
@@ -175,6 +181,10 @@ namespace YoutubeDL
 						return true;
 					};
 
+					CStringA liveStatus;
+					getJsonValue(d, "live_status", liveStatus);
+					bool bIsLive = liveStatus == "is_live";
+
 					for (const auto& format : formats->GetArray()) {
 						CStringA protocol;
 						if (!GetAndCheckProtocol(format, protocol)) {
@@ -186,7 +196,10 @@ namespace YoutubeDL
 						}
 						CStringA vcodec;
 						if (!getJsonValue(format, "vcodec", vcodec) || vcodec == "none") {
-							continue;
+							CStringA video_ext;
+							if (!getJsonValue(format, "video_ext", video_ext) || video_ext == "none") {
+								continue;
+							}
 						}
 
 						int height = 0;
@@ -205,6 +218,9 @@ namespace YoutubeDL
 
 							profile->format = Youtube::yformat::y_mp4_other;
 							if (EndsWith(protocol, "m3u8") || EndsWith(protocol, "m3u8_native")) {
+								if (bIsLive && acodec == "none") {
+									continue;
+								}
 								profile->format = Youtube::yformat::y_stream;
 							} else if (ext == L"mp4") {
 								if (StartsWith(vcodec, "avc1")) {
@@ -272,10 +288,18 @@ namespace YoutubeDL
 						}
 						CStringA vcodec;
 						if (!getJsonValue(format, "vcodec", vcodec) || vcodec != "none") {
-							continue;
+							if (!getJsonValue(format, "video_ext", vcodec) || vcodec == "none") {
+								continue;
+							}
 						}
 						CStringA acodec;
 						if (!getJsonValue(format, "acodec", acodec) || acodec == "none") {
+							if (!getJsonValue(format, "audio_ext", acodec) || acodec == "none") {
+								continue;
+							}
+						}
+						CStringA format_id;
+						if (getJsonValue(format, "format_id", format_id) && EndsWith(format_id, "-drc")) {
 							continue;
 						}
 
@@ -335,15 +359,15 @@ namespace YoutubeDL
 									maxVideofps = std::max(maxVideofps, fps);
 
 									if (bMaxQuality) {
-										bestUrl = url;
-										bVideoOnly = false;
-
 										CStringA acodec;
-										if (getJsonValue(format, "acodec", acodec)) {
-											if (acodec == "none") {
-												bVideoOnly = true;
-											}
+										getJsonValue(format, "acodec", acodec);
+
+										if (bIsLive && acodec == "none" && (EndsWith(protocol, "m3u8") || EndsWith(protocol, "m3u8_native"))) {
+											continue;
 										}
+
+										bVideoOnly = acodec == "none";
+										bestUrl = url;
 									}
 								}
 							}

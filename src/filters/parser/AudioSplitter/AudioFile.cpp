@@ -1,5 +1,5 @@
 /*
- * (C) 2014-2021 see Authors.txt
+ * (C) 2014-2024 see Authors.txt
  *
  * This file is part of MPC-BE.
  *
@@ -44,9 +44,6 @@ CAudioFile::~CAudioFile()
 	SAFE_DELETE(m_pAPETag);
 	SAFE_DELETE(m_pID3Tag);
 
-	if (m_extradata) {
-		free(m_extradata);
-	}
 	m_pFile = nullptr;
 }
 
@@ -92,7 +89,7 @@ CAudioFile* CAudioFile::CreateFilter(CBaseSplitterFile* pFile)
 		pAudioFile = DNew CDSFFile();
 	} else if (*id == FCC('MPCK')) {
 		pAudioFile = DNew CMPC8File();
-	} else if ((*id & 0x00ffffff) == FCC('MP+\0') && (data[3] & 0x0f) == 0x7) {
+	} else if ((*id & 0x0fffffff) == MAKEFOURCC('M','P','+',7)) {
 		pAudioFile = DNew CMPC7File();
 	} else if (*id == FCC('fLaC')) {
 		pAudioFile = DNew CFLACFile();
@@ -125,6 +122,13 @@ CAudioFile* CAudioFile::CreateFilter(CBaseSplitterFile* pFile)
 		SAFE_DELETE(pAudioFile);
 	}
 
+	if (pAudioFile && pFile->IsStreaming()) {
+		auto wavFile = dynamic_cast<CWAVFile*>(pAudioFile);
+		if (!wavFile) {
+			SAFE_DELETE(pAudioFile);
+		}
+	}
+
 	return pAudioFile;
 }
 
@@ -135,15 +139,15 @@ bool CAudioFile::SetMediaType(CMediaType& mt)
 	mt.subtype				= m_subtype;
 	mt.SetSampleSize(256000);
 
-	WAVEFORMATEX* wfe		= (WAVEFORMATEX*)mt.AllocFormatBuffer(sizeof(WAVEFORMATEX) + m_extrasize);
+	WAVEFORMATEX* wfe		= (WAVEFORMATEX*)mt.AllocFormatBuffer(sizeof(WAVEFORMATEX) + m_extradata.Bytes());
 	wfe->wFormatTag			= m_wFormatTag;
 	wfe->nChannels			= m_channels;
 	wfe->nSamplesPerSec		= m_samplerate;
 	wfe->wBitsPerSample		= m_bitdepth;
 	wfe->nBlockAlign		= m_channels * m_bitdepth / 8;
 	wfe->nAvgBytesPerSec	= wfe->nSamplesPerSec * wfe->nBlockAlign;
-	wfe->cbSize				= m_extrasize;
-	memcpy(wfe + 1, m_extradata, m_extrasize);
+	wfe->cbSize				= static_cast<WORD>(m_extradata.Bytes());
+	memcpy(wfe + 1, m_extradata.Data(), m_extradata.Bytes());
 
 	if (!m_nAvgBytesPerSec) {
 		m_nAvgBytesPerSec	= wfe->nAvgBytesPerSec;

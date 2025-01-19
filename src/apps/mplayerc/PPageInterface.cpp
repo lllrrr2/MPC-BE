@@ -1,6 +1,6 @@
 /*
  * (C) 2003-2006 Gabest
- * (C) 2006-2023 see Authors.txt
+ * (C) 2006-2024 see Authors.txt
  *
  * This file is part of MPC-BE.
  *
@@ -29,25 +29,6 @@
 IMPLEMENT_DYNAMIC(CPPageInterface, CPPageBase)
 CPPageInterface::CPPageInterface()
 	: CPPageBase(CPPageInterface::IDD, CPPageInterface::IDD)
-	, m_bUseDarkTheme(FALSE)
-	, m_nThemeBrightness(0)
-	, m_nThemeRed(255)
-	, m_nThemeGreen(255)
-	, m_nThemeBlue(255)
-	, m_fUseTimeTooltip(TRUE)
-	, m_fSmartSeek(FALSE)
-	, m_fChapterMarker(FALSE)
-	, m_fFlybar(TRUE)
-	, m_fFontShadow(FALSE)
-	, m_fFontAA(TRUE)
-	, m_nOSDTransparent(0)
-	, m_OSDBorder(1)
-	, m_fUseWin7TaskBar(TRUE)
-	, m_clrFaceABGR(0x00ffffff)
-	, m_clrOutlineABGR(0x00868686)
-	, m_clrFontABGR(0x00E0E0E0)
-	, m_clrGrad1ABGR(0x00302820)
-	, m_clrGrad2ABGR(0x00302820)
 {
 }
 
@@ -78,6 +59,7 @@ void CPPageInterface::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_COMBO3, m_TimeTooltipPosition);
 	DDX_Control(pDX, IDC_COMBO1, m_FontType);
 	DDX_Check(pDX, IDC_CHECK_PRV, m_fSmartSeek);
+	DDX_Check(pDX, IDC_CHECK6, m_bSmartSeekOnline);
 	DDX_Control(pDX, IDC_EDIT1, m_edSmartSeekSize);
 	DDX_Control(pDX, IDC_COMBO4, m_SmartSeekVR);
 	DDX_Check(pDX, IDC_CHECK_CHM, m_fChapterMarker);
@@ -147,6 +129,7 @@ BOOL CPPageInterface::OnInitDialog()
 	m_OSD_Font	= s.strOSDFont;
 
 	m_fSmartSeek		= s.fSmartSeek;
+	m_bSmartSeekOnline	= s.bSmartSeekOnline;
 	m_edSmartSeekSize.SetRange(5, 30);
 	m_edSmartSeekSize	= s.iSmartSeekSize;
 	m_SmartSeekVR.AddString(L"EVR");
@@ -189,8 +172,9 @@ BOOL CPPageInterface::OnInitDialog()
 	GetDlgItem(IDC_EDIT1)->EnableWindow(m_fSmartSeek);
 	GetDlgItem(IDC_STATIC7)->EnableWindow(m_fSmartSeek);
 	m_SmartSeekVR.EnableWindow(m_fSmartSeek);
+	GetDlgItem(IDC_CHECK6)->EnableWindow(m_fSmartSeek);
 
-	if (!SysVersion::IsWin11orLater()) {
+	if (!SysVersion::IsWin10v1809orLater()) {
 		m_chkDarkTitle.EnableWindow(FALSE);
 	}
 
@@ -237,6 +221,7 @@ BOOL CPPageInterface::OnApply()
 	m_FontType.GetLBText(m_FontType.GetCurSel(),s.strOSDFont);
 
 	s.fSmartSeek			= !!m_fSmartSeek;
+	s.bSmartSeekOnline		= !!m_bSmartSeekOnline;
 	s.iSmartSeekSize		= m_edSmartSeekSize;
 	s.iSmartSeekVR	= m_SmartSeekVR.GetCurSel();
 
@@ -396,7 +381,7 @@ void CPPageInterface::OnUpdateCheck3(CCmdUI* pCmdUI)
 	GetDlgItem(IDC_STATIC_CLRFACE)->EnableWindow(m_bUseDarkTheme);
 	GetDlgItem(IDC_STATIC_CLROUTLINE)->EnableWindow(m_bUseDarkTheme);
 	m_chkDarkMenu.EnableWindow(m_bUseDarkTheme);
-	if (SysVersion::IsWin11orLater()) {
+	if (SysVersion::IsWin10v1809orLater()) {
 		m_chkDarkTitle.EnableWindow(m_bUseDarkTheme);
 	}
 }
@@ -668,6 +653,7 @@ void CPPageInterface::OnUsePreview()
 	GetDlgItem(IDC_EDIT1)->EnableWindow(m_fSmartSeek);
 	GetDlgItem(IDC_STATIC7)->EnableWindow(m_fSmartSeek);
 	m_SmartSeekVR.EnableWindow(m_fSmartSeek);
+	GetDlgItem(IDC_CHECK6)->EnableWindow(m_fSmartSeek);
 
 	SetModified();
 }

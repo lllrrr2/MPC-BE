@@ -1,6 +1,6 @@
 /*
  * (C) 2003-2006 Gabest
- * (C) 2006-2021 see Authors.txt
+ * (C) 2006-2024 see Authors.txt
  *
  * This file is part of MPC-BE.
  *
@@ -31,15 +31,6 @@
 IMPLEMENT_DYNAMIC(CPPageWebServer, CPPageBase)
 CPPageWebServer::CPPageWebServer()
 	: CPPageBase(CPPageWebServer::IDD, CPPageWebServer::IDD)
-	, m_fEnableWebServer(FALSE)
-	, m_nWebServerPort(APP_WEBSRVPORT_DEF)
-	, m_nWebServerQuality(APP_WEBSRVQUALITY_DEF)
-	, m_launch(L"http://localhost:13579/")
-	, m_fWebServerPrintDebugInfo(FALSE)
-	, m_fWebServerUseCompression(FALSE)
-	, m_fWebRoot(FALSE)
-	, m_fWebServerLocalhostOnly(FALSE)
-	, m_bWebUIEnablePreview(FALSE)
 {
 }
 
@@ -167,9 +158,12 @@ CString CPPageWebServer::GetCurWebRoot()
 	GetDlgItem(IDC_EDIT2)->GetWindowTextW(WebRoot);
 	WebRoot.Replace('/', '\\');
 
-	CPath path;
-	path.Combine(GetProgramDir(), WebRoot);
-	return path.IsDirectory() ? (LPCWSTR)path : L"";
+	CStringW path = GetCombineFilePath(GetProgramDir(), WebRoot);
+	if (!::PathIsDirectoryW(path)) {
+		path.Empty();
+	}
+
+	return path;
 }
 
 static int __stdcall BrowseCtrlCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
@@ -238,13 +232,14 @@ void CPPageWebServer::OnBnClickedButton1()
 	CString dir = GetCurWebRoot();
 
 	if (PickDir(dir)) {
-		CPath path;
-
-		if (path.RelativePathTo(GetProgramDir(), FILE_ATTRIBUTE_DIRECTORY, dir, FILE_ATTRIBUTE_DIRECTORY)) {
-			dir = (LPCWSTR)path;
+		CStringW path;
+		BOOL ret = ::PathRelativePathToW(path.GetBuffer(MAX_PATH), GetProgramDir(), FILE_ATTRIBUTE_DIRECTORY, dir, FILE_ATTRIBUTE_DIRECTORY);
+		if (ret) {
+			m_WebRoot = path;
 		}
-
-		m_WebRoot = dir;
+		else {
+			m_WebRoot = dir;
+		}
 
 		UpdateData(FALSE);
 		SetModified();

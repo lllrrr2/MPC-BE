@@ -1,5 +1,5 @@
 /*
- * (C) 2006-2023 see Authors.txt
+ * (C) 2006-2024 see Authors.txt
  *
  * This file is part of MPC-BE.
  *
@@ -28,10 +28,6 @@
 IMPLEMENT_DYNAMIC(CPPageColor, CPPageBase)
 CPPageColor::CPPageColor()
 	: CPPageBase(CPPageColor::IDD, CPPageColor::IDD)
-	, m_iBrightness(0)
-	, m_iContrast(0)
-	, m_iHue(0)
-	, m_iSaturation(0)
 {
 }
 
@@ -146,13 +142,14 @@ BOOL CPPageColor::OnSetActive()
 	if (rs.iVideoRenderer == VIDRNDT_EVR_CP
 			&& (rs.ExtraSets.iSurfaceFormat == D3DFMT_A2R10G10B10 || rs.ExtraSets.iSurfaceFormat == D3DFMT_A16B16G16R16F)) {
 		m_chkColorManagment.EnableWindow(TRUE);
-		GetDlgItem(IDC_STATIC6)->EnableWindow(TRUE);
+		GetDlgItem(IDC_STATIC5)->EnableWindow(TRUE);
 		UpdateColorManagment();
 	} else {
 		m_chkColorManagment.EnableWindow(FALSE);
 		m_cbCMInputType.EnableWindow(FALSE);
 		m_cbCMAmbientLight.EnableWindow(FALSE);
 		m_cbCMRenderingIntent.EnableWindow(FALSE);
+		GetDlgItem(IDC_STATIC5)->EnableWindow(FALSE);
 		GetDlgItem(IDC_STATIC6)->EnableWindow(FALSE);
 		GetDlgItem(IDC_STATIC7)->EnableWindow(FALSE);
 		GetDlgItem(IDC_STATIC8)->EnableWindow(FALSE);

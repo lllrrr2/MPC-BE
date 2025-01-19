@@ -33,8 +33,9 @@
 #include "DSUtil/SysVersion.h"
 #include "Version.h"
 #include <basestruct.h>
-
-#include <ExtLib/ffmpeg/libavcodec/avcodec.h>
+extern "C" {
+	#include <ExtLib/ffmpeg/libavcodec/avcodec.h>
+}
 #include "AudioDecoders.h"
 
 // option names
@@ -208,6 +209,9 @@ const AMOVIESETUP_MEDIATYPE sudPinTypesIn[] = {
 	{ &MEDIATYPE_Audio,				&MEDIASUBTYPE_AES3 },
 	// G.726 ADPCM
 	{ &MEDIATYPE_Audio,				&MEDIASUBTYPE_G726_ADPCM },
+	// other
+	{&MEDIATYPE_Audio,				&MEDIASUBTYPE_ON2VP7_AUDIO},
+	{&MEDIATYPE_Audio,				&MEDIASUBTYPE_ON2VP6_AUDIO},
 };
 
 #ifdef REGISTER_FILTER
@@ -1908,9 +1912,12 @@ HRESULT CMpaDecFilter::DeliverBitstream(BYTE* pBuff, const int size, const REFER
 			}
 			break;
 		case IEC61937_DTSHD:
-			length  = m_DTSHDProfile == DCA_PROFILE_HD_HRA ? BS_DTSHD_SIZE / 4 : BS_DTSHD_SIZE;
-			subtype = m_DTSHDProfile == DCA_PROFILE_HD_HRA ? 2 : 4;
-			isHDMI  = true;
+			{
+				bool bIsDTSHDHRA = m_DTSHDProfile == DCA_PROFILE_HD_HRA || m_DTSHDProfile == DCA_PROFILE_HD_HRA_X || m_DTSHDProfile == DCA_PROFILE_HD_HRA_X_IMAX;
+				length = bIsDTSHDHRA ? BS_DTSHD_SIZE / 4 : BS_DTSHD_SIZE;
+				subtype = bIsDTSHDHRA ? 2 : 4;
+				isHDMI = true;
+			}
 			break;
 		case IEC61937_EAC3:
 			length = BS_EAC3_SIZE;
@@ -2194,9 +2201,12 @@ CMediaType CMpaDecFilter::CreateMediaTypeHDMI(WORD type)
 
 	switch(type) {
 	case IEC61937_DTSHD:
-		wfex.Format.nChannels = m_DTSHDProfile == DCA_PROFILE_HD_HRA ? 2 : 8;
-		wfex.dwChannelMask    = m_DTSHDProfile == DCA_PROFILE_HD_HRA ? KSAUDIO_SPEAKER_STEREO : KSAUDIO_SPEAKER_7POINT1_SURROUND;
-		subtype = KSDATAFORMAT_SUBTYPE_IEC61937_DTS_HD;
+		{
+			bool bIsDTSHDHRA = m_DTSHDProfile == DCA_PROFILE_HD_HRA || m_DTSHDProfile == DCA_PROFILE_HD_HRA_X || m_DTSHDProfile == DCA_PROFILE_HD_HRA_X_IMAX;
+			wfex.Format.nChannels = bIsDTSHDHRA ? 2 : 8;
+			wfex.dwChannelMask = bIsDTSHDHRA ? KSAUDIO_SPEAKER_STEREO : KSAUDIO_SPEAKER_7POINT1_SURROUND;
+			subtype = KSDATAFORMAT_SUBTYPE_IEC61937_DTS_HD;
+		}
 		break;
 	case IEC61937_EAC3:
 		wfex.Format.nChannels = 2;
@@ -2895,7 +2905,7 @@ STDMETHODIMP CMpaDecFilter::CreatePage(const GUID& guid, IPropertyPage** ppPage)
 
 // IExFilterConfig
 
-STDMETHODIMP CMpaDecFilter::GetInt64(LPCSTR field, __int64 *value)
+STDMETHODIMP CMpaDecFilter::Flt_GetInt64(LPCSTR field, __int64 *value)
 {
 	CheckPointer(value, E_POINTER);
 
@@ -2910,7 +2920,7 @@ STDMETHODIMP CMpaDecFilter::GetInt64(LPCSTR field, __int64 *value)
 	return E_INVALIDARG;
 }
 
-STDMETHODIMP CMpaDecFilter::SetBool(LPCSTR field, bool value)
+STDMETHODIMP CMpaDecFilter::Flt_SetBool(LPCSTR field, bool value)
 {
 	if (strcmp(field, "stereodownmix") == 0) {
 		m_FFAudioDec.SetStereoDownmix(value);

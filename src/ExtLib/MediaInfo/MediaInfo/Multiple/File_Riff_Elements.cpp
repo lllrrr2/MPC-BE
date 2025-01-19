@@ -3425,7 +3425,7 @@ void File_Riff::RMP3_data()
 {
     Element_Name("Raw datas");
 
-    Fill(Stream_Audio, StreamPos_Last, Audio_StreamSize, Buffer_DataToParse_End-Buffer_DataToParse_Begin);
+    Fill(Stream_Audio, StreamPos_Last, Audio_StreamSize, Buffer_DataToParse_End?((Buffer_DataToParse_End>File_Size?File_Size:Buffer_DataToParse_End)-Buffer_DataToParse_Begin):(Element_TotalSize_Get()-Alignement_ExtraByte));
     Stream_Prepare(Stream_Audio);
 
     //Creating parser
@@ -3440,7 +3440,7 @@ void File_Riff::RMP3_data()
         StreamItem.Parsers.push_back(Parser);
     #else //MEDIAINFO_MPEG4_YES
         Fill(Stream_Audio, StreamPos_Last, Audio_Format, "MPEG Audio");
-        Skip_XX(Buffer_DataToParse_End-Buffer_DataToParse_Begin, "Data");
+        Skip_XX(Buffer_DataToParse_End?((Buffer_DataToParse_End>File_Size?File_Size:Buffer_DataToParse_End)-Buffer_DataToParse_Begin):(Element_TotalSize_Get()-Alignement_ExtraByte), "Data");
     #endif
 }
 
@@ -3664,6 +3664,7 @@ void File_Riff::WAVE_axml()
         Adm->chna_Move(Adm_chna);
         delete Adm_chna; Adm_chna=NULL;
     }
+    Adm->Container_Duration = Retrieve_Const(Stream_Audio, 0, Audio_Duration).To_float32()/1000;
     Adm->MuxingMode=(Element_Code==Elements::WAVE_bxml)?'b':'a';
     Adm->MuxingMode+="xml";
     Kind=Kind_Axml;
@@ -3730,9 +3731,10 @@ void File_Riff::WAVE_axml()
         }
         int8u* UncompressedData=strm.next_out-strm.total_out;
         size_t UncompressedData_Size=strm.total_out;
-
+        inflateEnd(&strm);
         //Parsing
         Open_Buffer_Continue(Adm, UncompressedData, UncompressedData_Size);
+        delete[] UncompressedData;
         Skip_UTF8(Element_Size, "XML data");
     }
     else
@@ -3740,6 +3742,7 @@ void File_Riff::WAVE_axml()
         Element_Name("AXML");
 
         //Parsing
+        Adm->TotalSize=Buffer_DataToParse_End?((Buffer_DataToParse_End>File_Size?File_Size:Buffer_DataToParse_End)-Buffer_DataToParse_Begin):(Element_TotalSize_Get()-Alignement_ExtraByte);
         WAVE_axml_Continue();
     }
 }
@@ -3748,7 +3751,18 @@ void File_Riff::WAVE_axml_Continue()
 {
     //Parsing
     Open_Buffer_Continue(Adm, Buffer+Buffer_Offset, (size_t)Element_Size);
-    Skip_UTF8(Element_Size, "XML data");
+    if (Adm->NeedToJumpToEnd)
+    {
+        auto Size=Element_TotalSize_Get();
+        if (Size>=16*1024*1024)
+        {
+            Size-=16*1024*1024;
+            GoTo(File_Offset+Buffer_Offset+Size);
+        }
+        else
+            Adm->NeedToJumpToEnd=false;
+    }
+    Element_Offset=Element_Size;
 }
 
 //---------------------------------------------------------------------------
@@ -3979,7 +3993,7 @@ void File_Riff::WAVE_data()
 
     if (Buffer_DataToParse_End && Buffer_DataToParse_End-Buffer_DataToParse_Begin<100)
     {
-        Skip_XX(Buffer_DataToParse_End-Buffer_Offset,           "Unknown");
+        Skip_XX(Buffer_DataToParse_End-Alignement_ExtraByte-Buffer_Offset, "Unknown");
         return; //This is maybe embeded in another container, and there is only the header (What is the junk?)
     }
 
@@ -3987,7 +4001,7 @@ void File_Riff::WAVE_data()
     Element_Code=(int64u)-1;
 
     FILLING_BEGIN();
-        int64u StreamSize=(Buffer_DataToParse_End?(Buffer_DataToParse_End-Buffer_DataToParse_Begin):Element_Size)-(Element_Code==Elements::AIFF_SSND?8:0);
+        int64u StreamSize=(Buffer_DataToParse_End?((Buffer_DataToParse_End>File_Size?File_Size:Buffer_DataToParse_End)-Buffer_DataToParse_Begin):(Element_TotalSize_Get()-Alignement_ExtraByte))-(Element_Code==Elements::AIFF_SSND?8:0);
         Fill(Stream_Audio, StreamPos_Last, Audio_StreamSize, StreamSize, 10, true);
         if (Retrieve(Stream_Audio, StreamPos_Last, Audio_Format)==__T("PCM") && BlockAlign)
             Fill(Stream_Audio, StreamPos_Last, Audio_SamplingCount, StreamSize/BlockAlign, 10, true);
@@ -4009,6 +4023,8 @@ void File_Riff::WAVE_data()
             Fill(Stream_General, 0, General_Duration, Retrieve_Const(Stream_General, 0, General_Duration).To_int64u()+Duration, 0, true); // Found files with 2 fmt/data chunks
             Fill(Stream_Audio, StreamPos_Last, Audio_Duration, Duration, 0, true);
         }
+        if (!Buffer_DataToParse_End)
+            WAVE_data_Continue();
     FILLING_END();
 }
 
@@ -4059,9 +4075,16 @@ void File_Riff::WAVE_ds64()
     Skip_L8(                                                    "riffSize"); //Is directly read from the header parser
     Get_L8 (dataSize,                                           "dataSize");
     Get_L8 (sampleCount,                                        "sampleCount");
-    Get_L4 (tableLength,                                        "tableLength");
-    for (int32u Pos=0; Pos<tableLength; Pos++)
-        Skip_L8(                                                "table[]");
+    if (Element_Offset<Element_Size)
+    {
+        Get_L4 (tableLength,                                    "tableLength");
+        DS64_Table.resize(tableLength);
+        for (int32u Pos=0; Pos<tableLength; Pos++)
+        {
+            Get_C4 (DS64_Table[Pos].ChunkId,                    "tableChunkId");
+            Get_L8 (DS64_Table[Pos].Size,                       "tableChunkSize");
+        }
+    }
 
     FILLING_BEGIN();
         if (dataSize && dataSize<File_Size)
@@ -4095,7 +4118,6 @@ void File_Riff::WAVE_fact()
     Get_L4 (SamplesCount,                                       "SamplesCount");
 
     FILLING_BEGIN();
-        if (!Retrieve(Stream_Audio, StreamPos_Last, Audio_SamplingCount).empty()) // Not the priority
         {
         int64u SamplesCount64=SamplesCount==(int32u)-1?WAVE_fact_samplesCount:SamplesCount;
         float64 SamplingRate=Retrieve(Stream_Audio, StreamPos_Last, Audio_SamplingRate).To_float64();
@@ -4113,7 +4135,12 @@ void File_Riff::WAVE_fact()
                 {
                     int64u Duration_FromBitRate = File_Size * 8 * 1000 / BitRate;
                     if (Duration_FromBitRate > Duration*1.02 || Duration_FromBitRate < Duration*0.98)
-                        IsOK = false;
+                    {
+                        if (Retrieve(Stream_Audio, StreamPos_Last, Audio_Format) == __T("PCM"))
+                            IsOK = false;
+                        else
+                            Clear(Stream_Audio, StreamPos_Last, Audio_BitRate); // Bit rate is often not precise or wrong for non PCM
+                    }
                 }
             }
 
@@ -4278,7 +4305,7 @@ void File_Riff::Parser_Pcm(stream& StreamItem, int16u Channels, int16u BitsPerSa
     if (Channels==2 && BitsPerSample<=32 && SamplesPerSec==48000) //Some SMPTE ST 337 streams are hidden in PCM stream
     {
         File_SmpteSt0337* Parser=new File_SmpteSt0337;
-        Parser->Container_Bits=(int8u)BitsPerSample;
+        Parser->BitDepth=(int8u)BitsPerSample;
         Parser->Aligned=true;
         Parser->ShouldContinueParsing=true;
         #if MEDIAINFO_DEMUX

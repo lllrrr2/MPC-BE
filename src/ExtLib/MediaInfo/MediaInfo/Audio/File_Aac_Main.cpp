@@ -495,7 +495,7 @@ extern string Aac_ChannelMode_GetString(const Aac_OutputChannel* const OutputCha
     memset(ChannelModes, 0, Aac_ChannelMode_Max+1);
     for (int i=0; i<OutputChannels_Size; i++)
     {
-        if (OutputChannels[i]>Aac_OutputChannelPosition_Size)
+        if (OutputChannels[i]>=Aac_OutputChannelPosition_Size)
             ChannelModes[Aac_ChannelMode_Max]++;
         else
             ChannelModes[Aac_ChannelMode[OutputChannels[i]]]++;
@@ -849,7 +849,7 @@ void File_Aac::AudioSpecificConfig_OutOfBand (int64s sampling_frequency_, int8u 
         Infos["ChannelPositions/String2"].From_UTF8(Aac_ChannelConfiguration2_GetString(channelConfiguration));
         Infos["ChannelLayout"].From_UTF8(Aac_ChannelLayout_GetString(channelConfiguration));
     }
-    else if (audioObjectType_==42 && !Conf.WaitForNextIndependantFrame && Conf.numOutChannels)
+    else if (audioObjectType_==42 && Conf.IFrameParsed && Conf.numOutChannels)
     {
         Infos["Channel(s)"].From_Number(Conf.numOutChannels);
     }

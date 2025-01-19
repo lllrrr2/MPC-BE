@@ -104,7 +104,7 @@
     #if !defined (MEDIAINFO_LIBCURL_NO) && !defined (MEDIAINFO_LIBCURL_YES)
         #define MEDIAINFO_LIBCURL_NO
     #endif
-    #if !defined (MEDIAINFO_LIBMMS_NO) && !defined (MEDIAINFO_LIBMM_YES)
+    #if !defined (MEDIAINFO_LIBMMS_NO) && !defined (MEDIAINFO_LIBMMS_YES)
         #define MEDIAINFO_LIBMMS_NO
     #endif
     #if !defined (MEDIAINFO_DVDIF_ANALYZE_NO) && !defined (MEDIAINFO_DVDIF_ANALYZE_YES)
@@ -738,6 +738,9 @@
 #if !defined(MEDIAINFO_AUDIO_NO) && !defined(MEDIAINFO_CELT_NO) && !defined(MEDIAINFO_CELT_YES)
     #define MEDIAINFO_CELT_YES
 #endif
+#if !defined(MEDIAINFO_AUDIO_NO) && !defined(MEDIAINFO_DAT_NO) && !defined(MEDIAINFO_DAT_YES)
+    #define MEDIAINFO_DAT_YES
+#endif
 #if !defined(MEDIAINFO_AUDIO_NO) && !defined(MEDIAINFO_DOLBYE_NO) && !defined(MEDIAINFO_DOLBYE_YES)
     #define MEDIAINFO_DOLBYE_YES
 #endif
@@ -869,6 +872,9 @@
 #endif
 #if !defined(MEDIAINFO_TEXT_NO) && !defined(MEDIAINFO_KATE_NO) && !defined(MEDIAINFO_KATE_YES)
     #define MEDIAINFO_KATE_YES
+#endif
+#if !defined(MEDIAINFO_TEXT_NO) && !defined(MEDIAINFO_PAC_NO) && !defined(MEDIAINFO_PAC_YES)
+    #define MEDIAINFO_PAC_YES
 #endif
 #if !defined(MEDIAINFO_TEXT_NO) && !defined(MEDIAINFO_PDF_NO) && !defined(MEDIAINFO_PDF_YES)
     #define MEDIAINFO_PDF_YES

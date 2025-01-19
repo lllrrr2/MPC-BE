@@ -55,6 +55,7 @@ namespace Elements
 {
     const int16u TEM =0xFF01;
     const int16u SOC =0xFF4F; //JPEG 2000
+    const int16u CAP =0xFF50; //JPEG 2000
     const int16u SIZ =0xFF51; //JPEG 2000
     const int16u COD =0xFF52; //JPEG 2000
     const int16u COC =0xFF53; //JPEG 2000
@@ -177,6 +178,18 @@ string Jpeg_WithLevel(string Profile, int8u Level, bool HasSubLevel=false)
 
 string Jpeg2000_Rsiz(int16u Rsiz)
 {
+    if (Rsiz&(1<<14))
+    {
+        string Result="HTJ2K";
+        Rsiz^=(1<<14);
+        if (Rsiz)
+        {
+            Result+=" / ";
+            Result+=Jpeg2000_Rsiz(Rsiz);
+        }
+        return Result;
+    }
+
     switch (Rsiz)
     {
         case 0x0000: return "No restrictions";
@@ -231,6 +244,7 @@ File_Jpeg::File_Jpeg()
     //In
     StreamKind=Stream_Image;
     Interlaced=false;
+    MxfContentKind=(int8u)-1;
     #if MEDIAINFO_DEMUX
     FrameRate=0;
     #endif //MEDIAINFO_DEMUX
@@ -595,6 +609,7 @@ void File_Jpeg::Data_Parse()
     {
         CASE_INFO(TEM ,                                         "TEM");
         CASE_INFO(SOC ,                                         "Start of codestream"); //JPEG 2000
+        CASE_INFO(CAP ,                                         "Extended capabilities"); //JPEG 2000
         CASE_INFO(SIZ ,                                         "Image and tile size"); //JPEG 2000
         CASE_INFO(COD ,                                         "Coding style default"); //JPEG 2000
         CASE_INFO(COC ,                                         "Coding style component"); //JPEG 2000
@@ -685,6 +700,54 @@ void File_Jpeg::Data_Parse()
 //***************************************************************************
 
 //---------------------------------------------------------------------------
+void File_Jpeg::CAP()
+{
+    //Parsing
+    int32u Pcap;
+    Get_B4(Pcap,                                                "Pcap - Parts containing extended capabilities");
+    vector<int8u> Ccap_i;
+    for (int i=31; i>=0; i--)
+    {
+        if (Pcap & (1<<i))
+            Ccap_i.push_back(32-i);
+    }
+    for (auto Version : Ccap_i)
+    {
+        Element_Begin1(("ISO/IEC 15444-" + to_string(Version)).c_str());
+        switch (Version)
+        {
+            case 15:
+                {
+                int8u MAGB;
+                bool HTIRV;
+                BS_Begin();
+                Skip_S1(2,                                      "HTONLY HTDECLARED MIXED");
+                Skip_SB(                                        "MULTIHT");
+                Skip_SB(                                        "RGN");
+                Skip_SB(                                        "HETEROGENEOUS");
+                Skip_S1(5,                                      "Reserved");
+                Get_SB (   HTIRV,                               "HTIRV");
+                Get_S1 (5, MAGB,                                "MAGB");
+                if (!MAGB)
+                    MAGB = 8;
+                else if (MAGB < 20)
+                    MAGB = MAGB + 8;
+                else if (MAGB < 31)
+                    MAGB = 4 * (MAGB - 19) + 27;
+                else
+                    MAGB = 74;
+                Param_Info1(MAGB);
+                Fill(StreamKind_Last, 0, "Compression_Mode", HTIRV?"Lossy":"Lossless", Unlimited, true, true); // TODO: "Lossy" not sure, spec says "can be used with irreversible transforms"
+                BS_End();
+                }
+                break;
+            default: Skip_B2(                                   "(Unknown)");
+        }
+        Element_End0();
+    }
+}
+
+//---------------------------------------------------------------------------
 void File_Jpeg::SIZ()
 {
     //Parsing
@@ -730,6 +793,22 @@ void File_Jpeg::SIZ()
     FILLING_BEGIN_PRECISE();
         if (Frame_Count==0 && Field_Count==0)
         {
+            if (IsSub && !Interlaced && MxfContentKind<=1)
+            {
+                //Checking if a 2nd field is present
+                size_t Size=(size_t)(Buffer_Offset+Element_Size);
+                if (Size<Buffer_Size)
+                {
+                    auto End=Buffer+Buffer_Size-Size;
+                    for (auto Search=Buffer+1; Search<End; Search++)
+                        if (!memcmp(Buffer, Search, Size))
+                        {
+                            Interlaced=true;
+                            break;
+                        }
+                }
+            }
+
             Accept("JPEG 2000");
             Fill("JPEG 2000");
 
@@ -742,6 +821,8 @@ void File_Jpeg::SIZ()
                 Fill(Stream_Image, 0, Image_Codec_String, "JPEG 2000", Unlimited, true, true); //To Avoid automatic filling
             Fill(StreamKind_Last, 0, StreamKind_Last==Stream_Image?(size_t)Image_Width:(size_t)Video_Width, Xsiz);
             Fill(StreamKind_Last, 0, StreamKind_Last==Stream_Image?(size_t)Image_Height:(size_t)Video_Height, Ysiz*(Interlaced?2:1)); //If image is from interlaced content, must multiply height by 2
+            if (Interlaced)
+                Fill(StreamKind_Last, 0, "ScanType", "Interlaced", Unlimited, true, true);
 
             if (BitDepths.size()==1)
                 Fill(StreamKind_Last, 0, Fill_Parameter(StreamKind_Last, Generic_BitDepth), 1+BitDepths[0]);
@@ -825,8 +906,8 @@ void File_Jpeg::COD()
         {
             switch (MultipleComponentTransform)
             {
-                case 0x01 : Fill(StreamKind_Last, 0, "Compression_Mode", "Lossless"); break;
-                case 0x02 : Fill(StreamKind_Last, 0, "Compression_Mode", "Lossy"); break;
+                case 0x01 : Fill(StreamKind_Last, 0, "Compression_Mode", "Lossless", Unlimited, true, true); break;
+                case 0x02 : Fill(StreamKind_Last, 0, "Compression_Mode", "Lossy", Unlimited, true, true); break;
                 default   : ;
             }
         }

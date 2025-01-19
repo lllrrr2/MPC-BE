@@ -27,6 +27,7 @@
 #include "SelectMediaType.h"
 #include "FGFilter.h"
 #include "FakeFilterMapper2.h"
+#include "Misc.h"
 #include <wmcodecdsp.h>
 #include <moreuuids.h>
 #include "DSUtil/std_helper.h"
@@ -37,7 +38,11 @@
 
 bool IsSupportedExternalVideoRenderer(CLSID clsid)
 {
+#if 1
 	return clsid == CLSID_EnhancedVideoRenderer || clsid == CLSID_MPCVR || clsid == CLSID_DXR || clsid == CLSID_madVR;
+#else
+	return false;
+#endif
 }
 
 static const std::vector<GUID> s_MajorTypes = {
@@ -165,8 +170,6 @@ static const std::vector<GUID> s_SubTypes = {
 IMPLEMENT_DYNAMIC(CPPageExternalFilters, CPPageBase)
 CPPageExternalFilters::CPPageExternalFilters()
 	: CPPageBase(CPPageExternalFilters::IDD, CPPageExternalFilters::IDD)
-	, m_iLoadType(FilterOverride::PREFERRED)
-	, m_pLastSelFilter(nullptr)
 {
 }
 
@@ -300,7 +303,7 @@ BOOL CPPageExternalFilters::OnInitDialog()
 			if (f->fTemporary) {
 				name += L" <temporary>";
 			}
-			if (!CPath(MakeFullPath(f->path)).FileExists()) {
+			if (!::PathFileExistsW(MakeFullPath(f->path))) {
 				name += L" <not found!>";
 			}
 		}
@@ -377,45 +380,38 @@ void CPPageExternalFilters::OnAddRegistered()
 {
 	CRegFilterChooserDlg dlg(this);
 	if (dlg.DoModal() == IDOK) {
-		while (!dlg.m_filters.empty()) {
-			FilterOverride* f = dlg.m_filters.front();
-			dlg.m_filters.pop_front();
-
-			if (f) {
-				std::unique_ptr<FilterOverride> p(f);
-
-				if (f->name.IsEmpty() && !f->guids.size() && !f->dwMerit) {
-					// skip something strange
-					continue;
-				}
-				else if (IsSupportedExternalVideoRenderer(f->clsid)) {
-					// supported external video renderers that must be selected in the "Video" settings
-					CStringW strMessage;
-					strMessage.Format(ResStr(IDS_BLOCK_EXTERNAL_VR), f->name);
-					AfxMessageBox(strMessage, MB_OK);
-					continue;
-				}
-
-				CString name = f->name;
-
-				if (f->type == FilterOverride::EXTERNAL) {
-					if (!CPath(MakeFullPath(f->path)).FileExists()) {
-						name += L" <not found!>";
-					}
-				}
-
-				int i = m_filters.AddString(name);
-				m_ExtFilters.emplace_back(std::move(p));
-				m_filters.SetItemDataPtr(i, m_ExtFilters.back().get());
-				m_filters.SetCheck(i, BST_CHECKED);
-
-				if (dlg.m_filters.empty()) {
-					m_filters.SetCurSel(i);
-					OnLbnSelchangeList1();
-				}
-
-				SetModified();
+		for (auto& f : dlg.m_filters) {
+			if (f->name.IsEmpty() && !f->guids.size() && !f->dwMerit) {
+				// skip something strange
+				continue;
 			}
+			else if (IsSupportedExternalVideoRenderer(f->clsid)) {
+				// supported external video renderers that must be selected in the "Video" settings
+				CStringW strMessage;
+				strMessage.Format(ResStr(IDS_BLOCK_EXTERNAL_VR), f->name);
+				AfxMessageBox(strMessage, MB_OK);
+				continue;
+			}
+
+			CString name = f->name;
+
+			if (f->type == FilterOverride::EXTERNAL) {
+				if (!::PathFileExistsW(MakeFullPath(f->path))) {
+					name += L" <not found!>";
+				}
+			}
+
+			int i = m_filters.AddString(name);
+			auto& p = m_ExtFilters.emplace_back(std::move(f));
+			m_filters.SetItemDataPtr(i, p.get());
+			m_filters.SetCheck(i, BST_CHECKED);
+
+			if (dlg.m_filters.empty()) {
+				m_filters.SetCurSel(i);
+				OnLbnSelchangeList1();
+			}
+
+			SetModified();
 		}
 	}
 }
@@ -774,39 +770,31 @@ void CPPageExternalFilters::OnDropFiles(HDROP hDropInfo)
 
 	UINT nFiles = ::DragQueryFileW(hDropInfo, (UINT)-1, nullptr, 0);
 	for (UINT iFile = 0; iFile < nFiles; iFile++) {
-		WCHAR szFileName[MAX_PATH];
-		::DragQueryFileW(hDropInfo, iFile, szFileName, MAX_PATH);
+		CString fn = GetDragQueryFileName(hDropInfo, iFile);
 
 		CFilterMapper2 fm2(false);
-		fm2.Register(szFileName);
+		fm2.Register(fn);
 
-		while (!fm2.m_filters.empty()) {
-			FilterOverride* f = fm2.m_filters.front();
-			fm2.m_filters.pop_front();
-
-			if (f) {
-				std::unique_ptr<FilterOverride> p(f);
-
-				if (IsSupportedExternalVideoRenderer(f->clsid)) {
-					// supported external video renderers that must be selected in the "Video" settings
-					CStringW strMessage;
-					strMessage.Format(ResStr(IDS_BLOCK_EXTERNAL_VR), f->name);
-					AfxMessageBox(strMessage, MB_OK);
-					continue;
-				}
-
-				int i = m_filters.AddString(f->name);
-				m_ExtFilters.emplace_back(std::move(p));
-				m_filters.SetItemDataPtr(i, m_ExtFilters.back().get());
-				m_filters.SetCheck(i, BST_CHECKED);
-
-				if (fm2.m_filters.empty()) {
-					m_filters.SetCurSel(i);
-					OnLbnSelchangeList1();
-				}
-
-				SetModified();
+		for (auto& f : fm2.m_filters) {
+			if (IsSupportedExternalVideoRenderer(f->clsid)) {
+				// supported external video renderers that must be selected in the "Video" settings
+				CStringW strMessage;
+				strMessage.Format(ResStr(IDS_BLOCK_EXTERNAL_VR), f->name);
+				AfxMessageBox(strMessage, MB_OK);
+				continue;
 			}
+
+			int i = m_filters.AddString(f->name);
+			auto& p = m_ExtFilters.emplace_back(std::move(f));
+			m_filters.SetItemDataPtr(i, p.get());
+			m_filters.SetCheck(i, BST_CHECKED);
+
+			if (fm2.m_filters.empty()) {
+				m_filters.SetCurSel(i);
+				OnLbnSelchangeList1();
+			}
+
+			SetModified();
 		}
 	}
 	::DragFinish(hDropInfo);

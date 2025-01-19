@@ -1,5 +1,5 @@
 /*
- * (C) 2022-2023 see Authors.txt
+ * (C) 2022-2024 see Authors.txt
  * This file is part of MPC-BE.
  *
  * MPC-BE is free software; you can redistribute it and/or modify
@@ -284,6 +284,11 @@ STDMETHODIMP CDX11SubPic::AlphaBlt(RECT* pSrc, RECT* pDst, SubPicDesc* pTarget)
 	return m_pAllocator->Render(m_MemPic, m_rcDirty, rSrc, rDst);
 }
 
+STDMETHODIMP_(bool) CDX11SubPic::IsNeedAlloc()
+{
+	return m_pAllocator == nullptr;
+}
+
 //
 // CDX11SubPicAllocator
 //
@@ -361,7 +366,7 @@ STDMETHODIMP CDX11SubPicAllocator::SetMaxTextureSize(SIZE MaxTextureSize)
 	}
 
 	SetCurSize(MaxTextureSize);
-	SetCurVidRect(CRect(CPoint(0,0), MaxTextureSize));
+	SetCurVidRect(CRect(POINT{0,0}, MaxTextureSize));
 
 	return S_OK;
 }

@@ -1,5 +1,5 @@
 /*
- * (C) 2016-2023 see Authors.txt
+ * (C) 2016-2025 see Authors.txt
  *
  * This file is part of MPC-BE.
  *
@@ -30,12 +30,21 @@ void CALLBACK CHTTPAsync::Callback(_In_ HINTERNET hInternet,
 								   __in_opt LPVOID lpvStatusInformation,
 								   __in DWORD dwStatusInformationLength)
 {
+	if (dwInternetStatus == INTERNET_STATUS_HANDLE_CLOSING) {
+		// there is no point in processing further.
+		// also dwContext may be incorrect on Windows 7 if there is no network.
+		return;
+	}
 	if (!lpvStatusInformation) {
 		return;
 	}
 
 	auto pHTTPAsync   = reinterpret_cast<CHTTPAsync*>(dwContext);
 	auto pAsyncResult = reinterpret_cast<INTERNET_ASYNC_RESULT*>(lpvStatusInformation);
+
+	if (pHTTPAsync->m_bClosing) {
+		return;
+	}
 
 	switch (pHTTPAsync->m_context) {
 		case Context::CONTEXT_CONNECT:
@@ -160,6 +169,8 @@ static CString FormatErrorMessage(DWORD dwError)
 
 void CHTTPAsync::Close()
 {
+	m_bClosing = true;
+
 	ResetEvent(m_hConnectedEvent);
 	ResetEvent(m_hRequestOpenedEvent);
 	ResetEvent(m_hRequestCompleteEvent);
@@ -192,6 +203,7 @@ HRESULT CHTTPAsync::Connect(LPCWSTR lpszURL, DWORD dwTimeOut/* = INFINITE*/, LPC
 
 	for (;;) {
 		Close();
+		m_bClosing = false;
 
 		auto url = !m_url_redirect_str.IsEmpty() ? m_url_redirect_str.GetString() : lpszURL;
 
@@ -464,6 +476,8 @@ HRESULT CHTTPAsync::ReadInternal(PBYTE pBuffer, DWORD dwSizeToRead, DWORD& dwSiz
 
 HRESULT CHTTPAsync::Read(PBYTE pBuffer, DWORD dwSizeToRead, DWORD& dwSizeRead, DWORD dwTimeOut/* = INFINITE*/)
 {
+	dwSizeRead = 0;
+
 	if (m_http_chunk.use) {
 		HRESULT hr = S_OK;
 		auto begin = pBuffer;

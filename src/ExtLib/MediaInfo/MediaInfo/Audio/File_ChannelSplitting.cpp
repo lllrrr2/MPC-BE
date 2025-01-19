@@ -225,7 +225,7 @@ void File_ChannelSplitting::Read_Buffer_Init()
                 //SMPTE ST 337
                 {
                     File_SmpteSt0337* Parser=new File_SmpteSt0337;
-                    Parser->Container_Bits=BitDepth;
+                    Parser->BitDepth=BitDepth;
                     Parser->Endianness=Endianness;
                     Parser->Aligned=Aligned;
                     Parsers.push_back(Parser);
@@ -261,6 +261,9 @@ void File_ChannelSplitting::Read_Buffer_Continue()
         Read_Buffer_Continue_Parse();
         return;
     }
+
+    if (!Common)
+        return;
 
     //Size of buffer
     for (int c=0; c<2; c++)

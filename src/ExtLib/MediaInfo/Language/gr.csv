@@ -127,6 +127,9 @@
  second1; δευτερόλεπτο
  second2; δευτερόλεπτα
  second3; δευτερόλεπτα
+ slice per frame1;
+ slice per frame2;
+ slice per frame3;
  text stream1; ροή κειμένου
  text stream2; ροές κειμένου
  text stream3; ροές κειμένου
@@ -176,6 +179,7 @@ ADM: Show TrackUIDs;
 AdmProfile;
 Advanced;Για προχωρημένους
 Advanced mode;Κατάσταση λειτουργίας για προχωρημένους
+Advanced mode -->;
 Album;Album
 Album_ReplayGain_Gain;
 Album_ReplayGain_Peak;
@@ -192,12 +196,17 @@ AssistantDirector;AssistantDirector
 AssociatedVideo_FrameRate;
 at;at
 At least one file;(Πρέπει να ανοίξετε τουλάχιστον ένα αρχείο)
+Attachments;
 Audio;Ήχος
 Audio stream(s);Ροές ήχου
 Audio_Codec_List;Κωδικοποιητές ήχου
+Audio_Format_List;
+Audio_Format_WithHint_List;
+Audio_Language_List;
 Audio_No;Χωρίς ήχο
 Audio1;Πρώτη ροή ήχου
 Audio2;Δεύτερη ροή ήχου
+Audio3;
 AudioComments;
 AudioCount;Αριθμός των ροών ήχου
 AudioDescription;
@@ -234,17 +243,22 @@ Cancel;Άκυρο
 CaptionServiceName;
 CatalogNumber;
 Channel(s);Κανάλι(α)
+Channel(s)_Original;
 ChannelCoded;
 ChannelConfiguration;
 ChannelFormat;
 ChannelLayout;
+ChannelLayout_Original;
 ChannelMode;
 ChannelPositions;Θέσεις καναλιών
+ChannelPositions_Original;
 Chapter(s);Κεφάλαιο(α)
 Chapters;Κεφάλαια
 Chapters stream(s);Ροές κεφαλαίων
 Chapters_Codec_List;Συμπιεστές κεφαλαίων
 Chapters_No;Χωρίς κεφάλαια
+Chapters_Pos_Begin;
+Chapters_Pos_End;
 ChaptersCount;Αριθμός των κεφαλαίων
 CharacterSet;
 CheckNewVersion; Έλεγχoς για ενημερωμένες εκδώσεις
@@ -290,6 +304,10 @@ CoDirector;
 Collection;Συλλογή
 Colorimetry;
 ColorSpace;
+ColorTheme;
+ColorTheme_Dark;
+ColorTheme_Light;
+ColorTheme_System;
 colour_primaries;
 colour_range;
 Comment;Σχόλιο
@@ -334,6 +352,7 @@ Date;Ημερομηνία
 Debug;Αποσφαλμάτωση
 Decimal point;Decimal point
 Default;
+Default translation;
 Default_Setting;
 DefaultTargetDeviceConfig;
 Delay;Καθυστέρηση
@@ -355,6 +374,10 @@ Disabled;
 DisplayAspectRatio;Λόγος εικόνας
 DisplayAspectRatio_CleanAperture;
 DisplayAspectRatio_Original;
+DisplayCaptions;
+DisplayCaptions_Command;
+DisplayCaptions_Content;
+DisplayCaptions_Stream;
 DistributedBy;Distributed by
 Distributor;
 Dolby_Atmos_Metadata;
@@ -364,12 +387,12 @@ DotsPerInch;
 Downmix;
 Downmix_5.1.x;
 Downmix_5to2;
-Downmix_5to2_90deg;
 DrcSets_Count;
 DrcSets_Effects;
 Duration;
 Duration_End;
 Duration_End_Command;
+Duration_Source;
 Duration_Start;
 Duration_Start_Command;
 Duration_Start2End;
@@ -382,10 +405,13 @@ EditorialClassification;
 ElementaryStream;
 ElementCount;
 EMail;E-Mail
+Enable FFmpeg plugin;
 Encoded_Application;Εφαρμογή εγγραφής
 Encoded_Date;Ημερομηνία κωδικοποίησης
 Encoded_Library;Βιβλιοθήκη κωδικοποιητή
+Encoded_Library_Name;
 Encoded_Library_Settings;Ρυθμίσεις κωδικοποιητή
+Encoded_Library_Version;
 Encoded_Original;Original
 EncodedBy;Κωδικοποιημένο από
 EPG_Positions;
@@ -418,6 +444,8 @@ FileExtension;Επέκταση αρχείου
 FileName;Όνομα αρχείου
 FileNameExtension;
 FileSize;Μέγεθος αρχείου
+Fill with a Dummy movie;
+Fill with a realistic movie;
 FirstDisplay_Delay_Frames;
 FirstDisplay_Type;
 FirstFrameOfAction;
@@ -431,6 +459,7 @@ Folder_Hint;Επιλέξτε έναν φάκελο για εξέταση
 FolderName;Όνομα φακέλου
 Forced;
 Format;Μορφοποίηση
+Format_AdditionalFeatures;
 Format_Commercial;
 Format_Commercial_IfAny;
 Format_Compression;
@@ -463,6 +492,7 @@ Format_Settings_QPel;
 Format_Settings_RefFrames;
 Format_Settings_SBR;
 Format_Settings_Sign;
+Format_Settings_SliceCount;
 Format_Settings_Wrapping;
 Format_Tier;
 Format_Url;
@@ -472,14 +502,16 @@ FpaManufacturer;
 FpaPass;
 FpaVersion;
 FrameCount;
+FrameCount_Source;
 FrameRate;Ρυθμός ανανέωσης πλαισίου
-FrameRate_MaxFrameNumber;
+FrameRate_Den;
 FrameRate_Maximum;Μέγιστος ρυθμός ανανέωσης πλαισίου
 FrameRate_Minimum;Ελάχιστος ρυθμός ανανέωσης πλαισίου
 FrameRate_Mode;
 FrameRate_Mode_CFR;
 FrameRate_Mode_VFR;
 FrameRate_Nominal;
+FrameRate_Num;
 FrameRate_Original;
 FrameRate_Real;
 FullParsing;
@@ -729,21 +761,7 @@ InternetMediaType;
 IRCA;IRCA
 ISBN;ISBN
 ISRC;ISRC
-JocBalance_FrontBackListener;
-JocBalance_FrontBackOverheadFloor;
-JocTrim_Center;
-JocTrim_Height;
-JocTrim_Surround;
-JocTrimMode;
-JocTrimMode0i;
-JocTrimMode1i;
-JocTrimMode2i;
-JocTrimMode3i;
-JocTrimMode4i;
-JocTrimMode5i;
-JocTrimMode6i;
-JocTrimMode7i;
-JocTrimMode8i;
+IsStreamable;
 Keywords;Λέξεις κλειδιά
 Known codecs;Γνωστοί συμπιεστές
 Known formats;Γνωστές μορφοποιήσεις
@@ -958,6 +976,7 @@ Language_zh-tw;
 Language_zh-TW;
 Language_zh-yue;
 Language_zu;Zulu
+Languages;
 LawRating;Law rating
 LCCN;LCCN
 LfeAttenuationKnown;
@@ -1041,6 +1060,7 @@ Movie;Όνομα ταινίας
 ms; ms
 MSDI;MSDI
 MultipleStream;
+MultiView_Count;
 MusicBy;
 MuxingMode;
 MuxingMode_MoreInfo;
@@ -1138,6 +1158,7 @@ ProductionDesigner;ProductionDesigner
 ProductionNumber;
 ProductionStudio;ProductionStudio
 ProductPlacement;
+Program name;
 Programme;
 ProgrammeHasText;
 ProgrammeTextLanguage;
@@ -1161,10 +1182,13 @@ Report;
 Resolution;Ανάλυση
 RestoreLifetimeSubscription;
 s;s
+Sampled_Height;
+Sampled_Width;
 SamplePeakLevel;
 SamplePeakLevel_Album;
 SamplesPerFrame;
 SamplingCount;
+SamplingCount_Source;
 SamplingRate;Συχνότητα δειγματοληψίας
 Save;Αποθήκευση
 ScanOrder;
@@ -1181,6 +1205,7 @@ ScreenToFront;
 Season;Season
 SecondaryAudioLanguage;
 see below;δείτε παρακάτω
+Select your directory;
 Send HeaderFile;
 Separator_Columns;διαχωριστής στηλών
 Separator_Lines;διαχωριστής γραμμών
@@ -1230,6 +1255,7 @@ streamIdentifier;
 StreamKind;Τύπος/Είδος Ροής
 StreamKindID;
 StreamKindPos;
+StreamOrder;
 StreamSize;
 StreamSize_Demuxed;
 StreamSize_Encoded;
@@ -1272,6 +1298,9 @@ Text (HTML);Κείμενο (HTML)
 Text stream(s);Ροές κειμένου
 Text streams;Ροές κειμένου
 Text_Codec_List;Συμπιεστές κειμένου
+Text_Format_List;
+Text_Format_WithHint_List;
+Text_Language_List;
 Text_No;Χωρίς κείμενο
 Text1;Πρώτη ροή κειμένου
 Text2;Δεύτερη ροή κειμένου
@@ -1339,9 +1368,14 @@ Video;Video
 Video stream(s);Video stream(s)
 Video_Codec_List;Συμπιεστές Video
 Video_Delay;Καθηστέριση video
+Video_Format_List;
+Video_Format_WithHint_List;
+Video_Language_List;
 Video_No;Χωρίς video
 Video0_Delay;Καθηστέριση video
 Video1;Πρώτη ροή video
+Video2;
+Video3;
 VideoComments;
 VideoCount;Αριθμός των ροών video
 View;Προβολή
@@ -1369,5 +1403,6 @@ Written_Location;Τοποθεσία καταγραφής
 WrittenBy;Γραμμένο από
 Yes;Ναι
 Your system;Το σύστημά σας
-ZZ_Automatic_Percent;55
-ZZ_AutomaticLanguage_Percent;60
+Your translation;
+ZZ_Automatic_Percent;54
+ZZ_AutomaticLanguage_Percent;59

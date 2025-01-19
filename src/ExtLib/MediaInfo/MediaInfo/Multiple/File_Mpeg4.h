@@ -47,6 +47,7 @@ class File_Mpeg4 : public File__Analyze, File__HasReferences
 protected :
     //Streams management
     void Streams_Accept();
+    void Streams_Accept_jp2(bool IsJp2=false);
     void Streams_Finish();
     void Streams_Finish_CommercialNames ();
 
@@ -67,6 +68,10 @@ private :
     void Header_Parse();
     void Data_Parse();
     bool BookMark_Needed();
+
+    #if MEDIAINFO_CONFORMANCE
+        string CreateElementName();
+    #endif //MEDIAINFO_CONFORMANCE
 
     //Elements
     void bloc();
@@ -210,9 +215,9 @@ private :
     void moov_trak_mdia_minf_stbl_stsd_tx3g_ftab();
     void moov_trak_mdia_minf_stbl_stsd_xxxx();
     void moov_trak_mdia_minf_stbl_stsd_xxxxSound();
-    void moov_trak_mdia_minf_stbl_stsd_xxxxStream();
     void moov_trak_mdia_minf_stbl_stsd_xxxxText();
     void moov_trak_mdia_minf_stbl_stsd_xxxxVideo();
+    void moov_trak_mdia_minf_stbl_stsd_xxxxOthers();
     void moov_trak_mdia_minf_stbl_stsd_xxxx_alac();
     void moov_trak_mdia_minf_stbl_stsd_xxxx_AALP();
     void moov_trak_mdia_minf_stbl_stsd_xxxx_ACLR();
@@ -454,6 +459,19 @@ private :
     int16u                                  channelcount;
     int8u                                   Version_Temp; //Used when box version must be provided to nested boxes
 
+    struct mdat_Pos_Type
+    {
+        int64u Offset;
+        int64u Size;
+        int32u StreamID;
+        int32u Reserved1;
+        int64u Reserved2;
+        bool operator<(const mdat_Pos_Type& r) const
+        {
+            return Offset<r.Offset;
+        }
+    };
+
     //Data
     struct stream
     {
@@ -532,8 +550,10 @@ private :
         bool                    HasForcedSamples;
         bool                    AllForcedSamples;
         bool                    IsImage;
+        bool                    IsCaption;
         bool                    tkhd_Found;
         int32u                  TrackID;
+        std::vector<mdat_Pos_Type> mdat_Pos;
         std::vector<int32u>     CC;
         std::vector<int32u>     CCFor;
         std::vector<int32u>     FallBackTo;
@@ -628,6 +648,7 @@ private :
             HasForcedSamples=false;
             AllForcedSamples=false;
             IsImage=false;
+            IsCaption=false;
             tkhd_Found=false;
             CleanAperture_Width=0;
             CleanAperture_Height=0;
@@ -679,18 +700,6 @@ private :
     size_t* File_Buffer_Size_Hint_Pointer;
 
     //Positions
-    struct mdat_Pos_Type
-    {
-        int64u Offset;
-        int64u Size;
-        int32u StreamID;
-        int32u Reserved1;
-        int64u Reserved2;
-        bool operator<(const mdat_Pos_Type& r) const
-        {
-            return Offset<r.Offset;
-        }
-    };
     typedef std::vector<mdat_Pos_Type> mdat_pos;
     static bool mdat_pos_sort (const File_Mpeg4::mdat_Pos_Type &i,const File_Mpeg4::mdat_Pos_Type &j) { return (i.Offset<j.Offset); }
     void IsParsing_mdat_Set();
@@ -698,6 +707,7 @@ private :
     void TimeCodeTrack_Check(stream &Stream_Temp, size_t Pos, int32u StreamID);
     #endif //MEDIAINFO_DEMUX
     mdat_pos mdat_Pos;
+    mdat_pos mdat_Pos_Caption;
     mdat_Pos_Type* mdat_Pos_Temp;
     mdat_Pos_Type* mdat_Pos_Temp_ToJump;
     mdat_Pos_Type* mdat_Pos_Max;

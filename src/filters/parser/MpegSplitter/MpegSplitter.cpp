@@ -20,7 +20,6 @@
  */
 
 #include "stdafx.h"
-#include <atlpath.h>
 #include <ks.h>
 #include <ksmedia.h>
 #include <dmodshow.h>
@@ -28,6 +27,7 @@
 #include <moreuuids.h>
 #include "MpegSplitter.h"
 #include <basestruct.h>
+#include "DSUtil/FileHandle.h"
 
 #include "filters/reader/VTSReader/VTSReader.h"
 #include "apps/mplayerc/SettingsDefines.h"
@@ -398,10 +398,18 @@ static CString GetMediaTypeDesc(const CMediaType *pMediaType, const CHdmvClipInf
 					}
 					break;
 					case WAVE_FORMAT_DTS2: {
-						if (pPresentationDesc) {
-							Infos.emplace_back(pPresentationDesc);
-						} else {
-							Infos.emplace_back(L"DTS");
+						CStringW codecName;
+						if (pInfo->cbSize == 1) {
+							const auto profile = (reinterpret_cast<const BYTE*>(pInfo + 1))[0];
+							GetDTSHDDescription(profile, codecName);
+							Infos.emplace_back(codecName);
+						}
+						if (codecName.IsEmpty()) {
+							if (pPresentationDesc) {
+								Infos.emplace_back(pPresentationDesc);
+							} else {
+								Infos.emplace_back(L"DTS");
+							}
 						}
 					}
 					break;
@@ -695,8 +703,7 @@ void CMpegSplitterFilter::ReadClipInfo(LPCOLESTR pszFileName)
 
 STDMETHODIMP CMpegSplitterFilter::Load(LPCOLESTR pszFileName, const AM_MEDIA_TYPE* pmt)
 {
-	CPath path(pszFileName);
-	const CString ext = path.GetExtension().MakeLower();
+	const CStringW ext = GetFileExt(pszFileName).MakeLower();
 
 	if (ext == L".iso" || ext == L".mdf") { // ignore the disk images without signature
 		return E_ABORT;
@@ -734,6 +741,31 @@ HRESULT CMpegSplitterFilter::DeliverPacket(std::unique_ptr<CPacket> p)
 						DLog(L"CMpegSplitterFilter::DeliverPacket() : Dropping base %I64d, next MVC extension is %I64d", pMVCBasePacket->rtStart, pMVCExtensionPacket->rtStart);
 						m_MVCBaseQueue.erase(m_MVCBaseQueue.begin());
 						break;
+					}
+				}
+			}
+		} else {
+			return __super::DeliverPacket(std::move(p));
+		}
+
+		return S_OK;
+	} else if (m_bHandleDVStream) {
+		if (TrackNumber == m_dwMasterDVTrackNumber) {
+			if (m_MasterDVStreamPacket) {
+				__super::DeliverPacket(std::move(m_MasterDVStreamPacket));
+			}
+			m_MasterDVStreamPacket = std::move(p);
+		} else if (TrackNumber == m_dwSecondaryDVTrackNumber) {
+			if (m_MasterDVStreamPacket && p->rtStart == m_MasterDVStreamPacket->rtStart) {
+				CH265Nalu Nalu;
+				Nalu.SetBuffer(p->data(), p->size());
+				while (Nalu.ReadNext()) {
+					auto nalu_type = Nalu.GetType();
+					if (nalu_type == NALU_TYPE_HEVC_UNSPEC62) {
+						// Dolby Vision RPU
+						// TODO - check for NALU_TYPE_HEVC_EOSEQ
+						m_MasterDVStreamPacket->AppendData(Nalu.GetNALBuffer(), Nalu.GetLength());
+						return __super::DeliverPacket(std::move(m_MasterDVStreamPacket));
 					}
 				}
 			}
@@ -860,7 +892,7 @@ HRESULT CMpegSplitterFilter::DemuxNextPacket(const REFERENCE_TIME rtStartOffset)
 
 		if (h.payload && ISVALIDPID(h.pid)) {
 			const DWORD TrackNumber = h.pid;
-			if (GetOutputPin(TrackNumber) || TrackNumber == m_dwMVCExtensionTrackNumber) {
+			if (GetOutputPin(TrackNumber) || TrackNumber == m_dwMVCExtensionTrackNumber || TrackNumber == m_dwSecondaryDVTrackNumber) {
 				const __int64 pos = m_pFile->GetPos();
 				CMpegSplitterFile::peshdr peshdr;
 				if (h.payloadstart
@@ -937,9 +969,8 @@ void CMpegSplitterFilter::HandleStream(CMpegSplitterFile::stream& s, CString fNa
 		if (palette.IsEmpty()) {
 			for (;;) {
 				if (::PathFileExistsW(fName)) {
-					CPath fname(fName);
-					fname.StripPath();
-					if (!CString(fname).Find(L"VTS_")) {
+					CStringW fname = GetFileName(fName);
+					if (!fname.Find(L"VTS_")) {
 						fName = fName.Left(fName.ReverseFind('.') + 1);
 						fName.TrimRight(L".0123456789") += L"0.ifo";
 
@@ -1034,14 +1065,16 @@ void CMpegSplitterFilter::HandleStream(CMpegSplitterFile::stream& s, CString fNa
 		if (SUCCEEDED(CreateAVCfromH264(&mt))) {
 			s.mts.push_back(mt);
 		}
-	}
-
-	if (mt.subtype == MEDIASUBTYPE_AMVC) {
+	} else if (mt.subtype == MEDIASUBTYPE_AMVC) {
 		s.mts.push_back(mt);
 		s.mt.subtype = MEDIASUBTYPE_H264;
 		if (SUCCEEDED(CreateAVCfromH264(&mt))) {
 			s.mts.push_back(mt);
 		}
+	} else if (s.codec == CMpegSplitterFile::stream_codec::HEVC_DV_SECONDARY) {
+		m_bHandleDVStream          = TRUE;
+		m_dwMasterDVTrackNumber    = m_pFile->m_streams[CMpegSplitterFile::stream_type::video].front();
+		m_dwSecondaryDVTrackNumber = s;
 	}
 
 	s.mts.push_back(s.mt);
@@ -1257,6 +1290,13 @@ HRESULT CMpegSplitterFilter::CreateOutputs(IAsyncReader* pAsyncReader)
 		}
 	}
 
+	auto& streams = m_pFile->m_streams[CMpegSplitterFile::stream_type::video];
+	if (streams.size() == 2 && streams.back().codec == CMpegSplitterFile::stream_codec::HEVC_DV_SECONDARY) {
+		// Remove Dolby Vision stream from streams list
+		auto it = streams.begin(); ++it;
+		streams.erase(it);
+	}
+
 	for (int type = CMpegSplitterFile::stream_type::video; type <= CMpegSplitterFile::stream_type::subpic; type++) {
 		int stream_idx = 0;
 
@@ -1317,26 +1357,24 @@ HRESULT CMpegSplitterFilter::CreateOutputs(IAsyncReader* pAsyncReader)
 			const auto& Item = m_Items.begin();
 			if (Item->m_pg_offset_sequence_id.size()) {
 				std::list<BYTE> pg_offsets;
-				for (auto it = Item->m_pg_offset_sequence_id.begin(); it != Item->m_pg_offset_sequence_id.end(); ++it) {
-					if (*it != 0xff) {
-						pg_offsets.push_back(*it);
+				for (const auto& pg_offset_id : Item->m_pg_offset_sequence_id) {
+					if (pg_offset_id != 0xff) {
+						pg_offsets.push_back(pg_offset_id);
 
-						CString offset; offset.Format(L"%u", *it);
+						CString offset; offset.Format(L"%u", pg_offset_id);
 						SetProperty(L"stereo_subtitle_offset_id", offset);
 					}
 				}
+
 				if (pg_offsets.size()) {
 					CString offsets;
 
 					pg_offsets.sort();
 					pg_offsets.unique();
-					for (auto it = pg_offsets.begin(); it != pg_offsets.end(); ++it) {
-						if (offsets.IsEmpty()) {
-							offsets.Format(L"%u", *it);
-						} else {
-							offsets.AppendFormat(L",%u", *it);
-						}
+					for (const auto& pg_offset : pg_offsets) {
+						offsets.AppendFormat(L"%u,", pg_offset);
 					}
+					offsets.TrimRight(L',');
 
 					SetProperty(L"stereo_subtitle_offset_ids", offsets);
 				}
@@ -1345,23 +1383,21 @@ HRESULT CMpegSplitterFilter::CreateOutputs(IAsyncReader* pAsyncReader)
 			// IG offsets
 			if (Item->m_ig_offset_sequence_id.size()) {
 				std::list<BYTE> ig_offsets;
-				for (auto it = Item->m_ig_offset_sequence_id.begin(); it != Item->m_ig_offset_sequence_id.end(); ++it) {
-					if (*it != 0xff) {
-						ig_offsets.push_back(*it);
+				for (const auto& ig_offset_id : Item->m_ig_offset_sequence_id) {
+					if (ig_offset_id != 0xff) {
+						ig_offsets.push_back(ig_offset_id);
 					}
 				}
+
 				if (ig_offsets.size()) {
 					CString offsets;
 
 					ig_offsets.sort();
 					ig_offsets.unique();
-					for (auto it = ig_offsets.begin(); it != ig_offsets.end(); ++it) {
-						if (offsets.IsEmpty()) {
-							offsets.Format(L"%u", *it);
-						} else {
-							offsets.AppendFormat(L",%u", *it);
-						}
+					for (const auto& ig_offset : ig_offsets) {
+						offsets.AppendFormat(L"%u,", ig_offset);
 					}
+					offsets.TrimRight(L',');
 
 					SetProperty(L"stereo_interactive_offset_ids", offsets);
 				}
@@ -1466,6 +1502,8 @@ void CMpegSplitterFilter::DemuxSeek(REFERENCE_TIME rt)
 
 	m_MVCExtensionQueue.clear();
 	m_MVCBaseQueue.clear();
+
+	m_MasterDVStreamPacket.reset();
 
 	if (rt == 0) {
 		m_pFile->Seek(m_pFile->m_posMin);

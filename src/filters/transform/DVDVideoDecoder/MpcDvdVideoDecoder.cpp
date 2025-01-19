@@ -1,6 +1,6 @@
 /*
  * (C) 2003-2006 Gabest
- * (C) 2006-2023 see Authors.txt
+ * (C) 2006-2024 see Authors.txt
  *
  * This file is part of MPC-BE.
  *
@@ -244,7 +244,7 @@ public:
 
 protected:
 	DWORD ThreadProc() {
-		SetThreadName(DWORD_MAX, "CMpeg2DecFilter Control Thread");
+		SetThreadName((DWORD)-1, "CMpeg2DecFilter Control Thread");
 		while (TRUE) {
 			DWORD cmd = GetRequest();
 			switch (cmd) {
@@ -563,7 +563,7 @@ void CMpeg2DecFilter::SetTypeSpecificFlags(IMediaSample* pMS)
 			props.dwTypeSpecificFlags &= ~0x7f;
 
 			if (m_fInterlaced) {
-				if (m_dec->m_info.m_sequence->flags & SEQ_FLAG_PROGRESSIVE_SEQUENCE || m_fFilm) {
+				if (m_dec->m_info.m_sequence->flags & SEQ_FLAG_PROGRESSIVE_SEQUENCE || m_fFilm || m_fb.flags & PIC_FLAG_PROGRESSIVE_FRAME) {
 					props.dwTypeSpecificFlags |= AM_VIDEO_FLAG_WEAVE;
 				}
 			} else {
@@ -805,12 +805,11 @@ HRESULT CMpeg2DecFilter::DeliverToRenderer()
 		m_pSubpicInput->RenderSubpics(m_fb.rtStart, buf, m_fb.pitch, m_fb.h);
 	}
 
-	int w = (m_fb.w + 7)&~7;
 	BITMAPINFOHEADER bihOut;
 	ExtractBIH(&m_pOutput->CurrentMediaType(), &bihOut);
 
 	if (bihOut.biCompression == FCC('NV12')) {
-		CopyI420toNV12(m_fb.h, pDataOut, bihOut.biWidth, buf, m_fb.pitch);
+		CopyI420toNV12(m_fb.w, m_fb.h, pDataOut, bihOut.biWidth, buf, m_fb.pitch);
 	}
 	else if (bihOut.biCompression == FCC('YV12')) {
 		CopyI420toYV12(m_fb.h, pDataOut, bihOut.biWidth, buf, m_fb.pitch);

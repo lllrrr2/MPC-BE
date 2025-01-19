@@ -1,5 +1,5 @@
 ﻿;
-; (C) 2009-2023 see Authors.txt
+; (C) 2009-2024 see Authors.txt
 ;
 ; This file is part of MPC-BE.
 ;
@@ -16,7 +16,7 @@
 ; You should have received a copy of the GNU General Public License
 ; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#if VER < EncodeVer(6,2,2)
+#if VER < EncodeVer(6,3,1)
   #error A more recent version of Inno Setup 6 is required to compile this script (6.2.2 or newer)
 #endif
 #ifndef UNICODE
@@ -68,7 +68,8 @@
   #define Description  = app_name + " x64 " + app_version
   #define VisualElementsManifest = "VisualElements\mpc-be64.VisualElementsManifest.xml"
 #endif
-#define mpcvr_desc     = "MPC Video Renderer 0.7.1"
+#define mpcvr_desc     = "MPC Video Renderer 0.9.1"
+#define mpcscriptsrc_desc = "MPC Script Source 0.2.5"
 
 [Setup]
 #ifdef Win32Build
@@ -146,24 +147,54 @@ Name: hu; MessagesFile: compiler:Languages\Hungarian.isl
 Name: hy; MessagesFile: compiler:Languages\Armenian.isl
 Name: it; MessagesFile: compiler:Languages\Italian.isl
 Name: ja; MessagesFile: compiler:Languages\Japanese.isl
-Name: kr; MessagesFile: Languages\Korean.isl
+Name: kr; MessagesFile: compiler:Languages\Korean.isl
 Name: nl; MessagesFile: compiler:Languages\Dutch.isl
 Name: pl; MessagesFile: compiler:Languages\Polish.isl
 Name: ro; MessagesFile: Languages\Romanian.isl
 Name: ru; MessagesFile: compiler:Languages\Russian.isl
 Name: sc; MessagesFile: Languages\ChineseSimplified.isl
-Name: sv; MessagesFile: Languages\Swedish.isl
 Name: sk; MessagesFile: compiler:Languages\Slovak.isl
+Name: sl; MessagesFile: compiler:Languages\Slovenian.isl
+Name: sv; MessagesFile: Languages\Swedish.isl
 Name: tc; MessagesFile: Languages\ChineseTraditional.isl
 Name: tr; MessagesFile: compiler:Languages\Turkish.isl
 Name: ua; MessagesFile: compiler:Languages\Ukrainian.isl
 #endif
 
 ; Include installer's custom messages
-#include "custom_messages.iss"
+#include ".\CustomMessages\custom_messages.iss"
+#ifdef localize
+#include ".\CustomMessages\custom_messages.br.iss"
+#include ".\CustomMessages\custom_messages.by.iss"
+#include ".\CustomMessages\custom_messages.ca.iss"
+#include ".\CustomMessages\custom_messages.cz.iss"
+#include ".\CustomMessages\custom_messages.de.iss"
+#include ".\CustomMessages\custom_messages.el.iss"
+#include ".\CustomMessages\custom_messages.es.iss"
+#include ".\CustomMessages\custom_messages.eu.iss"
+#include ".\CustomMessages\custom_messages.fr.iss"
+#include ".\CustomMessages\custom_messages.he.iss"
+#include ".\CustomMessages\custom_messages.hu.iss"
+#include ".\CustomMessages\custom_messages.hy.iss"
+#include ".\CustomMessages\custom_messages.it.iss"
+#include ".\CustomMessages\custom_messages.ja.iss"
+#include ".\CustomMessages\custom_messages.kr.iss"
+#include ".\CustomMessages\custom_messages.nl.iss"
+#include ".\CustomMessages\custom_messages.pl.iss"
+#include ".\CustomMessages\custom_messages.ro.iss"
+#include ".\CustomMessages\custom_messages.ru.iss"
+#include ".\CustomMessages\custom_messages.sc.iss"
+#include ".\CustomMessages\custom_messages.sk.iss"
+#include ".\CustomMessages\custom_messages.sl.iss"
+#include ".\CustomMessages\custom_messages.sv.iss"
+#include ".\CustomMessages\custom_messages.tc.iss"
+#include ".\CustomMessages\custom_messages.tr.iss"
+#include ".\CustomMessages\custom_messages.ua.iss"
+#endif
 
 [Messages]
-BeveledLabel = {#BeveledLabel}
+WelcomeLabel1=[name/ver]
+BeveledLabel={#BeveledLabel}
 
 [Types]
 Name: default; Description: {cm:types_DefaultInstallation}
@@ -177,11 +208,8 @@ Name: "mpcresources";  Description: "{cm:comp_mpcresources}";   Types: default c
 #endif
 Name: "mpcbeshellext"; Description: "{cm:comp_mpcbeshellext}";  Types: custom;         Flags: disablenouninstallwarning;
 Name: "intel_msdk";    Description: "{cm:comp_intel_msdk}";     Types: custom;         Flags: disablenouninstallwarning;
-#ifdef Win32Build
-Name: "mpcvr";         Description: "{#mpcvr_desc}";            Types: custom;         Flags: disablenouninstallwarning;
-#else
-Name: "mpcvr";         Description: "{#mpcvr_desc}";            Types: custom;         Flags: disablenouninstallwarning; 
-#endif
+Name: "mpcvr";         Description: "{#mpcvr_desc}";            Types: default custom; Flags: disablenouninstallwarning;
+Name: "mpcscriptsrc";  Description: "{#mpcscriptsrc_desc}";     Types: custom;         Flags: disablenouninstallwarning;
 
 [Tasks]
 Name: desktopicon;              Description: {cm:CreateDesktopIcon};     GroupDescription: {cm:AdditionalIcons}
@@ -189,6 +217,7 @@ Name: desktopicon\user;         Description: {cm:tsk_CurrentUser};       GroupDe
 Name: desktopicon\common;       Description: {cm:tsk_AllUsers};          GroupDescription: {cm:AdditionalIcons}; Flags: unchecked exclusive
 Name: pintotaskbar;             Description: {cm:PinToTaskBar};          GroupDescription: {cm:AdditionalIcons}; OnlyBelowVersion: 0,6.4
 
+Name: longpathsenable;          Description: {cm:tsk_LongPathsEnable};   GroupDescription: {cm:tsk_Other};       Flags: checkedonce unchecked; MinVersion: 10.0.14393; Check: not LongPathIsEnabled()
 ;;ResetSettings
 Name: reset_settings;           Description: {cm:tsk_ResetSettings};     GroupDescription: {cm:tsk_Other};       Flags: checkedonce unchecked; Check: SettingsExist()
 
@@ -217,9 +246,11 @@ Source: "{#VisualElementsManifest}";       DestDir: "{app}";                    
 #ifdef Win32Build
 Source: "MPC_components\IntelMediaSDK\libmfxsw32.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: intel_msdk;
 Source: "MPC_components\MpcVideoRenderer\MpcVideoRenderer.ax"; DestDir: "{app}\Filters"; Flags: regserver; Components: mpcvr;
+Source: "MPC_components\MpcScriptSource\MpcScriptSource.ax"; DestDir: "{app}\Filters"; Flags: regserver; Components: mpcscriptsrc;
 #else
 Source: "MPC_components\IntelMediaSDK\libmfxsw64.dll"; DestDir: "{app}"; Flags: ignoreversion; Components: intel_msdk;
 Source: "MPC_components\MpcVideoRenderer\MpcVideoRenderer64.ax"; DestDir: "{app}\Filters"; Flags: regserver; Components: mpcvr;
+Source: "MPC_components\MpcScriptSource\MpcScriptSource64.ax"; DestDir: "{app}\Filters"; Flags: regserver; Components: mpcscriptsrc;
 #endif
 
 [Icons]
@@ -393,11 +424,7 @@ begin
 
   if (Result = '') or not DirExists(Result) then
   begin
-    #ifdef Win32Build
     Result := ExpandConstant('{pf}\{#app_name}');
-    #else
-    Result := ExpandConstant('{pf}\{#app_name} x64');
-    #endif
   end;
 end;
 
@@ -434,6 +461,19 @@ end;
 function IniUsed(): Boolean;
 begin
   Result := FileExists(ExpandConstant('{app}\{#mpcbe_ini}'));
+end;
+
+function LongPathIsEnabled(): Boolean;
+var
+  Value: Cardinal ;
+begin
+  if not RegQueryDWordValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\FileSystem', 'LongPathsEnabled', Value) then
+    Value := 0;
+
+  if Value = 0 then
+    Result := False // LongPathsEnabled not found or not enabled
+  else
+    Result := True; // is enabled
 end;
 
 // Check if settings exist
@@ -497,8 +537,11 @@ var
 begin
   if CurStep = ssPostInstall then
   begin
-     if WizardIsTaskSelected('pintotaskbar') then
+    if WizardIsTaskSelected('pintotaskbar') then
       PinToTaskbar(ExpandConstant('{app}\{#mpcbe_exe}'), True);
+
+    if WizardIsTaskSelected('longpathsenable') then
+      RegWriteDWordValue(HKLM, 'SYSTEM\CurrentControlSet\Control\FileSystem', 'LongPathsEnabled', 1);
 
     if WizardIsTaskSelected('reset_settings') then
       CleanUpSettingsAndFiles();

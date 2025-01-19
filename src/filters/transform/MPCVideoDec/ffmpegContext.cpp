@@ -31,14 +31,13 @@
 #pragma warning(disable: 4005)
 #pragma warning(disable: 5033)
 extern "C" {
-	#include <ExtLib/ffmpeg/libavcodec/avcodec.h>
+	#include <ExtLib/ffmpeg/libavutil/pixdesc.h>
 // This is kind of an hack but it avoids using a C++ keyword as a struct member name
 #define class classFFMPEG
-	#include <ExtLib/ffmpeg/libavcodec/mpegvideo.h>
 	#include <ExtLib/ffmpeg/libavcodec/h264dec.h>
 	#include <ExtLib/ffmpeg/libavcodec/ffv1.h>
 #undef class
-	#include <ExtLib/ffmpeg/libavcodec/vvc/vvcdec.h>
+	//#include <ExtLib/ffmpeg/libavcodec/vvc/dec.h>
 }
 #pragma warning(pop)
 
@@ -85,15 +84,16 @@ static bool CheckPCID(UINT pcid, const UINT16* pPCIDs, size_t count)
 int FFH264CheckCompatibility(int nWidth, int nHeight, struct AVCodecContext* pAVCtx,
 							 UINT nPCIVendor, UINT nPCIDevice, UINT64 VideoDriverVersion)
 {
-	const H264Context* h           = (H264Context*)pAVCtx->priv_data;
-	const SPS* sps                 = h264_getSPS(h);
-
-	int video_is_level51           = 0;
-	int no_level51_support         = 1;
-	int too_much_ref_frames        = 0;
-	const int max_ref_frames_dpb41 = std::min(11, 8388608/(nWidth * nHeight));
+	const H264Context* h = (H264Context*)pAVCtx->priv_data;
+	const SPS* sps = h264_getSPS(h);
+	int flags = 0;
 
 	if (sps) {
+		int video_is_level51 = 0;
+		int no_level51_support = 1;
+		int too_much_ref_frames = 0;
+		const int max_ref_frames_dpb41 = std::min(11, 8388608 / (nWidth * nHeight));
+
 		if (sps->bit_depth_luma > 8 || sps->chroma_format_idc > 1) {
 			return DXVA_HIGH_BIT;
 		}
@@ -139,17 +139,16 @@ int FFH264CheckCompatibility(int nWidth, int nHeight, struct AVCodecContext* pAV
 		if (sps->ref_frame_count > max_ref_frames) {
 			too_much_ref_frames = 1;
 		}
+
+		if (video_is_level51 * no_level51_support) {
+			flags |= DXVA_UNSUPPORTED_LEVEL;
+		}
+		if (too_much_ref_frames) {
+			flags |= DXVA_TOO_MANY_REF_FRAMES;
+		}
 	}
 
-	int Flags = 0;
-	if (video_is_level51 * no_level51_support) {
-		Flags |= DXVA_UNSUPPORTED_LEVEL;
-	}
-	if (too_much_ref_frames) {
-		Flags |= DXVA_TOO_MANY_REF_FRAMES;
-	}
-
-	return Flags;
+	return flags;
 }
 
 void FillAVCodecProps(struct AVCodecContext* pAVCtx, BITMAPINFOHEADER* pBMI)
@@ -270,11 +269,18 @@ void FillAVCodecProps(struct AVCodecContext* pAVCtx, BITMAPINFOHEADER* pBMI)
 			break;
 		case AV_CODEC_ID_FFV1:
 			if (pAVCtx->priv_data) {
-				const FFV1Context* h = (FFV1Context*)pAVCtx->priv_data;
-				if (h->version > 0) { // extra data has been parse
-					if (h->colorspace == 0) {
+				auto f = static_cast<FFV1Context*>(pAVCtx->priv_data);
+				if (!f->version) {
+					if (ff_ffv1_parse_extra_data(pAVCtx) < 0) {
+						break;
+					}
+				}
+				if (f->version > 0) { // extra data has been parse
+					if (f->colorspace == 0) {
+						auto chorma_shift = 16 * f->chroma_h_shift + f->chroma_v_shift;
+
 						if (pAVCtx->bits_per_raw_sample <= 8) { // <=8 bit and transparency
-							switch (16 * h->chroma_h_shift + h->chroma_v_shift) {
+							switch (chorma_shift) {
 							case 0x00: pAVCtx->pix_fmt = AV_PIX_FMT_YUV444P; break;
 							case 0x01: pAVCtx->pix_fmt = AV_PIX_FMT_YUV440P; break;
 							case 0x10: pAVCtx->pix_fmt = AV_PIX_FMT_YUV422P; break;
@@ -284,22 +290,27 @@ void FillAVCodecProps(struct AVCodecContext* pAVCtx, BITMAPINFOHEADER* pBMI)
 							}
 						}
 						else if (pAVCtx->bits_per_raw_sample <= 10) { // 9, 10 bit and transparency
-							switch (16 * h->chroma_h_shift + h->chroma_v_shift) {
+							switch (chorma_shift) {
 							case 0x00: pAVCtx->pix_fmt = AV_PIX_FMT_YUV444P10; break;
 							case 0x10: pAVCtx->pix_fmt = AV_PIX_FMT_YUV422P10; break;
 							case 0x11: pAVCtx->pix_fmt = AV_PIX_FMT_YUV420P10; break;
 							}
 						}
 						else if (pAVCtx->bits_per_raw_sample <= 16) { // 12, 14, 16 bit and transparency
-							switch (16 * h->chroma_h_shift + h->chroma_v_shift) {
+							switch (chorma_shift) {
 							case 0x00: pAVCtx->pix_fmt = AV_PIX_FMT_YUV444P16; break;
 							case 0x10: pAVCtx->pix_fmt = AV_PIX_FMT_YUV422P16; break;
 							case 0x11: pAVCtx->pix_fmt = AV_PIX_FMT_YUV420P16; break;
 							}
 						}
 					}
-					else if (h->colorspace == 1) {
-						pAVCtx->pix_fmt = AV_PIX_FMT_RGBA; // and other RGB formats, but it is not important here
+					else if (f->colorspace == 1) {
+						if (pAVCtx->bits_per_raw_sample <= 8) {
+							pAVCtx->pix_fmt = AV_PIX_FMT_RGBA;
+						}
+						else {
+							pAVCtx->pix_fmt = AV_PIX_FMT_RGB48;
+						}
 					}
 				}
 			}
@@ -319,6 +330,7 @@ void FillAVCodecProps(struct AVCodecContext* pAVCtx, BITMAPINFOHEADER* pBMI)
 		case AV_CODEC_ID_DXTORY:
 			pAVCtx->pix_fmt = AV_PIX_FMT_RGB24; // and other RGB formats, but it is not important here
 			break;
+		/*
 		case AV_CODEC_ID_VVC:
 			{
 				auto s = reinterpret_cast<VVCContext*>(pAVCtx->priv_data);
@@ -370,6 +382,7 @@ void FillAVCodecProps(struct AVCodecContext* pAVCtx, BITMAPINFOHEADER* pBMI)
 				}
 			}
 			break;
+		*/
 		}
 
 		if (pAVCtx->pix_fmt == AV_PIX_FMT_NONE) {
@@ -423,23 +436,4 @@ BOOL DXVACheckFramesize(int width, int height, UINT nPCIVendor, UINT nPCIDevice,
 	}
 
 	return FALSE;
-}
-
-void FixFrameSize(enum AVPixelFormat pixfmt, int& width, int& height)
-{
-	const AVPixFmtDescriptor* av_pfdesc = av_pix_fmt_desc_get(pixfmt);
-	if (av_pfdesc) {
-		if (av_pfdesc->log2_chroma_w == 1 && (width & 1)) {
-			width += 1;
-		}
-		if (av_pfdesc->log2_chroma_h == 1 && (height & 1)) {
-			height -= 1;
-		}
-	}
-}
-
-void FixFrameSize(struct AVCodecContext* pAVCtx, int& width, int& height)
-{
-	const AVPixelFormat pixfmt = pAVCtx->sw_pix_fmt != AV_PIX_FMT_NONE ? pAVCtx->sw_pix_fmt : pAVCtx->pix_fmt;
-	FixFrameSize(pixfmt, width, height);
 }

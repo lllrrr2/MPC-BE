@@ -32,6 +32,7 @@ public :
     //In
     stream_t StreamKind;
     bool     Interlaced;
+    int8u    MxfContentKind;
     #if MEDIAINFO_DEMUX
     float64  FrameRate;
     #endif //MEDIAINFO_DEMUX
@@ -73,6 +74,7 @@ private :
     //Elements
     void TEM () {};
     void SOC () {}
+    void CAP ();
     void SIZ ();
     void COD ();
     void COC () {Skip_XX(Element_Size, "Data");}

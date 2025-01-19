@@ -1,6 +1,6 @@
 /*
  * (C) 2003-2006 Gabest
- * (C) 2006-2023 see Authors.txt
+ * (C) 2006-2024 see Authors.txt
  *
  * This file is part of MPC-BE.
  *
@@ -22,6 +22,7 @@
 #include "stdafx.h"
 #include "DSUtil/std_helper.h"
 #include "PPageFileInfoRes.h"
+#include "FileDialogs.h"
 #include "Misc.h"
 
 // CPPageFileInfoRes dialog
@@ -31,7 +32,6 @@ CPPageFileInfoRes::CPPageFileInfoRes(const CString& fn, IFilterGraph* pFG)
 	: CPPageBase(CPPageFileInfoRes::IDD, CPPageFileInfoRes::IDD)
 	, m_fn(fn)
 	, m_fullfn(fn)
-	, m_hIcon(nullptr)
 {
 	m_fn.TrimRight('/');
 	int i = std::max(m_fn.ReverseFind('\\'), m_fn.ReverseFind('/'));
@@ -154,9 +154,9 @@ void CPPageFileInfoRes::OnSaveAs()
 		}
 	}
 
-	CFileDialog fd(FALSE, nullptr, fname,
+	CSaveFileDialog fd(nullptr, fname,
 				   OFN_EXPLORER|OFN_ENABLESIZING|OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT|OFN_NOCHANGEDIR,
-				   ext_list, this, 0);
+				   ext_list, this);
 	if (fd.DoModal() == IDOK) {
 		FILE* f = nullptr;
 		if (_wfopen_s(&f, fd.GetPathName(), L"wb") == 0) {
@@ -177,7 +177,7 @@ void CPPageFileInfoRes::OnSize(UINT nType, int cx, int cy)
 	int dy = cy - m_rCrt.Height();
 	GetClientRect(&m_rCrt);
 
-	CRect r(0, 0, 0, 0);
+	CRect r;
 	if (::IsWindow(m_list.GetSafeHwnd())) {
 		m_list.GetWindowRect(&r);
 		r.right += dx;

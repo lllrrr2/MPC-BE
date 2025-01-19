@@ -1,5 +1,5 @@
 /*
- * (C) 2006-2021 see Authors.txt
+ * (C) 2006-2024 see Authors.txt
  *
  * This file is part of MPC-BE.
  *
@@ -44,6 +44,11 @@ CRenderedHdmvSubtitle::CRenderedHdmvSubtitle(CCritSec* pLock, SUBTITLE_TYPE nTyp
 		default :
 			ASSERT(FALSE);
 			m_pSub = nullptr;
+	}
+
+	if (m_pSub) {
+		auto bForced = (CString(name).MakeLower().Find(L"forced") >= 0);
+		m_pSub->SetForced(bForced);
 	}
 }
 
@@ -181,17 +186,26 @@ STDMETHODIMP CRenderedHdmvSubtitle::Reload()
 	return S_OK;
 }
 
-STDMETHODIMP CRenderedHdmvSubtitle::SetSourceTargetInfo(CString yuvMatrix, CString inputRange, CString outpuRange)
+STDMETHODIMP CRenderedHdmvSubtitle::SetSourceTargetInfo(LPCWSTR yuvMatrix, LPCWSTR inputRange, LPCWSTR outpuRange)
 {
 	ColorConvert::convertType convertType = ColorConvert::convertType::DEFAULT;
-	if (inputRange == L"TV" && outpuRange == L"TV") {
-		convertType = ColorConvert::convertType::TV_2_TV;
-	} else if (inputRange == L"PC" && outpuRange == L"PC") {
-		convertType = ColorConvert::convertType::PC_2_PC;
-	} else if (inputRange == L"TV" && outpuRange == L"PC") {
-		convertType = ColorConvert::convertType::TV_2_PC;
-	} else if (inputRange == L"PC" && outpuRange == L"TV") {
-		convertType = ColorConvert::convertType::PC_2_TV;
+
+
+	if (wcscmp(inputRange, L"TV") == 0) {
+		if (wcscmp(outpuRange, L"TV") == 0) {
+			convertType = ColorConvert::convertType::TV_2_TV;
+		}
+		else if (wcscmp(outpuRange, L"PC") == 0) {
+			convertType = ColorConvert::convertType::TV_2_PC;
+		}
+	}
+	else if (wcscmp(inputRange, L"PC") == 0) {
+		if (wcscmp(outpuRange, L"PC") == 0) {
+			convertType = ColorConvert::convertType::PC_2_PC;
+		}
+		else if (wcscmp(outpuRange, L"TV") == 0) {
+			convertType = ColorConvert::convertType::PC_2_TV;
+		}
 	}
 
 	return m_pSub->SetConvertType(yuvMatrix, convertType);

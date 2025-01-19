@@ -120,12 +120,21 @@ BEGIN
     PUSHBUTTON      "Свойства",IDC_BUTTON1,226,14,60,14
     COMBOBOX        IDC_COMBO1,10,33,212,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     CONTROL         "2-й вывод",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,226,35,60,10
-    GROUPBOX        "Настройки открытия аудио",IDC_STATIC,5,54,285,51
-    CONTROL         "Автозагрузка аудио файлов",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,65,276,9
-    EDITTEXT        IDC_EDIT4,10,76,222,13,ES_AUTOHSCROLL
-    PUSHBUTTON      "Сброс",IDC_BUTTON2,235,76,50,13
+    GROUPBOX        "Аудио",IDC_STATIC,5,53,285,46
+    CTEXT           "Громкость",IDC_STATIC,42,60,55,8
+    RTEXT           "Тише",IDC_STATIC,7,80,20,8
+    CONTROL         "",IDC_SLIDER1,"msctls_trackbar32",TBS_AUTOTICKS | TBS_BOTH | TBS_TOOLTIPS | WS_TABSTOP | 0x400,28,72,85,19
+    LTEXT           "Громче",IDC_STATIC,116,80,27,8
+    CTEXT           "Баланс",IDC_STATIC_BALANCE,191,60,55,8,SS_NOTIFY
+    RTEXT           "Левый",IDC_STATIC,144,80,30,8
+    CONTROL         "",IDC_SLIDER2,"msctls_trackbar32",TBS_AUTOTICKS | TBS_TOOLTIPS | WS_TABSTOP | 0x400,176,79,85,19
+    LTEXT           "Правый",IDC_STATIC,262,80,27,8
+    GROUPBOX        "Настройки открытия аудио",IDC_STATIC,5,102,285,51
+    CONTROL         "Автозагрузка аудио файлов",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,113,276,9
+    EDITTEXT        IDC_EDIT4,10,124,222,13,ES_AUTOHSCROLL
+    PUSHBUTTON      "Сброс",IDC_BUTTON2,235,124,50,13
     CONTROL         "Всегда использовать внешние аудио-файлы как основные",IDC_CHECK3,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,92,273,9
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,140,273,9
 END
 
 IDD_PPAGESOUNDPROCESSING DIALOGEX 0, 0, 296, 264
@@ -134,7 +143,7 @@ FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     GROUPBOX        "Микшер каналов",IDC_STATIC,5,3,286,72
     CONTROL         "Микшировать каналы в:",IDC_CHECK7,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,15,106,9
-    COMBOBOX        IDC_COMBO2,129,12,62,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO2,129,14,62,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     CONTROL         "Запросить стерео у декодера",IDC_CHECK8,"Button",BS_AUTOCHECKBOX | BS_TOP | BS_MULTILINE | WS_TABSTOP,197,15,89,16
     CONTROL         "Перенаправить бас в LFE",IDC_BASSREDIRECT_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,30,143,9
     RTEXT           "Static",IDC_STATIC5,9,42,87,8
@@ -153,9 +162,11 @@ BEGIN
     GROUPBOX        "",IDC_STATIC,5,154,285,49
     CONTROL         "Фильтры FFmpeg",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,153,61,10
     PUSHBUTTON      "Пресеты",IDC_BUTTON1,9,166,59,14
+    CONTROL         "Не использовать для стерео и моно источников",IDC_CHECK2,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,76,166,180,10
     COMBOBOX        IDC_COMBO1,10,184,58,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     EDITTEXT        IDC_EDIT1,72,184,214,14,ES_AUTOHSCROLL
-    GROUPBOX        "Формат вывода:",IDC_STATIC,5,206,286,29
+    GROUPBOX        "Формат вывода:",IDC_STATIC,5,206,180,29
     CONTROL         "Int16",IDC_CHECK9,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,218,32,9
     CONTROL         "Int24",IDC_CHECK10,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,52,218,32,9
     CONTROL         "Int32",IDC_CHECK11,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,94,218,32,9
@@ -163,7 +174,8 @@ BEGIN
     CONTROL         "Смещение звука (в мс):",IDC_CHECK4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,240,115,9
     EDITTEXT        IDC_EDIT2,129,238,46,13,ES_RIGHT | ES_AUTOHSCROLL
     CONTROL         "",IDC_SPIN2,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | UDS_HOTTRACK,174,238,12,13
-    PUSHBUTTON      "По умолчанию",IDC_BUTTON3,230,237,56,14
+    PUSHBUTTON      "Небольшие стерео колонки",IDC_BUTTON2,188,210,103,14
+    PUSHBUTTON      "По умолчанию",IDC_BUTTON3,235,228,56,14
 END
 
 IDD_GOTO_DLG DIALOGEX 0, 0, 186, 120
@@ -207,7 +219,7 @@ FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     ICON            IDR_MAINFRAME,IDC_MAINFRAME_ICON,5,5,21,20
     LTEXT           "MPC-BE",IDC_STATIC1,30,5,195,8,SS_NOPREFIX
-    CONTROL         "Copyright © 2002-2024, смотрите файл Authors.txt",IDC_AUTHORS_LINK,
+    CONTROL         "Copyright © 2002-2025, смотрите файл Authors.txt",IDC_AUTHORS_LINK,
                     "SysLink",WS_TABSTOP,30,17,195,8
     LTEXT           "Версия :",IDC_VERSION,30,34,90,8
     LTEXT           "Компилятор MPC-BE :",IDC_STATIC,30,66,90,8
@@ -253,15 +265,15 @@ BEGIN
     CONTROL         "всегда один процесс",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON | BS_TOP | BS_MULTILINE | WS_GROUP,10,53,105,18
     CONTROL         "один и тот же процесс для каждого файла",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON | BS_TOP | BS_MULTILINE,10,17,105,18
     CONTROL         "новый процесс для каждого файла",IDC_RADIO3,"Button",BS_AUTORADIOBUTTON | BS_TOP | BS_MULTILINE,10,35,105,18
-    LTEXT           "Текст в заголовке окна",IDC_STATIC,10,80,109,8
-    COMBOBOX        IDC_COMBO1,10,91,109,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Текст в полосе прокрутки",IDC_STATIC,10,108,100,8
-    COMBOBOX        IDC_COMBO2,10,119,109,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    GROUPBOX        "Расположение настроек",IDC_STATIC,5,140,115,55
-    CONTROL         "Реестр Windows",IDC_RADIO4,"Button",BS_AUTORADIOBUTTON | BS_TOP | WS_GROUP,10,153,106,10
-    CONTROL         "Профиль пользователя",IDC_RADIO5,"Button",BS_AUTORADIOBUTTON | BS_TOP,10,166,106,10
-    CONTROL         "Папка плеера",IDC_RADIO6,"Button",BS_AUTORADIOBUTTON | BS_TOP,10,180,106,10
-    GROUPBOX        "История / Позиция",IDC_STATIC,124,5,167,133,WS_GROUP
+    LTEXT           "Текст в заголовке окна",IDC_STATIC,10,79,109,8
+    COMBOBOX        IDC_COMBO1,10,90,109,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Текст в полосе прокрутки",IDC_STATIC,10,107,100,8
+    COMBOBOX        IDC_COMBO2,10,118,109,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Расположение настроек",IDC_STATIC,5,135,115,55
+    CONTROL         "Реестр Windows",IDC_RADIO4,"Button",BS_AUTORADIOBUTTON | BS_TOP | WS_GROUP,10,148,106,10
+    CONTROL         "Профиль пользователя",IDC_RADIO5,"Button",BS_AUTORADIOBUTTON | BS_TOP,10,161,106,10
+    CONTROL         "Папка плеера",IDC_RADIO6,"Button",BS_AUTORADIOBUTTON | BS_TOP,10,175,106,10
+    GROUPBOX        "История / Позиция",IDC_STATIC,124,5,167,128,WS_GROUP
     CONTROL         "Сохранять историю открытых файлов",IDC_CHECK1,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,129,17,156,9
     LTEXT           "Максимальное число записей:",IDC_STATIC,129,31,110,8
@@ -277,17 +289,22 @@ BEGIN
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,129,108,158,1
     CONTROL         "Показывать заголовок для URL в последних файлах",IDC_CHECK4,
                     "Button",BS_AUTOCHECKBOX | BS_TOP | BS_MULTILINE | WS_TABSTOP,129,112,156,17
-    GROUPBOX        "Прочее",IDC_STATIC,124,140,167,101,WS_GROUP
-    CONTROL         "Значок в области уведомлений",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,129,152,156,9
-    CONTROL         "Показать OSD",IDC_SHOW_OSD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,129,164,156,9
-    CONTROL         "Показывать имя файла",IDC_CHECK14,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,138,176,148,9
-    CONTROL         "Показывать время после поиска",IDC_CHECK15,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,138,188,148,9
-    CONTROL         "Отключить меню 'Открыть диск'",IDC_CHECK10,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,129,201,156,9
-    CONTROL         "Повышенный приоритет процесса",IDC_CHECK9,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,129,213,156,9
-    LTEXT           "Тайм-аут соединения:",IDC_STATIC,129,227,96,8
-    EDITTEXT        IDC_EDIT2,230,225,29,13,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
-    CONTROL         "",IDC_SPIN2,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | UDS_HOTTRACK,248,225,11,13
-    LTEXT           "сек.",IDC_STATIC,263,227,26,8
+    GROUPBOX        "Прочее",IDC_STATIC,124,135,167,84,WS_GROUP
+    CONTROL         "Значок в области уведомлений",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,129,147,156,9
+    CONTROL         "Показать OSD",IDC_SHOW_OSD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,129,159,156,9
+    CONTROL         "Показывать имя файла",IDC_CHECK14,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,138,171,148,9
+    CONTROL         "Показывать время после поиска",IDC_CHECK15,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,138,183,148,9
+    CONTROL         "Отключить меню 'Открыть диск'",IDC_CHECK10,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,129,196,156,9
+    CONTROL         "Повышенный приоритет процесса",IDC_CHECK9,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,129,208,156,9
+    GROUPBOX        "Сетевые тайм-ауты",IDC_STATIC,124,222,167,41,WS_GROUP
+    LTEXT           "Соединение:",IDC_STATIC,129,233,96,8
+    EDITTEXT        IDC_EDIT2,230,231,29,13,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "",IDC_SPIN2,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | UDS_HOTTRACK,248,231,11,13
+    LTEXT           "сек.",IDC_STATIC,263,233,26,8
+    LTEXT           "Получение данных:",IDC_STATIC,129,249,96,8
+    EDITTEXT        IDC_EDIT4,230,247,29,13,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "",IDC_SPIN4,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | UDS_HOTTRACK,248,247,12,13
+    LTEXT           "сек.",IDC_STATIC,263,249,26,8
 END
 
 IDD_PPAGEDVD DIALOGEX 0, 0, 296, 264
@@ -314,43 +331,39 @@ IDD_PPAGEPLAYBACK DIALOGEX 0, 0, 296, 264
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    GROUPBOX        "Аудио",IDC_STATIC,5,5,286,46
-    CTEXT           "Громкость",IDC_STATIC,42,12,55,8
-    RTEXT           "Тише",IDC_STATIC,7,32,20,8
-    CONTROL         "",IDC_SLIDER1,"msctls_trackbar32",TBS_AUTOTICKS | TBS_BOTH | TBS_TOOLTIPS | WS_TABSTOP | 0x400,28,24,85,19
-    LTEXT           "Громче",IDC_STATIC,116,32,27,8
-    CTEXT           "Баланс",IDC_STATIC_BALANCE,191,12,55,8,SS_NOTIFY
-    RTEXT           "Левый",IDC_STATIC,144,32,30,8
-    CONTROL         "",IDC_SLIDER2,"msctls_trackbar32",TBS_AUTOTICKS | TBS_TOOLTIPS | WS_TABSTOP | 0x400,176,31,85,19
-    LTEXT           "Правый",IDC_STATIC,262,32,27,8
-    GROUPBOX        "Воспроизведение",IDC_STATIC,5,53,129,60
-    CONTROL         "Повторять",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,10,65,55,10
-    CONTROL         "Повторять бесконечно",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,10,80,116,8
-    EDITTEXT        IDC_EDIT1,65,63,20,13,ES_AUTOHSCROLL | ES_NUMBER | WS_GROUP
-    LTEXT           "раз",IDC_STATIC1,90,65,40,8
-    CONTROL         "Перемотать в конце",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | BS_TOP | BS_MULTILINE | WS_TABSTOP,10,93,116,18
-    GROUPBOX        "Регулировка",IDC_STATIC,5,115,286,54
-    LTEXT           "Шаг громкости:",IDC_STATIC,10,127,108,8
-    COMBOBOX        IDC_COMBOVOLUME,120,124,60,47,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Шаг скорости:",IDC_STATIC,10,143,108,8
-    COMBOBOX        IDC_COMBOSPEEDSTEP,120,140,60,47,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "Не сбрасывать скорость для сессии",IDC_CHECK9,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,157,175,9
-    GROUPBOX        "",IDC_STATIC,137,57,154,56
-    CONTROL         "Приоритет дорожек",IDC_CHECK4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,142,56,100,9
-    LTEXT           "Субтитры:",IDC_STATIC,142,71,44,8
-    EDITTEXT        IDC_EDIT2,190,69,94,13,ES_AUTOHSCROLL
-    LTEXT           "Звук:",IDC_STATIC,142,87,44,8
-    EDITTEXT        IDC_EDIT3,190,85,94,13,ES_AUTOHSCROLL
-    LTEXT           "(Например: eng rus jap)",IDC_STATIC,147,101,132,8
-    GROUPBOX        "Настройки открытия файлов",IDC_STATIC,5,172,286,79
-    LTEXT           "При открытии аудиофайла,",IDC_STATIC,10,185,99,8
-    COMBOBOX        IDC_COMBO4,113,182,172,47,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Дополнительно добавить в плейлист:",IDC_STATIC,10,201,139,8
-    COMBOBOX        IDC_COMBO5,150,198,135,47,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Воспроизведение",IDC_STATIC,5,5,129,60
+    CONTROL         "Повторять",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,10,17,55,10
+    CONTROL         "Повторять бесконечно",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,10,32,116,8
+    EDITTEXT        IDC_EDIT1,65,15,20,13,ES_AUTOHSCROLL | ES_NUMBER | WS_GROUP
+    LTEXT           "раз",IDC_STATIC1,90,17,40,8
+    CONTROL         "Перемотать в конце",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | BS_TOP | BS_MULTILINE | WS_TABSTOP,10,45,116,18
+    GROUPBOX        "Регулировка",IDC_STATIC,5,67,286,54
+    LTEXT           "Шаг громкости:",IDC_STATIC,10,79,108,8
+    COMBOBOX        IDC_COMBOVOLUME,120,76,60,47,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "%",IDC_STATIC2,183,79,8,8
+    LTEXT           "Шаг скорости:",IDC_STATIC,10,95,108,8
+    COMBOBOX        IDC_COMBOSPEEDSTEP,120,92,60,47,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "%",IDC_STATIC3,183,95,8,8
+    CONTROL         "Не сбрасывать скорость для сессии",IDC_CHECK9,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,109,175,9
+    GROUPBOX        "",IDC_STATIC,137,9,154,56
+    CONTROL         "Приоритет дорожек",IDC_CHECK4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,142,8,100,9
+    LTEXT           "Субтитры:",IDC_STATIC,142,23,44,8
+    EDITTEXT        IDC_EDIT2,190,21,94,13,ES_AUTOHSCROLL
+    LTEXT           "Звук:",IDC_STATIC,142,39,44,8
+    EDITTEXT        IDC_EDIT3,190,37,94,13,ES_AUTOHSCROLL
+    LTEXT           "(Например: eng rus jap)",IDC_STATIC,147,53,132,8
+    GROUPBOX        "Настройки открытия файлов",IDC_STATIC,5,124,286,79
+    LTEXT           "При открытии аудиофайла,",IDC_STATIC,10,137,99,8
+    COMBOBOX        IDC_COMBO4,113,134,172,47,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Дополнительно добавить в плейлист:",IDC_STATIC,10,153,139,8
+    COMBOBOX        IDC_COMBO5,150,150,135,47,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     CONTROL         "Рабочий поток для построения цепи фильтров",IDC_CHECK7,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,215,276,9
-    CONTROL         "Отчет об ошибках рендеринга потоков",IDC_CHECK6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,227,276,9
-    CONTROL         "Запоминать выбранные дорожки в плейлисте",IDC_CHECK8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,239,276,9
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,167,276,9
+    CONTROL         "Отчет об ошибках рендеринга потоков",IDC_CHECK6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,179,276,9
+    CONTROL         "Запоминать выбранные дорожки в плейлисте",IDC_CHECK8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,191,276,9
+    CONTROL         "Быстрая перемотка (по ключевым кадрам)",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,209,264,9
+    CONTROL         "Приостанавливать воспроизведение видео при сворачивании окна",IDC_CHECK5,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,221,280,9
 END
 
 IDD_PPAGESUBRENDERING DIALOGEX 0, 0, 296, 264
@@ -431,15 +444,17 @@ BEGIN
     CONTROL         "",IDC_SLIDER3,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | TBS_TOOLTIPS | WS_TABSTOP | 0x400,233,34,53,12
     CONTROL         "",IDC_SLIDER4,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | TBS_TOOLTIPS | WS_TABSTOP | 0x400,233,49,53,12
     CONTROL         "Использовать тёмное меню",IDC_CHECK4,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,13,59,147,8,WS_EX_TRANSPARENT
-    CONTROL         "Использовать тёмный заголовок (Windows 11)",IDC_CHECK5,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,13,73,206,8,WS_EX_TRANSPARENT
+    CONTROL         "Использовать тёмный заголовок (Windows 10 и выше)",IDC_CHECK5,
+                    "Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,13,73,238,8,WS_EX_TRANSPARENT
     GROUPBOX        "",IDC_STATIC,7,90,282,91
     CONTROL         "Показывать время",IDC_CHECK8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,99,152,9
     COMBOBOX        IDC_COMBO3,170,97,115,64,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "Использовать предпросмотр при поиске видеофрагмента",IDC_CHECK_PRV,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,113,264,9
-    LTEXT           "Размер относительно размера экрана:",IDC_STATIC6,24,127,130,8
-    EDITTEXT        IDC_EDIT1,159,125,25,13,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
-    LTEXT           "%",IDC_STATIC7,186,127,10,8
-    COMBOBOX        IDC_COMBO4,209,125,76,64,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Использовать предпросмотр при поиске видеофрагмента",IDC_CHECK_PRV,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,113,224,9
+    LTEXT           "Размер относительно размера экрана:",IDC_STATIC6,24,127,138,8
+    EDITTEXT        IDC_EDIT1,166,126,25,13,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "%",IDC_STATIC7,194,127,10,8
+    COMBOBOX        IDC_COMBO4,207,126,42,64,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Онлайн",IDC_CHECK6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,241,113,47,9,WS_EX_TRANSPARENT
     CONTROL         "Использовать маркер для чаптеров",IDC_CHECK_CHM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,139,182,9
     CONTROL         "Показать панель управления поверх видео",IDC_CHECK_FLYBAR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,152,182,9
     LTEXT           "Размер шрифта плейлиста:",IDC_STATIC,13,165,110,8
@@ -783,7 +798,7 @@ BEGIN
     LTEXT           "Щелчок",IDC_STATIC,10,18,60,8
     COMBOBOX        IDC_COMBO1,70,16,166,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     CONTROL         "Если ничего не загружено, то открыть последний файл",IDC_CHECK1,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,32,206,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,32,208,10
     LTEXT           "Двойной щелчок",IDC_STATIC,10,49,60,8
     COMBOBOX        IDC_COMBO2,70,47,166,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     CONTROL         "Переносить окно за видеообласть",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,65,133,10
@@ -900,30 +915,32 @@ IDD_PPAGEYOUTUBE DIALOGEX 0, 0, 296, 264
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    GROUPBOX        "YouTube",IDC_STATIC,6,5,285,96
+    GROUPBOX        "YouTube",IDC_STATIC,6,5,285,112
     CONTROL         "Использовать встроенный парсер веб-страниц",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,16,120,10
-    LTEXT           "Предпочитаемый формат просмотра:",IDC_STATIC2,10,30,104,8
-    COMBOBOX        IDC_COMBO1,10,40,50,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    COMBOBOX        IDC_COMBO2,64,40,50,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "60 fps",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,118,42,48,10
-    CONTROL         "HDR",IDC_CHECK4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,170,42,30,10
-    LTEXT           "Предпочитаемый язык аудиодорожки:",IDC_STATIC4,10,59,140,8
-    COMBOBOX        IDC_COMBO5,10,70,130,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "Загружать плейлист",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,87,100,10
-    GROUPBOX        "",IDC_STATIC,6,105,285,57
-    CONTROL         "youtube-dl, yt-dlp",IDC_CHECK6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,105,74,10
-    LTEXT           "Исполняемый файл:",IDC_STATIC,10,118,104,8
-    COMBOBOX        IDC_COMBO4,116,116,170,30,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Максимальная высота видео:",IDC_STATIC,10,134,104,8
-    COMBOBOX        IDC_COMBO3,116,132,43,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "Выбрать максимальную частоту кадров или битрейт",IDC_CHECK5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,148,196,10
-    LTEXT           "AceStream address:",IDC_STATIC,10,169,77,8
-    EDITTEXT        IDC_EDIT1,91,167,195,13,ES_AUTOHSCROLL
-    LTEXT           "MatriX (TorrServer) address:",IDC_STATIC,10,186,103,8
-    EDITTEXT        IDC_EDIT2,10,198,276,13,ES_AUTOHSCROLL
-    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,5,225,283,1
-    LTEXT           "User agent:",IDC_STATIC,10,234,77,8
-    EDITTEXT        IDC_EDIT3,91,232,195,13,ES_AUTOHSCROLL
+    LTEXT           "Предпочитаемый формат видео:",IDC_STATIC2,10,29,120,8
+    COMBOBOX        IDC_COMBO1,10,39,52,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO2,66,39,50,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "60 fps",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,120,41,48,10
+    CONTROL         "HDR",IDC_CHECK4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,172,41,30,10
+    LTEXT           "Предпочитаемый формат аудио:",IDC_STATIC3,10,54,120,8
+    COMBOBOX        IDC_COMBO3,10,64,52,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Предпочитаемый язык аудиодорожки:",IDC_STATIC4,10,78,140,8
+    COMBOBOX        IDC_COMBO4,10,89,130,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Загружать плейлист",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,104,100,10
+    GROUPBOX        "",IDC_STATIC,6,119,285,57
+    CONTROL         "youtube-dl, yt-dlp",IDC_CHECK6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,119,74,10
+    LTEXT           "Исполняемый файл:",IDC_STATIC,10,132,104,8
+    COMBOBOX        IDC_COMBO5,116,130,170,30,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Максимальная высота видео:",IDC_STATIC,10,148,104,8
+    COMBOBOX        IDC_COMBO6,116,146,43,46,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Выбрать максимальную частоту кадров или битрейт",IDC_CHECK5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,162,196,10
+    LTEXT           "AceStream address:",IDC_STATIC,10,183,77,8
+    EDITTEXT        IDC_EDIT1,91,181,195,13,ES_AUTOHSCROLL
+    LTEXT           "MatriX (TorrServer) address:",IDC_STATIC,10,200,103,8
+    EDITTEXT        IDC_EDIT2,10,212,276,13,ES_AUTOHSCROLL
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,5,239,283,1
+    LTEXT           "User agent:",IDC_STATIC,10,248,77,8
+    EDITTEXT        IDC_EDIT3,91,246,195,13,ES_AUTOHSCROLL
 END
 
 IDD_AUTH_DLG DIALOGEX 0, 0, 213, 127
@@ -1048,14 +1065,15 @@ BEGIN
     CONTROL         "",IDC_SLI_HUE,"msctls_trackbar32",WS_TABSTOP | 0x400,99,49,187,14
     CONTROL         "",IDC_SLI_SATURATION,"msctls_trackbar32",WS_TABSTOP | 0x400,99,65,187,14
     PUSHBUTTON      "Сброс",IDC_RESET,241,88,50,14
-    GROUPBOX        "",IDC_STATIC6,5,88,177,63
+    GROUPBOX        "",IDC_STATIC5,5,88,177,74
     CONTROL         "Управление цветом",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,12,88,100,10
-    LTEXT           "Тип входа:",IDC_STATIC7,10,103,70,8
-    COMBOBOX        IDC_COMBO3,84,100,93,49,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Окружающий свет:",IDC_STATIC8,10,120,70,8
-    COMBOBOX        IDC_COMBO4,84,117,93,49,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Метод пересчета:",IDC_STATIC9,10,137,70,8
-    COMBOBOX        IDC_COMBO5,84,134,93,49,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "(для EVR-CP, поверхность 10/16-бит)",IDC_STATIC6,10,101,167,8
+    LTEXT           "Тип входа:",IDC_STATIC7,10,116,70,8
+    COMBOBOX        IDC_COMBO3,84,113,93,49,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Окружающий свет:",IDC_STATIC8,10,133,70,8
+    COMBOBOX        IDC_COMBO4,84,130,93,49,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Метод пересчета:",IDC_STATIC9,10,150,70,8
+    COMBOBOX        IDC_COMBO5,84,147,93,49,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
 END
 
 IDD_PPAGEMISC DIALOGEX 0, 0, 296, 264
@@ -1067,33 +1085,32 @@ BEGIN
     EDITTEXT        IDC_EDIT2,64,17,40,14,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
     EDITTEXT        IDC_EDIT3,110,17,40,14,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
     PUSHBUTTON      "По умолчанию",IDC_BUTTON1,158,17,56,14
-    CONTROL         "Быстрая перемотка (по ключевым кадрам)",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,45,264,9
     CONTROL         "Не использовать переход по файлам в директории по нажатию ""Шаг вперед/назад""",IDC_CHECK7,
-                    "Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,7,55,280,18
+                    "Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,7,41,280,18
     CONTROL         "Не сворачивать окно на дополнительном дисплее в полноэкранном режиме",IDC_CHECK6,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,75,280,9
-    CONTROL         "Приостанавливать воспроизведение видео при сворачивании окна",IDC_CHECK4,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,87,280,9
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,61,282,9
     CONTROL         "Скрывать курсор при воспроизведении в окне",IDC_CHECK5,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,99,280,9
-    LTEXT           "Не показывать 000xx.mpls короче, чем",IDC_STATIC,7,112,150,8
-    EDITTEXT        IDC_EDIT5,161,110,30,13,ES_CENTER | ES_AUTOHSCROLL | ES_NUMBER
-    CONTROL         "",IDC_SPIN2,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | UDS_HOTTRACK,181,110,11,14
-    LTEXT           "мин.",IDC_STATIC,197,112,30,8
-    CONTROL         "Включить поддержку Logitech LCD",IDC_CHECK_LCD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,126,264,9
-    CONTROL         "Использовать Window Media Controls",IDC_CHECK9,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,138,220,9
-    CONTROL         "Включить создание MiniDump",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,150,184,9
-    LTEXT           "Исполняемый файл FFmpeg:",IDC_STATIC,7,165,104,8
-    COMBOBOX        IDC_COMBO1,113,163,170,30,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
-    GROUPBOX        "Обновления",IDC_STATIC,5,180,286,40
-    CONTROL         "Проверять обновления автоматически",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,192,250,9
-    LTEXT           "Интервал между проверками:",IDC_STATIC5,10,205,110,8
-    EDITTEXT        IDC_EDIT4,120,203,30,13,ES_CENTER | ES_AUTOHSCROLL | ES_NUMBER
-    CONTROL         "",IDC_SPIN1,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | UDS_HOTTRACK,140,203,13,14
-    LTEXT           "дней",IDC_STATIC6,155,205,50,8
-    GROUPBOX        "Управление настройками",IDC_STATIC,5,222,286,28
-    PUSHBUTTON      "Сброс",IDC_RESET_SETTINGS,10,233,55,14
-    PUSHBUTTON      "Экспорт",IDC_EXPORT_SETTINGS,73,233,55,14
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,73,280,9
+    CONTROL         "Показывать нулевые часы в статусной строке и OSD",IDC_CHECK8,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,85,280,9
+    LTEXT           "Не показывать 000xx.mpls короче, чем",IDC_STATIC,7,99,150,8
+    EDITTEXT        IDC_EDIT5,161,97,30,13,ES_CENTER | ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "",IDC_SPIN2,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | UDS_HOTTRACK,181,97,11,14
+    LTEXT           "мин.",IDC_STATIC,197,99,30,8
+    CONTROL         "Включить поддержку Logitech LCD",IDC_CHECK_LCD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,113,264,9
+    CONTROL         "Использовать Window Media Controls",IDC_CHECK9,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,125,220,9
+    CONTROL         "Включить создание MiniDump",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,137,184,9
+    LTEXT           "Исполняемый файл FFmpeg:",IDC_STATIC,7,152,104,8
+    COMBOBOX        IDC_COMBO1,113,150,170,30,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Обновления",IDC_STATIC,5,167,286,40
+    CONTROL         "Проверять обновления автоматически",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,179,250,9
+    LTEXT           "Интервал между проверками:",IDC_STATIC5,10,192,110,8
+    EDITTEXT        IDC_EDIT4,120,190,30,13,ES_CENTER | ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "",IDC_SPIN1,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | UDS_HOTTRACK,140,190,13,14
+    LTEXT           "дней",IDC_STATIC6,155,192,50,8
+    GROUPBOX        "Управление настройками",IDC_STATIC,5,209,286,28
+    PUSHBUTTON      "Сброс",IDC_RESET_SETTINGS,10,220,55,14
+    PUSHBUTTON      "Экспорт",IDC_EXPORT_SETTINGS,73,220,55,14
 END
 
 IDD_TUNER_SCAN DIALOGEX 0, 0, 407, 246
@@ -1154,10 +1171,10 @@ BEGIN
     CONTROL         "Встроенный VSync",IDC_VSYNC_INTERNAL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,26,121,10
     CONTROL         "Включить коррекцию времени кадра",IDC_CHECK8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,51,170,10
     CONTROL         "Заполнить GPU перед VSync",IDC_CHECK5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,140,14,140,10
-    CONTROL         "Заполнить GPU после представления",IDC_CHECK6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,140,26,140,10
+    CONTROL         "Заполнить GPU после представления",IDC_CHECK6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,140,26,142,10
     CONTROL         "Ожидать заполнения",IDC_CHECK7,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,140,38,100,10
     GROUPBOX        "Настройки EVR Sync",IDC_STATIC2,5,67,286,117
-    CONTROL         "Синхронизировать видео с дисплеем",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,10,79,140,8
+    CONTROL         "Синхронизировать видео с дисплеем",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,10,79,142,8
     CONTROL         "Представлять с ближайшим vsync",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,10,109,170,8
     LTEXT           "Коррекция частоты:",IDC_STATIC5,20,93,85,8
     EDITTEXT        IDC_CYCLEDELTA,109,91,40,13,ES_RIGHT | ES_AUTOHSCROLL,WS_EX_RIGHT
@@ -1233,11 +1250,6 @@ BEGIN
     CONTROL         "Автоматическое переоткрытие файлов с субтитрами в случае изменения",IDC_CHECK3,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,79,285,9
     CONTROL         "Использовать редактор ""Синхронизация субтитров""",IDC_CHECK_SUBRESYNC,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,5,91,285,9
-    GROUPBOX        "База данных в интернете",IDC_STATIC1,5,105,286,45
-    LTEXT           "URL базы данных субтитров:",IDC_STATIC2,10,116,222,8
-    LTEXT           "http://",IDC_STATIC3,10,130,22,8
-    COMBOBOX        IDC_COMBO1,35,128,199,30,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "Тест",IDC_BUTTON2,237,127,50,14
 END
 
 IDD_UPDATE_DIALOG DIALOGEX 0, 0, 238, 60
@@ -1334,7 +1346,9 @@ BEGIN
 
     IDD_PPAGEAUDIO, DIALOG
     BEGIN
-        VERTGUIDE, 124
+        VERTGUIDE, 5
+        VERTGUIDE, 10
+        VERTGUIDE, 290
     END
 
     IDD_PPAGESOUNDPROCESSING, DIALOG
@@ -1506,6 +1520,12 @@ BEGIN
 
     IDD_SHADEREDITOR_DLG, DIALOG
     BEGIN
+    END
+
+    IDD_PPAGECOLOR, DIALOG
+    BEGIN
+        VERTGUIDE, 10
+        VERTGUIDE, 177
     END
 
     IDD_PPAGEMISC, DIALOG
@@ -2246,6 +2266,11 @@ BEGIN
     0
 END
 
+IDD_PPAGECOLOR AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -2452,45 +2477,41 @@ END
 
 STRINGTABLE
 BEGIN
-    IDD_PPAGEPLAYBACK       "Воспроизведение"
     IDD_PPAGEPLAYER         "Проигрыватель"
-    IDD_PPAGEDVD            "Воспроизведение::DVD-Video"
-    IDD_PPAGESUBTITLES      "Субтитры"
     IDD_PPAGEFORMATS        "Проигрыватель::Форматы"
-    IDD_PPAGECOLOR          "Видео::Коррекция цвета"
-    IDD_PPAGEAUDIO          "Аудио"
-    IDD_PPAGEEXTERNALFILTERS "Внешние фильтры"
-    IDD_PPAGESOUNDPROCESSING "Аудио::Обработка звука"
+    IDD_PPAGEACCELTBL       "Проигрыватель::Клавиши"
+    IDD_PPAGEMOUSE          "Проигрыватель::Мышь"
+    IDD_PPAGELOGO           "Проигрыватель::Логотип"
+    IDD_PPAGEINTERFACE      "Проигрыватель::Интерфейс"
+    IDD_PPAGEWINDOWSIZE     "Проигрыватель::Размер окна"
+    IDD_PPAGEWEBSERVER      "Проигрыватель::Web-интерфейс"
+    IDD_PPAGEPLAYBACK       "Воспроизведение"
+    IDD_PPAGEDVD            "Воспроизведение::DVD-Video"
 END
 
 STRINGTABLE
 BEGIN
-    IDD_PPAGEACCELTBL       "Проигрыватель::Клавиши"
-    IDD_PPAGESUBSTYLE       "Субтитры::Стандартный стиль"
-    IDD_PPAGEMOUSE          "Проигрыватель::Мышь"
-    IDD_PPAGEINTERNALFILTERS "Встроенные фильтры"
-    IDD_PPAGELOGO           "Проигрыватель::Логотип"
+    IDD_PPAGECAPTURE        "Воспроизведение::Захват"
+    IDD_PPAGEYOUTUBE        "Воспроизведение::Онлайн сервисы"
     IDD_PPAGEVIDEO          "Видео"
-    IDD_PPAGEWEBSERVER      "Проигрыватель::Web-интерфейс"
+    IDD_PPAGECOLOR          "Видео::Коррекция цвета"
+    IDD_PPAGESYNC           "Видео::Синхронизация кадров"
+    IDD_PPAGEFULLSCREEN     "Видео::Полный экран"
+    IDD_PPAGEAUDIO          "Аудио"
+    IDD_PPAGESOUNDPROCESSING "Аудио::Обработка звука"
+    IDD_PPAGESUBTITLES      "Субтитры"
+    IDD_PPAGESUBRENDERING   "Субтитры::Отрисовка"
+    IDD_PPAGESUBSTYLE       "Субтитры::Стандартный стиль"
+    IDD_PPAGEINTERNALFILTERS "Встроенные фильтры"
+    IDD_PPAGEEXTERNALFILTERS "Внешние фильтры"
+    IDD_PPAGEFILTERSPRIORITY "Внешние фильтры::Приоритеты"
+    IDD_PPAGEMISC           "Разное"
 END
 
 STRINGTABLE
 BEGIN
     IDD_FILEPROPRES         "Ресурсы"
-    IDD_PPAGEMISC           "Разное"
     IDD_FILEMEDIAINFO       "MediaInfo"
-    IDD_PPAGECAPTURE        "Воспроизведение::Захват"
-    IDD_PPAGESYNC           "Видео::Синхронизация кадров"
-    IDD_PPAGEFULLSCREEN     "Видео::Полный экран"
-    IDD_PPAGEINTERFACE      "Проигрыватель::Интерфейс"
-    IDD_PPAGEYOUTUBE        "Воспроизведение::Онлайн сервисы"
-    IDD_PPAGEWINDOWSIZE     "Проигрыватель::Размер окна"
-    IDD_PPAGEFILTERSPRIORITY "Внешние фильтры::Приоритеты"
-END
-
-STRINGTABLE
-BEGIN
-    IDD_PPAGESUBRENDERING   "Субтитры::Отрисовка"
 END
 
 STRINGTABLE
@@ -2699,12 +2720,18 @@ END
 
 STRINGTABLE
 BEGIN
+    IDS_AG_MEDIAFILES       "Медиафайлы (все типы)"
+    IDS_AG_VIDEOFILES       "Видеофайлы (все типы)"
+    IDS_AG_AUDIOFILES       "Аудиофайлы (все типы)"
+    IDS_AG_ALLFILES         "Все файлы"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_AG_SUBTITLEFILES    "Файлы субтитров"
     IDS_AG_AUDIO_FILE       "Аудиофайл"
     IDS_AG_PLAYLIST_FILE    "Плейлист"
     IDS_AG_OTHER            "Прочее"
-    IDS_AG_MEDIAFILES       "Медиафайлы (все типы)|"
-    IDS_AG_ALLFILES         "Все файлы (*.*)|*.*|"
-    IDS_AG_AUDIOFILES       "Аудиофайлы (все типы)|"
     IDS_PIXELSHADERCOMPILER_0  "Невозможно загрузить D3DX9_xx.DLL, пиксельные шейдеры работать не будут."
     IDS_PIXELSHADERCOMPILER_1  "Не удается найти точку входа необходимой функции D3DX9_xx.DLL, пиксельные шейдеры работать не будут. Попробуйте установить более новую версию DirectX."
     IDS_AG_NOT_KNOWN        "Неизвестный"
@@ -2723,7 +2750,6 @@ BEGIN
     IDS_CANCEL              "Отменить"
     IDS_TEXTFILE_ENC        "Кодировка:"
     IDS_SAVE_FILE           "Сохранение файла"
-    IDS_AG_VIDEOFILES       "Видеофайлы (все типы)|"
     IDS_VOLUME_OSD_MUTE     "Громкость: %d%% [Выкл.]"
     IDS_COPY_TO_CLIPBOARD   "Копировать в буфер"
     IDS_AUDIO_LEVEL         "Уровень (%d):"
@@ -3060,7 +3086,6 @@ END
 STRINGTABLE
 BEGIN
     IDS_MAINFRM_47          " успешно загружен"
-    IDS_MAINFRM_48          "Все файлы (*.*)|*.*||"
     IDS_MAINFRM_49          "Проблема с GetDIB, hr = %08x"
     IDS_MAINFRM_51          "Проблема с GetCurrentImage, hr = %08x"
     IDS_MAINFRM_53          "Не удаётся создать файл"
@@ -3169,12 +3194,12 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_BLOCK_EXTERNAL_VR   "Вы не можете добавить %s как внешний фильтр.\nВам необходимо выбрать прдепочтительный видеорендерерв в панели настроек Видео."
+    IDS_BLOCK_EXTERNAL_VR   "Вы не можете добавить %s как внешний фильтр.\nВам необходимо выбрать предпочтительный видеорендерер в панели настроек Видео."
+    IDS_DESC_HAALI_VR       "Похож на VMR-9, но использует корректное бикубическое изменения размера."
 END
 
 STRINGTABLE
 BEGIN
-    IDS_DESC_HAALI_VR       "Похож на VMR-9, но использует корректное бикубическое изменения размера."
     IDS_DESC_NULLVR_ANY     "Подключается к любому типу видеоданных и отсылает входящие кадры в никуда. Режим может пригодиться для сохранения ресурсов процессора в случае, если нужен только звук."
     IDS_DESC_NULLVR_UNCOMP  "То же, что и нормальный Null-рендер, но подключается только к несжатым типам данных."
     IDS_DESC_EVR            "Видеорендерер с поддержкой аппаратного декодирования."
@@ -3223,8 +3248,10 @@ BEGIN
     IDS_CMD_STARTPOS        "/startpos hh:mm:ss\tВоспроизводить с позиции hh:mm:ss"
     IDS_CMD_FIXEDSIZE       "/fixedsize w,h\tУстановить фиксированный размер окна"
     IDS_CMD_MONITOR         "/monitor N\tЗапускаться на мониторе N, где N\n\t\tотсчитывается с 1"
-    IDS_CMD_AUDIORENDERER   "/audiorenderer N\tИспользовать аудиорендер N, где N\n\t\tотсчитывается с 1 (смотрите настройки\n\t\t""Аудио"")"
+    IDS_CMD_AUDIORENDERER   "/audiorenderer N\tИспользовать аудиорендер N, где N\n\t\tотсчитывается с 0 (смотрите настройки\n\t\t""Аудио"")"
+    IDS_CMD_VOLUME          "/volume N\tУстановить громкость, где N - число в диапазоне от 0 до 100"
     IDS_CMD_CLIPBOARD       "/clipboard\t\tОткрыть пути/ссылки из буфера обмена"
+    IDS_CMD_DEVICE          "/device\t\tОткрыть видео устройство по умолчанию"
     IDS_CMD_RESET           "/reset\t\tВостановить настройки по умолчанию"
 END
 
@@ -3311,10 +3338,10 @@ BEGIN
     IDS_VDF_SCANTYPE_TOP    "Top-Field First"
     IDS_VDF_SCANTYPE_BOTTOM "Bottom-Field First"
     IDS_VDF_SCANTYPE_PROGRESSIVE "Прогрессив"
-    IDS_VDF_COLOR_FMT_CONVERSION "Преобразование форматов"
-    IDS_VDF_COLOR_OUTPUT_FORMATS "Выходные форматы:"
+    IDS_VDF_COLOR_OUTPUT_FORMATS "Выходные форматы"
     IDS_VDF_COLOR_PRESET    "Пресет:"
     IDS_VDF_COLOR_STANDARD  "Стандарт:"
+    IDS_VDF_COLOR_CONVERT_TO_RGB "Преобразовать в RGB"
     IDS_VDF_COLOR_RGB_LEVELS "Выходные уровни RGB:"
 END
 

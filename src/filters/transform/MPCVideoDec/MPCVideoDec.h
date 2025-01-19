@@ -54,70 +54,79 @@ class __declspec(uuid("008BAC12-FBAF-497b-9670-BC6F6FBAE2C4"))
 	, public ISpecifyPropertyPages2
 {
 private:
+	enum class HwType {
+		None,
+		DXVA2,
+		D3D11,
+		D3D11CopyBack,
+		D3D12CopyBack,
+		NVDEC
+	};
+
 	CCritSec								m_csInitDec;
 	CCritSec								m_csProps;
 	// === Persistants parameters (registry)
-	int										m_nThreadNumber;
-	MPC_SCAN_TYPE							m_nScanType;
-	int										m_nARMode;
+	int										m_nThreadNumber = 0;
+	MPC_SCAN_TYPE							m_nScanType = SCAN_AUTO;
+	int										m_nARMode = 2;
 	int										m_nDiscardMode;
 	MPCHwDecoder							m_nHwDecoder;
 	MPC_ADAPTER_ID							m_HwAdapter = {};
 	bool									m_bHwCodecs[HWCodec_count];
-	int										m_nDXVACheckCompatibility;
-	int										m_nDXVA_SD;
+	int										m_nDXVACheckCompatibility = 1;
+	int										m_nDXVA_SD = 0;
 	bool									m_fPixFmts[PixFmt_count];
-	int										m_nSwRGBLevels;
+	bool									m_bSwConvertToRGB = false;
+	int										m_nSwRGBLevels = 0;
 	//
-	bool									m_VideoFilters[VDEC_COUNT];
+	bool									m_VideoFilters[VDEC_COUNT] = {};
 
 	bool									m_bEnableHwDecoding  = true; // internal (not saved)
-	bool									m_bDXVACompatible;
-	unsigned __int64						m_nActiveCodecs;
+	bool									m_bDXVACompatible = true;
+	unsigned __int64						m_nActiveCodecs = CODECS_ALL & ~CODEC_H264_MVC;
 
 	// === FFMpeg variables
-	const AVCodec*							m_pAVCodec;
-	AVCodecContext*							m_pAVCtx;
-	AVCodecParserContext*					m_pParser;
-	AVFrame*								m_pFrame;
+	const AVCodec*							m_pAVCodec = nullptr;
+	AVCodecContext*							m_pAVCtx   = nullptr;
+	AVCodecParserContext*					m_pParser  = nullptr;
+	AVFrame*								m_pFrame   = nullptr;
+	AVFrame*								m_pHWFrame = nullptr;
 	enum AVCodecID							m_CodecId;
-	REFERENCE_TIME							m_rtAvrTimePerFrame;
-	bool									m_bCalculateStopTime;
+	REFERENCE_TIME							m_rtAvrTimePerFrame = 0;
+	bool									m_bCalculateStopTime = false;
 
 	BYTE*									m_pFFBuffer = nullptr;
 	unsigned int							m_nFFBufferSize = 0;
 
-	bool									m_bReorderBFrame;
+	bool									m_bReorderBFrame = false;
 	struct Timings {
 		REFERENCE_TIME rtStart;
 		REFERENCE_TIME rtStop;
 	} m_tBFrameDelay[2];
-	int										m_nBFramePos;
+	int										m_nBFramePos = 0;
 
-	bool									m_bWaitKeyFrame;
+	bool									m_bWaitKeyFrame = false;
 
-	int										m_nARX, m_nARY;
+	int										m_nARX = 0, m_nARY = 0;
 
-	REFERENCE_TIME							m_rtLastStop;			// rtStop  for last delivered frame
-	double									m_dRate;
+	REFERENCE_TIME							m_rtLastStart = INVALID_TIME; // rtStart for last delivered frame
+	REFERENCE_TIME							m_rtLastStop  = 0;            // rtStop for last delivered frame
+	double									m_dRate = 1.0;
 
-	bool									m_bUseFFmpeg;
-	bool									m_bUseDXVA;
-	bool									m_bUseD3D11;
+	bool									m_bUseFFmpeg = true;
 	CFormatConverter						m_FormatConverter;
-	CSize									m_pOutSize;				// Picture size on output pin
+	CSize									m_pOutSize; // Picture size on output pin
 
-	bool									m_bUseD3D11cb = false;
-	bool									m_bUseD3D12cb = false;
-	bool									m_bUseNVDEC = false;
+	HwType									m_hwType = {};
+
 	AVPixelFormat							m_HWPixFmt;
 	AVBufferRef*							m_HWDeviceCtx = nullptr;
 	CComPtr<ID3D11Texture2D>				m_pStagingD3D11Texture2D;
 
 	// === common variables
 	std::vector<VIDEO_OUTPUT_FORMATS>		m_VideoOutputFormats;
-	CDXVA2Decoder*							m_pDXVADecoder;
-	GUID									m_DXVADecoderGUID;
+	std::unique_ptr<CDXVA2Decoder>			m_pDXVADecoder;
+	GUID									m_DXVADecoderGUID = GUID_NULL;
 	D3DFORMAT								m_DXVASurfaceFormat = D3DFMT_UNKNOWN;
 
 	UINT									m_nPCIVendor;
@@ -125,14 +134,11 @@ private:
 	UINT64									m_VideoDriverVersion;
 	CString									m_strDeviceDescription;
 
-	// === DXVA1 variables
-	DDPIXELFORMAT							m_DDPixelFormat;
-
 	// === DXVA2 variables
 	CComPtr<IDirect3DDeviceManager9>		m_pDeviceManager;
 	CComPtr<IDirectXVideoDecoderService>	m_pDecoderService;
 	DXVA2_ConfigPictureDecode				m_DXVA2Config;
-	HANDLE									m_hDevice;
+	HANDLE									m_hDevice = INVALID_HANDLE_VALUE;
 	DXVA2_VideoDesc							m_VideoDesc;
 
 	BOOL									m_bFailDXVA2Decode = FALSE;
@@ -140,27 +146,27 @@ private:
 
 	bool									m_bReinit = false;
 
-	BOOL									m_bWaitingForKeyFrame;
-	BOOL									m_bRVDropBFrameTimings;
+	BOOL									m_bWaitingForKeyFrame  = TRUE;
+	BOOL									m_bRVDropBFrameTimings = FALSE;
 
-	REFERENCE_TIME							m_rtStartCache;
+	REFERENCE_TIME							m_rtStartCache = INVALID_TIME;
 
-	DWORD									m_dwSYNC;
-	DWORD									m_dwSYNC2;
+	DWORD									m_dwSYNC  = 0;
+	DWORD									m_dwSYNC2 = 0;
 
 	CMediaType								m_pCurrentMediaType;
 	DXVA2_ExtendedFormat					m_inputDxvaExtFormat = {};
 
-	BOOL									m_bDecodingStart;
+	BOOL									m_bDecodingStart = FALSE;
 	BOOL									m_bDecoderAcceptFormat = FALSE;
 
 	bool									m_bHighBitdepth = false;
 
-	CMSDKDecoder*							m_pMSDKDecoder;
-	int										m_iMvcOutputMode;
-	bool									m_bMvcSwapLR;
+	std::unique_ptr<CMSDKDecoder>			m_pMSDKDecoder;
+	int										m_iMvcOutputMode = MVC_OUTPUT_Auto;
+	bool									m_bMvcSwapLR     = false;
 
-	BOOL									m_MVC_Base_View_R_flag;
+	BOOL									m_MVC_Base_View_R_flag = FALSE;
 
 	CLSID									m_OutputFilterClsid = GUID_NULL;
 
@@ -198,7 +204,7 @@ private:
 	bool m_bHasPalette = false;
 	uint32_t m_Palette[256] = {};
 
-	CD3D11Decoder* m_pD3D11Decoder = nullptr;
+	std::unique_ptr<CD3D11Decoder> m_pD3D11Decoder;
 
 	// === Private functions
 	void			Cleanup();
@@ -253,7 +259,6 @@ public:
 	HRESULT			SetMediaType(PIN_DIRECTION direction, const CMediaType *pmt);
 	HRESULT			CheckInputType(const CMediaType* mtIn);
 	HRESULT			CheckTransform(const CMediaType* mtIn, const CMediaType* mtOut);
-	void			GetOutputSize(int& w, int& h, int& arx, int& ary) override;
 	HRESULT			Transform(IMediaSample* pIn);
 	HRESULT			CompleteConnect(PIN_DIRECTION direction, IPin *pReceivePin);
 	HRESULT			DecideBufferSize(IMemAllocator* pAllocator, ALLOCATOR_PROPERTIES* pProperties);
@@ -291,6 +296,8 @@ public:
 	STDMETHODIMP SetSwRefresh(int nValue);
 	STDMETHODIMP SetSwPixelFormat(MPCPixelFormat pf, bool enable);
 	STDMETHODIMP_(bool) GetSwPixelFormat(MPCPixelFormat pf);
+	STDMETHODIMP SetSwConvertToRGB(bool enable);
+	STDMETHODIMP_(bool) GetSwConvertToRGB();
 	STDMETHODIMP SetSwRGBLevels(int nValue);
 	STDMETHODIMP_(int) GetSwRGBLevels();
 
@@ -308,11 +315,11 @@ public:
 	STDMETHODIMP SetD3D11Adapter(UINT VendorId, UINT DeviceId);
 
 	// IExFilterConfig
-	STDMETHODIMP GetInt(LPCSTR field, int* value) override;
-	STDMETHODIMP GetInt64(LPCSTR field, __int64* value) override;
-	STDMETHODIMP GetString(LPCSTR field, LPWSTR* value, unsigned* chars);
-	STDMETHODIMP SetBool(LPCSTR field, bool value) override;
-	STDMETHODIMP SetInt(LPCSTR field, int value) override;
+	STDMETHODIMP Flt_GetInt(LPCSTR field, int* value) override;
+	STDMETHODIMP Flt_GetInt64(LPCSTR field, __int64* value) override;
+	STDMETHODIMP Flt_GetString(LPCSTR field, LPWSTR* value, unsigned* chars);
+	STDMETHODIMP Flt_SetBool(LPCSTR field, bool value) override;
+	STDMETHODIMP Flt_SetInt(LPCSTR field, int value) override;
 
 	// === common functions
 	BOOL						IsSupportedDecoderConfig(const D3DFORMAT& nD3DFormat, const DXVA2_ConfigPictureDecode& config, bool& bIsPrefered);
@@ -357,7 +364,7 @@ private:
 
 	BOOL m_bInInit = FALSE;
 
-	CVideoDecDXVAAllocator*		m_pDXVA2Allocator;
+	CVideoDecDXVAAllocator* m_pDXVA2Allocator = nullptr;
 
 	// *** from LAV
 	// *** Re-Commit the allocator (creates surfaces and new decoder)

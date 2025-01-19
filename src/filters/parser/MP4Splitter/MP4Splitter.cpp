@@ -1,6 +1,6 @@
 /*
  * (C) 2003-2006 Gabest
- * (C) 2006-2023 see Authors.txt
+ * (C) 2006-2025 see Authors.txt
  *
  * This file is part of MPC-BE.
  *
@@ -316,6 +316,11 @@ HRESULT CMP4SplitterFilter::CreateOutputs(IAsyncReader* pAsyncReader)
 			if (track->GetType() != AP4_Track::TYPE_VIDEO) {
 				continue;
 			}
+			if (track->GetSampleCount() == 1 && track->GetDuration() == 0) {
+				// broken video track that can't be played
+				continue;
+			}
+
 			if (!mainvideoID) {
 				mainvideoID = track->GetId();
 			}
@@ -622,7 +627,8 @@ HRESULT CMP4SplitterFilter::CreateOutputs(IAsyncReader* pAsyncReader)
 								if (objectType == AOT_AAC_LC
 										|| objectType == AOT_AAC_MAIN
 										|| objectType == AOT_SBR
-										|| objectType == AOT_PS) {
+										|| objectType == AOT_PS
+										|| objectType == AOT_USAC) {
 									CMP4AudioDecoderConfig MP4AudioDecoderConfig;
 									if (MP4AudioDecoderConfig.Parse(di->GetData(), di->GetDataSize())) {
 										if (MP4AudioDecoderConfig.m_ChannelCount != wfe->nChannels) {
@@ -692,7 +698,7 @@ HRESULT CMP4SplitterFilter::CreateOutputs(IAsyncReader* pAsyncReader)
 														wfe->wBitsPerSample = aframe.param1;
 													}
 													wfe->nBlockAlign = (wfe->nChannels * wfe->wBitsPerSample) / 8;
-													if (aframe.param2 == DCA_PROFILE_HD_HRA) {
+													if (aframe.param2 == DCA_PROFILE_HD_HRA || aframe.param2 == DCA_PROFILE_HD_HRA_X || aframe.param2 == DCA_PROFILE_HD_HRA_X_IMAX) {
 														wfe->nAvgBytesPerSec += CalcBitrate(aframe) / 8;
 													} else {
 														wfe->nAvgBytesPerSec = 0;
@@ -1819,7 +1825,7 @@ HRESULT CMP4SplitterFilter::CreateOutputs(IAsyncReader* pAsyncReader)
 												wfe->wBitsPerSample = aframe.param1;
 											}
 											wfe->nBlockAlign = (wfe->nChannels * wfe->wBitsPerSample) / 8;
-											if (aframe.param2 == DCA_PROFILE_HD_HRA) {
+											if (aframe.param2 == DCA_PROFILE_HD_HRA || aframe.param2 == DCA_PROFILE_HD_HRA_X || aframe.param2 == DCA_PROFILE_HD_HRA_X_IMAX) {
 												// DTS-HD High Resolution Audio
 												wfe->nAvgBytesPerSec += CalcBitrate(aframe) / 8;
 											} else {
@@ -2102,53 +2108,55 @@ HRESULT CMP4SplitterFilter::CreateOutputs(IAsyncReader* pAsyncReader)
 							}
 						}
 					} else if (AP4_DataAtom* data = dynamic_cast<AP4_DataAtom*>(atom->GetChild(AP4_ATOM_TYPE_DATA))) {
-						const AP4_DataBuffer* db = data->GetData();
+						auto db = data->GetData();
 
-						if (atom->GetType() == AP4_ATOM_TYPE_TRKN) {
-							if (db->GetDataSize() >= 4) {
-								unsigned short n = (db->GetData()[2] << 8) | db->GetData()[3];
-								if (n > 0 && n < 100) {
-									track.Format(L"%02d", n);
-								} else if (n >= 100) {
-									track.Format(L"%d", n);
-								}
-							}
-						} else {
-							CStringW str = UTF8ToWStr(CStringA((LPCSTR)db->GetData(), db->GetDataSize()));
-
-							switch (atom->GetType()) {
-								case AP4_ATOM_TYPE_NAM:
-									title = str;
-									break;
-								case AP4_ATOM_TYPE_ART:
-									artist = str;
-									break;
-								case AP4_ATOM_TYPE_WRT:
-									writer = str;
-									break;
-								case AP4_ATOM_TYPE_ALB:
-									album = str;
-									break;
-								case AP4_ATOM_TYPE_DAY:
-									year = str;
-									break;
-								case AP4_ATOM_TYPE_TOO:
-									appl = str;
-									break;
-								case AP4_ATOM_TYPE_CMT:
-									desc = str;
-									break;
-								case AP4_ATOM_TYPE_DESC:
-									if (desc.IsEmpty()) {
-										desc = str;
+						if (db->GetDataSize() > 0) {
+							if (atom->GetType() == AP4_ATOM_TYPE_TRKN) {
+								if (db->GetDataSize() >= 4) {
+									unsigned short n = (db->GetData()[2] << 8) | db->GetData()[3];
+									if (n > 0 && n < 100) {
+										track.Format(L"%02d", n);
+									} else if (n >= 100) {
+										track.Format(L"%d", n);
 									}
-									break;
-								case AP4_ATOM_TYPE_GEN:
-									gen = str;
-									break;
-								case AP4_ATOM_TYPE_CPRT:
-									copyright = str;
-									break;
+								}
+							} else {
+								CStringW str = UTF8ToWStr(CStringA((LPCSTR)db->GetData(), db->GetDataSize()));
+
+								switch (atom->GetType()) {
+									case AP4_ATOM_TYPE_NAM:
+										title = str;
+										break;
+									case AP4_ATOM_TYPE_ART:
+										artist = str;
+										break;
+									case AP4_ATOM_TYPE_WRT:
+										writer = str;
+										break;
+									case AP4_ATOM_TYPE_ALB:
+										album = str;
+										break;
+									case AP4_ATOM_TYPE_DAY:
+										year = str;
+										break;
+									case AP4_ATOM_TYPE_TOO:
+										appl = str;
+										break;
+									case AP4_ATOM_TYPE_CMT:
+										desc = str;
+										break;
+									case AP4_ATOM_TYPE_DESC:
+										if (desc.IsEmpty()) {
+											desc = str;
+										}
+										break;
+									case AP4_ATOM_TYPE_GEN:
+										gen = str;
+										break;
+									case AP4_ATOM_TYPE_CPRT:
+										copyright = str;
+										break;
+								}
 							}
 						}
 					}

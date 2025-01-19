@@ -127,6 +127,9 @@
  second1; sekunda
  second2; sekundy
  second3; sekund
+ slice per frame1;
+ slice per frame2;
+ slice per frame3;
  text stream1; strumień napisów
  text stream2; strumienie napisów
  text stream3; strumieni napisów
@@ -176,6 +179,7 @@ ADM: Show TrackUIDs;
 AdmProfile;
 Advanced;Zaawansowane
 Advanced mode;Tryb zaawansowany
+Advanced mode -->;
 Album;Album
 Album_ReplayGain_Gain;Poziom wzmocnienia albumu
 Album_ReplayGain_Peak;Współczynnik wzmocnienia albumu
@@ -192,12 +196,17 @@ AssistantDirector;Asystent dyrektora
 AssociatedVideo_FrameRate;
 at;przy
 At least one file;(Musisz wczytać co najmniej jeden plik)
+Attachments;
 Audio;Audio
 Audio stream(s);Strumień audio
 Audio_Codec_List;Kodeki audio
+Audio_Format_List;
+Audio_Format_WithHint_List;
+Audio_Language_List;
 Audio_No;Brak audio
 Audio1;Pierwszy strumień audio
 Audio2;Drugi strumień audio
+Audio3;
 AudioComments;
 AudioCount;Liczba strumieni audio
 AudioDescription;
@@ -234,17 +243,22 @@ Cancel;Anuluj
 CaptionServiceName;
 CatalogNumber;
 Channel(s);Kanały
+Channel(s)_Original;
 ChannelCoded;
 ChannelConfiguration;
 ChannelFormat;
 ChannelLayout;
+ChannelLayout_Original;
 ChannelMode;
 ChannelPositions;Rozmieszczenie kanałów
+ChannelPositions_Original;
 Chapter(s);Rozdział(y)
 Chapters;Rozdział
 Chapters stream(s);Strumień rozdziałów
 Chapters_Codec_List;Kodeki rozdziałów
 Chapters_No;Brak rozdziałów
+Chapters_Pos_Begin;
+Chapters_Pos_End;
 ChaptersCount;Strumieni rozdziału
 CharacterSet;
 CheckNewVersion;Sprawdź nową wersję
@@ -290,6 +304,10 @@ CoDirector;
 Collection;Kolekcja
 Colorimetry;Kolorymetria
 ColorSpace;
+ColorTheme;
+ColorTheme_Dark;
+ColorTheme_Light;
+ColorTheme_System;
 colour_primaries;
 colour_range;
 Comment;Komentarz
@@ -334,6 +352,7 @@ Date;Data
 Debug;Odpluskwianie
 Decimal point;Punkt dziesiętny
 Default;
+Default translation;
 Default_Setting;
 DefaultTargetDeviceConfig;
 Delay;Opóźnienie
@@ -355,6 +374,10 @@ Disabled;
 DisplayAspectRatio;Proporcje obrazu
 DisplayAspectRatio_CleanAperture;
 DisplayAspectRatio_Original;Oryginalne proporcje obrazu
+DisplayCaptions;
+DisplayCaptions_Command;
+DisplayCaptions_Content;
+DisplayCaptions_Stream;
 DistributedBy;Rozpowszechnianie
 Distributor;
 Dolby_Atmos_Metadata;
@@ -364,12 +387,12 @@ DotsPerInch;punktów na cal
 Downmix;
 Downmix_5.1.x;
 Downmix_5to2;
-Downmix_5to2_90deg;
 DrcSets_Count;
 DrcSets_Effects;
 Duration;Czas trwania
 Duration_End;Czas rozpoczęcia
 Duration_End_Command;
+Duration_Source;
 Duration_Start;Czas zakończenia
 Duration_Start_Command;
 Duration_Start2End;
@@ -382,10 +405,13 @@ EditorialClassification;
 ElementaryStream;
 ElementCount;
 EMail;email
+Enable FFmpeg plugin;
 Encoded_Application;Aplikacja zapisująca
 Encoded_Date;Zdekodowana data
 Encoded_Library;Biblioteka zapisująca
+Encoded_Library_Name;
 Encoded_Library_Settings;Ustawienia kodowania
+Encoded_Library_Version;
 Encoded_Original;Oryginalny
 EncodedBy;Kodowane przez
 EPG_Positions;Pozycje EPG (wewnętrzne)
@@ -418,6 +444,8 @@ FileExtension;Rzoszerzenie pliku
 FileName;Nazwa pliku
 FileNameExtension;
 FileSize;Rozmiar pliku
+Fill with a Dummy movie;
+Fill with a realistic movie;
 FirstDisplay_Delay_Frames;
 FirstDisplay_Type;
 FirstFrameOfAction;
@@ -431,6 +459,7 @@ Folder_Hint;Wybierz folder do przeanalizowania
 FolderName;Nazwa folderu
 Forced;
 Format;Format
+Format_AdditionalFeatures;
 Format_Commercial;
 Format_Commercial_IfAny;
 Format_Compression;
@@ -463,6 +492,7 @@ Format_Settings_QPel;Ustawienia formatu, QPel
 Format_Settings_RefFrames;Ustawienia formatu, poklatkowy
 Format_Settings_SBR;Ustawienia formatu, SBR
 Format_Settings_Sign;Ustawienia formatu, znak
+Format_Settings_SliceCount;
 Format_Settings_Wrapping;
 Format_Tier;
 Format_Url;Adres sieciowy formatu
@@ -472,14 +502,16 @@ FpaManufacturer;
 FpaPass;
 FpaVersion;
 FrameCount;Liczba klatek
+FrameCount_Source;
 FrameRate;Szybkość wyświetlania klatek
-FrameRate_MaxFrameNumber;
+FrameRate_Den;
 FrameRate_Maximum;Maksymalna szybkość wyświetlania klatek
 FrameRate_Minimum;Minimalna szybkość wyświetlania klatek
 FrameRate_Mode;Tryb wyświetlania klatek
 FrameRate_Mode_CFR;Stały
 FrameRate_Mode_VFR;Zmienny
 FrameRate_Nominal;Nominalna szybkość wyświetlania klatek
+FrameRate_Num;
 FrameRate_Original;Oryginalna szybkość wyświetlania klatek
 FrameRate_Real;
 FullParsing;
@@ -729,21 +761,7 @@ InternetMediaType;
 IRCA;IRCA
 ISBN;ISBN
 ISRC;ISRC
-JocBalance_FrontBackListener;
-JocBalance_FrontBackOverheadFloor;
-JocTrim_Center;
-JocTrim_Height;
-JocTrim_Surround;
-JocTrimMode;
-JocTrimMode0i;
-JocTrimMode1i;
-JocTrimMode2i;
-JocTrimMode3i;
-JocTrimMode4i;
-JocTrimMode5i;
-JocTrimMode6i;
-JocTrimMode7i;
-JocTrimMode8i;
+IsStreamable;
 Keywords;Słowa kluczowa
 Known codecs;Znane kodeki
 Known formats;Znane formaty
@@ -958,6 +976,7 @@ Language_zh-tw;Chiński (Tajwan)
 Language_zh-TW;
 Language_zh-yue;
 Language_zu;Zuluski
+Languages;
 LawRating;Nisko oceniany
 LCCN;LCCN
 LfeAttenuationKnown;
@@ -1041,6 +1060,7 @@ Movie;Tytuł filmu
 ms; ms
 MSDI;MSDI
 MultipleStream;
+MultiView_Count;
 MusicBy;Kompozytor
 MuxingMode;Tryb multipleksowania
 MuxingMode_MoreInfo;Tryb multipleksowania, więcej informacji
@@ -1138,6 +1158,7 @@ ProductionDesigner;Dekoracje
 ProductionNumber;
 ProductionStudio;Studio
 ProductPlacement;
+Program name;
 Programme;
 ProgrammeHasText;
 ProgrammeTextLanguage;
@@ -1161,10 +1182,13 @@ Report;
 Resolution;Rozdzielczość
 RestoreLifetimeSubscription;
 s;s
+Sampled_Height;
+Sampled_Width;
 SamplePeakLevel;
 SamplePeakLevel_Album;
 SamplesPerFrame;
 SamplingCount;
+SamplingCount_Source;
 SamplingRate;Częstotliwość próbkowania
 Save;Zapisz
 ScanOrder;Kolejność skanu
@@ -1181,6 +1205,7 @@ ScreenToFront;
 Season;Seria
 SecondaryAudioLanguage;
 see below;zobacz poniżej
+Select your directory;
 Send HeaderFile;Proszę przesłać plik nagłówka pod adres:http://sourceforge.net/projects/mediainfo/ (sekcja błędów)
 Separator_Columns;Separator kolumn
 Separator_Lines;Separator wierszy
@@ -1230,6 +1255,7 @@ streamIdentifier;
 StreamKind;Rodzaj strumienia
 StreamKindID;Identyfikator strumienia
 StreamKindPos;Identyfikator strumienia
+StreamOrder;
 StreamSize;Rozmiar strumienia
 StreamSize_Demuxed;
 StreamSize_Encoded;
@@ -1272,6 +1298,9 @@ Text (HTML);Tekst (HTML)
 Text stream(s);Strumienie napisów
 Text streams;Strumienie napisów
 Text_Codec_List;Kodeki napisów
+Text_Format_List;
+Text_Format_WithHint_List;
+Text_Language_List;
 Text_No;Brak napisów
 Text1;Pierwszy strumień napisów
 Text2;Drugi strumień napisów
@@ -1339,9 +1368,14 @@ Video;Wideo
 Video stream(s);Strumień(ie) wideo
 Video_Codec_List;Kodeki wideo
 Video_Delay;Opóźnienie wideo
+Video_Format_List;
+Video_Format_WithHint_List;
+Video_Language_List;
 Video_No;Brak wideo
 Video0_Delay;Opóźnienie wideo 0
 Video1;Pierwszy strumień wideo
+Video2;
+Video3;
 VideoComments;
 VideoCount;Strumieni wideo
 View;Widok
@@ -1369,5 +1403,6 @@ Written_Location;Lokalizacja
 WrittenBy;Napisał
 Yes;Tak
 Your system;System
-ZZ_Automatic_Percent;58
-ZZ_AutomaticLanguage_Percent;70
+Your translation;
+ZZ_Automatic_Percent;57
+ZZ_AutomaticLanguage_Percent;68

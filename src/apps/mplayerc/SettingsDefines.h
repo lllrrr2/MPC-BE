@@ -1,5 +1,5 @@
 /*
- * (C) 2006-2023 see Authors.txt
+ * (C) 2006-2024 see Authors.txt
  *
  * This file is part of MPC-BE.
  *
@@ -91,6 +91,7 @@
 #define IDS_RS_AUDIOTIMESHIFT				L"TimeShift"
 #define IDS_RS_AUDIOFILTERS					L"AudioFilters"
 #define IDS_RS_AUDIOFILTER1					L"Filter1"
+#define IDS_RS_AUDIOFILTERS_NOTFORSTEREO	L"FiltersDisableForStereo"
 
 // Mouse
 #define IDS_R_MOUSE							L"Mouse"
@@ -124,10 +125,11 @@
 #define IDS_R_ONLINESERVICES				L"OnlineServices"
 #define IDS_R_YOUTUBECACHE					L"OnlineServices\\YoutubeCache"
 #define IDS_RS_YOUTUBE_PAGEPARSER			L"YoutubePageParser"
-#define IDS_RS_YOUTUBE_FORMAT				L"YoutubeFormat"
+#define IDS_RS_YOUTUBE_VIDEOFORMAT			L"YoutubeVideoFormat"
 #define IDS_RS_YOUTUBE_RESOLUTION			L"YoutubeResolution"
 #define IDS_RS_YOUTUBE_60FPS				L"Youtube60fps"
 #define IDS_RS_YOUTUBE_HDR					L"YoutubeHDR"
+#define IDS_RS_YOUTUBE_AUDIOFORMAT			L"YoutubeAudioFormat"
 #define IDS_RS_YOUTUBE_AUDIOLANGUAGE		L"YoutubeAudioLanguage"
 #define IDS_RS_YOUTUBE_LOAD_PLAYLIST		L"YoutubeLoadPlaylist"
 #define IDS_RS_YDL_ENABLE					L"YDLEnable"
@@ -255,6 +257,7 @@
 #define IDS_RS_PANSCANZOOM					L"PanScanZoom"
 #define IDS_RS_BUFFERDURATION				L"BufferDuration"
 #define IDS_RS_NETWORKTIMEOUT				L"NetworkTimeout"
+#define IDS_RS_NETRECEIVETIMEOUT			L"NetworkReceiveTimeout"
 #define IDS_RS_SUBDELAYINTERVAL				L"SubDelayInterval"
 #define IDS_RS_LOGOFILE						L"LogoFile"
 #define IDS_RS_AUDIOWINDOWMODE				L"AudioWindowMode"
@@ -310,10 +313,13 @@
 #define IDS_RS_NO_SEARCH_IN_FOLDER			L"DontUseSearchInFolder"
 #define IDS_RS_USE_TIME_TOOLTIP				L"UseTimeTooltip"
 #define IDS_RS_TIME_TOOLTIP_POSITION		L"TimeTooltipPosition"
-#define IDS_RS_LAST_OPEN_FILE				L"LastOpenFile"
+
+#define IDS_RS_ASSOCIATED_WITH_ICON			L"AssociatedWithIcon"
+
+#define IDS_RS_LAST_OPEN_FILE				L"LastOpenFile" // obsolete
 #define IDS_RS_LAST_OPEN_DIR				L"LastOpenDir"
 #define IDS_RS_LAST_SAVED_PLAYLIST_DIR		L"LastSavedPlaylistDir"
-#define IDS_RS_ASSOCIATED_WITH_ICON			L"AssociatedWithIcon"
+#define IDS_RS_LAST_OPEN_FILTER_DIR			L"LastOpenFilterDir"
 
 #define IDS_RS_TOGGLESHADER					L"ToggleShader"
 #define IDS_RS_TOGGLESHADERSSCREENSPACE		L"ToggleShaderScreenSpace"
@@ -327,19 +333,20 @@
 #define IDS_RS_LCD_SUPPORT					L"LcdSupport"
 #define IDS_RS_WINMEDIACONTROLS				L"WinMediaControls"
 #define IDS_RS_SMARTSEEK					L"UseSmartSeek"
+#define IDS_RS_SMARTSEEK_ONLINE				L"UseSmartSeekOnline"
 #define IDS_RS_SMARTSEEK_SIZE				L"SmartSeekSize"
 #define IDS_RS_SMARTSEEK_VIDEORENDERER		L"SmartSeekVideoRenderer"
 #define IDS_RS_CHAPTER_MARKER				L"ChapterMarker"
 #define IDS_RS_FILENAMEONSEEKBAR			L"FileNameOnSeekBar"
 
 #define IDS_RS_REMAINING_TIME				L"RemainingTime"
+#define IDS_RS_SHOW_ZERO_HOURS				L"ShowZeroHours"
 
 #define IDS_RS_SHADERS_INITIALIZED			L"Initialized"
 
 #define IDS_RS_USE_FLYBAR					L"UseFlybar"
 #define IDS_RS_USE_FLYBAR_ONTOP				L"UseFlybarOnTop"
 
-#define IDS_RS_LAST_OPEN_FILTER_DIR			L"LastOpenFilterDir"
 #define IDS_RS_DLGPROPX						L"DlgPropX"
 #define IDS_RS_DLGPROPY						L"DlgPropY"
 

@@ -80,7 +80,6 @@ static const FFCodec * const codec_list[] = {
     &ff_vp7_decoder,
     &ff_vp8_decoder,
     &ff_vp9_decoder,
-    &ff_vvc_decoder,
     &ff_wmv1_decoder,
     &ff_wmv2_decoder,
     &ff_wmv3_decoder,
@@ -118,6 +117,7 @@ static const FFCodec * const codec_list[] = {
     &ff_mpc7_decoder,
     &ff_mpc8_decoder,
     &ff_nellymoser_decoder,
+    &ff_on2avc_decoder,
     &ff_opus_decoder,
     &ff_qdm2_decoder,
     &ff_qdmc_decoder,
@@ -165,7 +165,9 @@ static const FFCodec * const codec_list[] = {
     &ff_libdav1d_decoder,
     &ff_libspeex_decoder,
     &ff_libuavs3d_decoder,
+    &ff_libfdk_aac_decoder,
 
     &ff_av1_decoder, // after ff_libdav1d_decoder
+    &ff_libvvdec_decoder,
     NULL
 };

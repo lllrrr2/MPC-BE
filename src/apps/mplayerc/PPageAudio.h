@@ -1,6 +1,6 @@
 /*
  * (C) 2003-2006 Gabest
- * (C) 2006-2017 see Authors.txt
+ * (C) 2006-2024 see Authors.txt
  *
  * This file is part of MPC-BE.
  *
@@ -31,6 +31,7 @@ class CPPageAudio : public CPPageBase
 
 private:
 	CStringArray m_AudioRendererDisplayNames;
+	int m_oldVolume = 0; //not very nice solution
 
 public:
 	CPPageAudio();
@@ -38,16 +39,21 @@ public:
 
 	enum { IDD = IDD_PPAGEAUDIO };
 
-	int			m_iAudioRendererType;
+	int			m_iAudioRendererType = 0;
 	CComboBox	m_iAudioRendererTypeCtrl;
-	int			m_iSecAudioRendererType;
+	int			m_iSecAudioRendererType = 1;
 	CComboBox	m_iSecAudioRendererTypeCtrl;
 	CButton		m_audRendPropButton;
 	CButton		m_DualAudioOutput;
 
-	BOOL		m_fAutoloadAudio;
+	int			m_nVolume = 0;
+	CSliderCtrl	m_volumectrl;
+	int			m_nBalance = 0;
+	CSliderCtrl	m_balancectrl;
+
+	BOOL		m_fAutoloadAudio = FALSE;
 	CString		m_sAudioPaths;
-	BOOL		m_fPrioritizeExternalAudio;
+	BOOL		m_fPrioritizeExternalAudio = FALSE;
 
 	void ShowPPage(CUnknown* (WINAPI * CreateInstance)(LPUNKNOWN lpunk, HRESULT* phr));
 
@@ -59,8 +65,12 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 public:
+	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnAudioRendererChange();
 	afx_msg void OnAudioRenderPropClick();
 	afx_msg void OnDualAudioOutputCheck();
+	afx_msg void OnBalanceTextDblClk();
 	afx_msg void OnBnClickedResetAudioPaths();
+	virtual void OnCancel();
+	afx_msg BOOL OnToolTipNotify(UINT id, NMHDR* pNMHDR, LRESULT* pResult);
 };
